@@ -204,7 +204,7 @@ export const updateOrder = async (data, param) => {
 						}
 					}
 					if (!nereastStock) {
-						throw { status: 400, message: "Out of Inventoríes" };
+						throw { status: 400, message: "Out of Inventories" };
 					}
 					await db.Inventory.update(
 						{ quantity: nereastStock.quantity - e.quantity },
