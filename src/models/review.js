@@ -12,17 +12,17 @@ module.exports = (sequelize, DataTypes) => {
 				foreignKey: "user_id",
 			});
 			Review.belongsTo(models.Product_variant, {
-				foreignKey: "Product_variant_id",
+				foreignKey: "product_variant_id",
 			});
 		}
 	}
 	Review.init(
 		{
 			user_id: DataTypes.INTEGER,
-			Product_variant_id: DataTypes.INTEGER,
+			product_variant_id: DataTypes.INTEGER,
 			img: DataTypes.STRING,
 			rating: DataTypes.DECIMAL(1, 1),
-			comment: DataTypes.STRING,
+			review: DataTypes.STRING,
 		},
 		{
 			sequelize,
