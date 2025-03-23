@@ -1,18 +1,17 @@
 import db from "../models";
-export const addDiscount = async (data) => {
+export const createDiscount = async (data) => {
 	try {
-		const findDiscount = await db.Discount_code.findOne({
+		const existingDiscount = await db.Discount_code.findOne({
 			where: {
 				code: data.code,
 			},
 		});
-		if (findDiscount) {
-			throw { status: 400, message: "Discount code already exists" };
+		// check mã giảm giá
+		if (existingDiscount) {
+			throw { status: 400, message: "Mã giảm giá đã tồn tại" };
 		}
 		const response = await db.Discount_code.create(data);
-		if (response) {
-			return { data: response };
-		}
+		return { data: response };
 	} catch (error) {
 		console.error(error);
 		throw error;

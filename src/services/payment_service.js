@@ -17,7 +17,6 @@ export const createPayment = async (data) => {
 	const vnp_ReturnUrl = vnpConfig.vnp_ReturnUrl;
 	const date = new Date();
 	const createDate = format(date, "yyyyMMddHHmmss");
-	console.log(createDate);
 	const vnp_TxnRef = format(date, "HHmmss");
 	const orderInfo = `Thanh toan don hang ${data.order_id}`;
 	const orderType = "billpayment";
@@ -53,9 +52,7 @@ export const createPayment = async (data) => {
 export const getPayment = async (data) => {
 	const vnp_Params = data;
 	const secureHash = vnp_Params.vnp_SecureHash;
-	// biome-ignore lint/performance/noDelete: <explanation>
 	delete vnp_Params.vnp_SecureHash;
-	// biome-ignore lint/performance/noDelete: <explanation>
 	delete vnp_Params.vnp_SecureHashType;
 
 	// Sắp xếp lại các tham số
@@ -78,7 +75,7 @@ export const getPayment = async (data) => {
 				status: "Successfully",
 			});
 
-			return { message: "Giao dịch thành công", response };
+			return { message: "Thanh toán thành công", data: response };
 		}
 		await db.Payment.create({
 			order_id: number,
@@ -87,5 +84,5 @@ export const getPayment = async (data) => {
 		});
 		return { message: "Thanh toán thất bại" };
 	}
-	return { message: "URL đã bị thay đổi, không hợp lệ" };
+	return { message: "URL đã bị thay đổi, thanh toán không hợp lệ" };
 };

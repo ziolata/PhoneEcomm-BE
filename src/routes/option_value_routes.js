@@ -1,9 +1,9 @@
 import * as controller from "../controllers/optionValueController.js";
 import { Router } from "express";
-import { isAuthenticated, isAdmin } from "../middleware/checkauth.js";
+import { isAuthenticated } from "../middleware/checkauth.js";
 
 const routes = new Router();
 
-routes.post("/add", isAuthenticated, controller.addOptionValueController);
-
+routes.post("/add", isAuthenticated, controller.createOptionValueController);
+routes.get("/", controller.getAllOptionValueController);
 export default routes;

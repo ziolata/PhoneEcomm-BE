@@ -1,25 +1,24 @@
 const fs = require("fs");
 const path = require("path");
+const configPath = path.resolve(__dirname, "../config/config.js");
 const Sequelize = require("sequelize");
 const process = require("process");
 const basename = path.basename(__filename);
 const env = process.env.NODE_ENV || "development";
-const config = require(__dirname + "/../config/config.js")[env];
+const config = require(configPath)[env];
 const db = {};
 
-let sequelize;
-// Kiểm tra nếu có sử dụng biến môi trường cho connection string
-if (config.use_env_variable) {
-	sequelize = new Sequelize(process.env[config.use_env_variable], config);
-} else {
-	// Khởi tạo Sequelize với các giá trị từ config.js
-	sequelize = new Sequelize(
-		config.database,
-		config.username,
-		config.password,
-		config,
-	);
-}
+// Khởi tạo Sequelize với các giá trị từ config.js
+const sequelize = new Sequelize(
+	config.database,
+	config.username,
+	config.password,
+	{
+		host: config.host,
+		dialect: config.dialect,
+		logging: false,
+	},
+);
 
 // Đọc tất cả các model trong thư mục và khởi tạo
 fs.readdirSync(__dirname)

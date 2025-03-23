@@ -1,22 +1,14 @@
 import { register, login } from "../services/auth_service";
+import { authSchema } from "../validations/authValidation";
 
 export const registerController = async (req, res) => {
 	try {
-		const { email, password } = req.body;
-		if (!email || !password)
-			return res.status(400).json({
-				error: 1,
-				message: "Missing Payloads",
-			});
-		console.log(email, password);
-		const response = await register(email, password);
-
-		return res.status(200).json(response);
+		const response = await register(req.body);
+		return res.status(201).json(response);
 	} catch (error) {
-		return res.status(500).json({
-			error: -1,
-			message: "Server Internal Error",
-		});
+		const status = error.status;
+		const message = error.message;
+		return res.status(status).json({ message });
 	}
 };
 export const loginController = async (req, res) => {
@@ -25,9 +17,8 @@ export const loginController = async (req, res) => {
 		const response = await login(email, password);
 		return res.status(200).json(response);
 	} catch (error) {
-		return res.status(500).json({
-			error: -1,
-			message: "Server Internal Error",
-		});
+		const status = error.status;
+		const message = error.message;
+		return res.status(status).json({ message });
 	}
 };

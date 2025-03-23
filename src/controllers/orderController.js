@@ -1,9 +1,9 @@
 import * as services from "../services/order_service";
 
-export const addOrderController = async (req, res) => {
+export const createOrderController = async (req, res) => {
 	try {
 		req.body.user_id = req.user.id;
-		const response = await services.addOrder(req.body);
+		const response = await services.createOrder(req.body);
 		return res.status(201).json(response);
 	} catch (error) {
 		console.log(error);
@@ -12,12 +12,10 @@ export const addOrderController = async (req, res) => {
 		return res.status(status).json({ message });
 	}
 };
-export const getOrderController = async (req, res) => {
+export const getAllOrderController = async (req, res) => {
 	try {
-		console.log(req.ip);
-
 		const user = req.user.id;
-		const response = await services.getOrder(user);
+		const response = await services.getAllOrder(user);
 		return res.status(200).json(response);
 	} catch (error) {
 		return res.status(500).json({

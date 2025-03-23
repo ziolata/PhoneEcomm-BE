@@ -1,31 +1,34 @@
 import db from "../models/index.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { loginSchema, registerSchema } from "../validations/authValidation.js";
+import { handleValidate } from "../utils/handleValidation.js";
+import { hashPassword } from "../helper/hashPass.js";
 
-const hashPassword = (password) => {
-	return bcrypt.hashSync(password, bcrypt.genSaltSync(10));
-};
-export const register = async (email, password) => {
+export const register = async (data) => {
 	try {
+		handleValidate(registerSchema, data);
 		const [user, created] = await db.User.findOrCreate({
-			where: { email },
+			where: { email: data.email },
 			defaults: {
-				email,
-				password: hashPassword(password),
+				email: data.email,
+				fullname: data.fullname,
+				password: hashPassword(data.password),
 			},
 		});
-
 		if (created) {
-			return { message: "Register Successfully" }; // Tạo thành công
+			return { message: "Đăng ký thành công!" }; // Tạo thành công
 		}
-		return { message: "Email is already registered" }; // Email đã tồn tại
+		return { message: "Email đăng ký đã tồn tại!" }; // Email đã tồn tại
 	} catch (error) {
 		console.error(error);
-		throw new Error("Database Error");
+		throw error;
 	}
 };
+
 export const login = async (email, password) => {
 	try {
+		handleValidate(loginSchema, { email, password });
 		const info = await db.User.findOne({
 			where: { email },
 			include: {
@@ -43,12 +46,13 @@ export const login = async (email, password) => {
 			);
 			const bearerToken = `Bearer ${token}`;
 			return {
-				data: { message: "Login successfully", access_token: bearerToken },
+				data: { message: "Đăng nhập thành công", access_token: bearerToken },
 			};
 		}
-		return { message: "Incorrect email or password" };
+
+		return { message: "Sai email hoặc mật khẩu" };
 	} catch (error) {
 		console.error(error);
-		throw new Error("Database Error");
+		throw error;
 	}
 };

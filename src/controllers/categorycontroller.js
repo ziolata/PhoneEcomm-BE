@@ -1,7 +1,6 @@
 import * as Services from "../services/category_service";
-import { uploadImage } from "../utils/cloudinary";
-
-export const addCategoryController = async (req, res) => {
+import { uploadImage } from "../helper/cloudinary";
+export const createCategoryController = async (req, res) => {
 	try {
 		const imgFile = req.files.img;
 		const uploadResult = await uploadImage(
@@ -13,6 +12,8 @@ export const addCategoryController = async (req, res) => {
 		const response = await Services.addCategory(req.body);
 		return res.status(201).json(response);
 	} catch (error) {
+		console.log(error);
+
 		return res.status(500).json({
 			error: -1,
 			message: "Server Internal Error",
@@ -30,7 +31,7 @@ export const updateCategoryController = async (req, res) => {
 		);
 		req.body.img = uploadResult.img_url;
 		const response = await Services.updateCategory(req.body, id);
-		return res.status(201).json(response);
+		return res.status(200).json(response);
 	} catch (error) {
 		return res.status(500).json({
 			error: -1,
@@ -43,7 +44,7 @@ export const deleteCategoryController = async (req, res) => {
 		const { id } = req.params;
 
 		const response = await Services.deleteCategory(id);
-		return res.status(201).json(response);
+		return res.status(200).json(response);
 	} catch (error) {
 		return res.status(500).json({
 			error: -1,
@@ -51,7 +52,7 @@ export const deleteCategoryController = async (req, res) => {
 		});
 	}
 };
-export const getCategoryController = async (req, res) => {
+export const getAllCategoryController = async (req, res) => {
 	try {
 		const response = await Services.getCategory();
 		return res.status(200).json(response);

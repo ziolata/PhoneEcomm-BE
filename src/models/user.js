@@ -22,6 +22,7 @@ module.exports = (sequelize, DataTypes) => {
 			sex: DataTypes.ENUM("male", "female"),
 			phone: DataTypes.INTEGER,
 			role_id: DataTypes.INTEGER,
+			password_reset_token: DataTypes.INTEGER,
 		},
 		{
 			sequelize,

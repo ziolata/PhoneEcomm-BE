@@ -8,11 +8,19 @@ module.exports = (sequelize, DataTypes) => {
 		 */
 		static associate(models) {
 			// define association here
+			Discount_code.hasMany(models.User_Discount, {
+				foreignKey: "discount_code_id",
+			});
 		}
 	}
 	Discount_code.init(
 		{
-			target_type: DataTypes.ENUM("all", "category", "product", "brand"),
+			target_type: DataTypes.ENUM(
+				"all",
+				"category",
+				"product_variant",
+				"brand",
+			),
 			discount_type: DataTypes.ENUM(
 				"percentage_Discount_code",
 				"fixed_amount_Discount_code",
@@ -21,6 +29,10 @@ module.exports = (sequelize, DataTypes) => {
 			code: DataTypes.STRING,
 			value: DataTypes.DECIMAL(8, 2),
 			target_id: DataTypes.INTEGER,
+			min_value: DataTypes.INTEGER,
+			max_discount_amount: DataTypes.INTEGER,
+			usage_limit: DataTypes.INTEGER,
+			used_count: DataTypes.INTEGER,
 			expiry: DataTypes.DATEONLY,
 		},
 		{
