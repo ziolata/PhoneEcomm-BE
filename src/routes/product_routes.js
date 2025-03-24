@@ -1,11 +1,11 @@
-import * as controller from "../controllers/productcontroller.js";
+import * as controller from "../controllers/productController.js";
 import { Router } from "express";
-import { isAuthenticated, isAdmin } from "../middleware/checkauth.js";
+import { isAdmin } from "../middleware/checkauth.js";
 
 const routes = new Router();
 
-routes.get("/", controller.getProductController);
+routes.get("/", controller.getAllProductController);
 routes.get("/:id", controller.getOneProductController);
-routes.post("/add", controller.addProductController);
-
+routes.post("/add", isAdmin, controller.createProductController);
+routes.put("/update/:id", isAdmin, controller.updateProductController);
 export default routes;

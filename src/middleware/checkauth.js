@@ -1,7 +1,6 @@
-import { userSchema } from "../validators/schema";
+import { userSchema } from "../validations/authValidation";
 import createHttpError from "http-errors";
-import jwt from "jsonwebtoken";
-import { verifyToken } from "../utils/auth";
+import { verifyToken } from "../helper/auth";
 export const validateAuth = (req, res, next) => {
 	const { error } = userSchema.validate(req.body);
 	if (error) {
@@ -17,7 +16,6 @@ export const isAuthenticated = (req, res, next) => {
 		const token = headers?.split(" ")[1];
 		const user = verifyToken(token);
 		req.user = user;
-
 		next();
 	} catch (error) {}
 };
@@ -26,11 +24,12 @@ export const isAdmin = (req, res, next) => {
 		const headers = req.headers.authorization;
 		const token = headers?.split(" ")[1];
 		const user = verifyToken(token);
-		console.log(user);
 		req.user = user;
 		if (req.user.role === "USER") {
 			return res.status(401).json({ message: "Access denied" });
 		}
 		next();
-	} catch (error) {}
+	} catch (error) {
+		console.log(error);
+	}
 };

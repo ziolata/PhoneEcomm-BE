@@ -1,37 +1,50 @@
 import * as services from "../services/inventory_service";
 
-export const getInventoryController = async (req, res) => {
+export const getAllInventoryController = async (req, res) => {
 	try {
-		const response = await services.getDataInventory();
+		const response = await services.getAllInventory();
 		return res.status(200).json(response);
 	} catch (error) {
 		console.log(error);
 	}
 };
-export const addInventoryController = async (req, res) => {
+export const getOneInventoryController = async (req, res) => {
+	try {
+		const { id } = req.params;
+		const response = await services.getOneInventory(id);
+		return res.status(200).json(response);
+	} catch (error) {
+		console.log(error);
+	}
+};
+export const createInventoryController = async (req, res) => {
 	try {
 		const response = await services.addInventory(req.body);
 		return res.status(201).json(response);
 	} catch (error) {
-		console.log(error);
-		return { error };
+		const status = error.status;
+		const message = error.message;
+		return res.status(status).json({ message });
 	}
 };
-export const updateStockController = async (req, res) => {
+export const updateInventoryController = async (req, res) => {
 	try {
-		const response = await services.updateStock(req.body, req.params);
+		const { id } = req.params;
+		const response = await services.updateInventory(req.body, id);
 		return res.status(200).json(response);
 	} catch (error) {
-		console.log(error);
-		return { error };
+		const status = error.status;
+		const message = error.message;
+		return res.status(status).json({ message });
 	}
 };
-export const deleteStockController = async (req, res) => {
+export const deleteInventoryController = async (req, res) => {
 	try {
-		const response = await services.deleteStock(req.params);
-		return res.status(203).json(response);
+		const response = await services.deleteInventory(req.params);
+		return res.status(200).json(response);
 	} catch (error) {
-		console.log(error);
-		return { error };
+		const status = error.status;
+		const message = error.message;
+		return res.status(status).json({ message });
 	}
 };
