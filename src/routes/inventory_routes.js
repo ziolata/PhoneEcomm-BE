@@ -1,12 +1,13 @@
 import * as controller from "../controllers/inventoryController.js";
 import { Router } from "express";
-import { isAuthenticated, isAdmin } from "../middleware/checkauth.js";
+import { isAdmin } from "../middleware/checkauth.js";
 
 const routes = new Router();
 
-routes.get("/", controller.getInventoryController);
-routes.post("/add", controller.addInventoryController);
-routes.put("/update/:id", controller.updateStockController);
-routes.delete("/delete/:id", controller.deleteStockController);
+routes.get("/", controller.getAllInventoryController);
+routes.get("/:id", controller.getOneInventoryController);
+routes.post("/add", isAdmin, controller.createInventoryController);
+routes.put("/update/:id", isAdmin, controller.updateInventoryController);
+routes.delete("/delete/:id", isAdmin, controller.deleteInventoryController);
 
 export default routes;

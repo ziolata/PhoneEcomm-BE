@@ -1,6 +1,6 @@
 import db from "../models";
 
-export const getDataInventory = async () => {
+export const getAllInventory = async () => {
 	try {
 		const response = await db.Inventory.findAll();
 		return { data: response };
@@ -9,8 +9,34 @@ export const getDataInventory = async () => {
 		throw error;
 	}
 };
-export const addInventory = async (data) => {
+export const getOneInventory = async (id) => {
 	try {
+		const response = await db.Inventory.findByPk(id);
+		return { data: response };
+	} catch (error) {
+		console.log(error);
+		throw error;
+	}
+};
+export const createInventory = async (data) => {
+	try {
+		const existingInventory = await db.Inventory.findOne({
+			where: {
+				name: data.name,
+			},
+		});
+		if (existingInventory.name === data.name) {
+			throw {
+				status: 400,
+				message: "Tên kho đã tồn tại, vui lòng chọn tên khác",
+			};
+		}
+		if (!existingInventory) {
+			throw {
+				status: 404,
+				message: "Kho không tồn tại, cập nhật không thành công",
+			};
+		}
 		const response = await db.Inventory.create(data);
 		return { data: response };
 	} catch (error) {
@@ -18,26 +44,64 @@ export const addInventory = async (data) => {
 		throw error;
 	}
 };
-export const updateStock = async (data, param) => {
+export const updateInventory = async (data, param) => {
 	try {
-		const response = await db.Stock.update(data, {
+		const existingInventory = await db.Inventory.findOne({
 			where: {
 				id: param,
 			},
 		});
+		if (!existingInventory) {
+			throw {
+				status: 404,
+				message: "Kho không tồn tại, cập nhật không thành công",
+			};
+		}
+		if (existingInventory.name === data.name) {
+			throw {
+				status: 400,
+				message: "Tên kho đã tồn tại, vui lòng chọn tên khác",
+			};
+		}
+		const response = await db.Inventory.update(
+			{
+				name: data.name,
+				quantity: data.quantity,
+				location: data.location,
+				product_variant_id: product_variant_id,
+			},
+			{
+				where: {
+					id: param,
+				},
+			},
+		);
 		return { data: response };
 	} catch (error) {
 		console.log(error);
 		throw error;
 	}
 };
-export const deleteStock = async (param) => {
+export const deleteInventory = async (param) => {
 	try {
-		await db.Stock.destroy({
+		const existingInventory = await db.Inventory.findOne({
 			where: {
 				id: param,
 			},
 		});
-		return { message: "Delete successfully" };
-	} catch (error) {}
+		if (!existingInventory) {
+			throw {
+				status: 404,
+				message: "Kho không tồn tại, xóa không thành công",
+			};
+		}
+		await db.Inventory.destroy({
+			where: {
+				id: param,
+			},
+		});
+		return { message: "Xóa thành công!" };
+	} catch (error) {
+		console.log(error);
+	}
 };

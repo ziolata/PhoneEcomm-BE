@@ -21,7 +21,7 @@ module.exports = (sequelize, DataTypes) => {
 			user_id: DataTypes.INTEGER,
 			product_variant_id: DataTypes.INTEGER,
 			img: DataTypes.STRING,
-			rating: DataTypes.DECIMAL(1, 1),
+			rating: DataTypes.DECIMAL(3, 2),
 			review: DataTypes.STRING,
 		},
 		{
