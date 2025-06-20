@@ -9,9 +9,13 @@ export const createAddress = async (data) => {
 		throw error;
 	}
 };
-export const getAllAddress = async () => {
+export const getAllAddress = async (user) => {
 	try {
-		const response = await db.Address.findAll();
+		const response = await db.Address.findAll({
+			where: {
+				user_id: user,
+			},
+		});
 		return response;
 	} catch (error) {
 		console.log(error);
