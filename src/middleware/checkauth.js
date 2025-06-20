@@ -1,6 +1,6 @@
-import { userSchema } from "../validations/authValidation";
+import { userSchema } from "../validations/user-validation.js";
 import createHttpError from "http-errors";
-import { verifyToken } from "../helper/auth";
+import { verifyToken } from "../utils/auth-utils.js";
 export const validateAuth = (req, res, next) => {
 	const { error } = userSchema.validate(req.body);
 	if (error) {

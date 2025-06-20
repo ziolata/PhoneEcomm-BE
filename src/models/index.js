@@ -1,11 +1,16 @@
-const fs = require("fs");
-const path = require("path");
-const configPath = path.resolve(__dirname, "../config/config.js");
-const Sequelize = require("sequelize");
-const process = require("process");
+import fs from "fs";
+import path from "path";
+import configPath from "../config/config.js";
+import Sequelize from "sequelize";
+import { fileURLToPath } from "url";
+import process from "process";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const basename = path.basename(__filename);
 const env = process.env.NODE_ENV || "development";
-const config = require(configPath)[env];
+const config = configPath[env];
+
 const db = {};
 
 // Khởi tạo Sequelize với các giá trị từ config.js
@@ -21,32 +26,30 @@ const sequelize = new Sequelize(
 );
 
 // Đọc tất cả các model trong thư mục và khởi tạo
-fs.readdirSync(__dirname)
-	.filter((file) => {
-		return (
-			file.indexOf(".") !== 0 && // Bỏ qua các tệp ẩn
-			file !== basename && // Bỏ qua chính tệp index.js
-			file.slice(-3) === ".js" && // Chỉ lấy các tệp JavaScript
-			file.indexOf(".test.js") === -1 // Bỏ qua các tệp test
-		);
-	})
-	.forEach((file) => {
-		const model = require(path.join(__dirname, file))(
-			sequelize,
-			Sequelize.DataTypes,
-		);
-		db[model.name] = model;
-	});
+const files = fs.readdirSync(__dirname);
 
-// Gọi associate nếu model có định nghĩa quan hệ
+for (const file of files) {
+	if (
+		file.indexOf(".") !== 0 &&
+		file !== basename &&
+		file.slice(-3) === ".js" &&
+		file.indexOf(".test.js") === -1
+	) {
+		const { default: modelDefiner } = await import(`./${file}`);
+		const model = modelDefiner(sequelize, Sequelize.DataTypes);
+		db[model.name] = model;
+	}
+}
+
+// Gọi associate nếu có
 Object.keys(db).forEach((modelName) => {
 	if (db[modelName].associate) {
 		db[modelName].associate(db);
 	}
 });
-
 // Gắn Sequelize và instance vào đối tượng db
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
-module.exports = db;
+export { sequelize };
+export default db;
