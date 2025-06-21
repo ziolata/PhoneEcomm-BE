@@ -1,9 +1,10 @@
 import express from "express";
-import { config } from "./database/config";
+import { config } from "./database/config.js";
 import cors from "cors";
-import { Routers } from "./routes";
+import { Routers } from "./routes/index.js";
 import fileUpload from "express-fileupload";
 import compression from "compression";
+import { errorHandler } from "./middleware/error-handle-middleware.js";
 // import cluster from "cluster";
 // import os from "os";
 const app = express();
@@ -47,6 +48,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(fileUpload({ useTempFiles: true, tempFileDir: "/tmp/" }));
 app.use(compression());
 Routers(app);
+app.use(errorHandler);
 
 app.listen(config.port, () => {
 	console.log("Server đang hoạt động bình thường");
