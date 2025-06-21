@@ -8,6 +8,7 @@ export const getAllInventoryController = async (req, res, next) => {
 		next(error);
 	}
 };
+
 export const getOneInventoryController = async (req, res, next) => {
 	try {
 		const { id } = req.params;
@@ -17,6 +18,17 @@ export const getOneInventoryController = async (req, res, next) => {
 		next(error);
 	}
 };
+
+export const getInventoryByVariantIdController = async (req, res, next) => {
+	try {
+		const { product_variant_id } = req.params;
+		const response = await services.getInventoryByVariantId(product_variant_id);
+		return res.status(200).json(response);
+	} catch (error) {
+		next(error);
+	}
+};
+
 export const createInventoryController = async (req, res, next) => {
 	try {
 		const response = await services.addInventory(req.body);
@@ -25,6 +37,7 @@ export const createInventoryController = async (req, res, next) => {
 		next(error);
 	}
 };
+
 export const updateInventoryController = async (req, res, next) => {
 	try {
 		const { id } = req.params;
@@ -34,6 +47,7 @@ export const updateInventoryController = async (req, res, next) => {
 		next(error);
 	}
 };
+
 export const deleteInventoryController = async (req, res, next) => {
 	try {
 		const { id } = req.params;
