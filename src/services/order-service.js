@@ -96,7 +96,7 @@ export const deleteOrder = async (id) => {
 			};
 		}
 		await db.Order.destroy({
-			where: id,
+			where: { id },
 		});
 
 		return { message: "Xóa thành công!" };
@@ -136,7 +136,7 @@ export const updateOrder = async (data, id) => {
 				status: data.status,
 			},
 			{
-				where: id,
+				where: { id },
 			},
 		);
 		// Cập nhật lại tồn kho khi status shipping

@@ -91,7 +91,7 @@ export const updateProductVariant = async (data, id) => {
 			price: data.price,
 		},
 		{
-			where: id,
+			where: { id },
 		},
 	);
 	await client.index({
@@ -109,7 +109,7 @@ export const updateProductVariant = async (data, id) => {
 export const deleteProductVariant = async (id) => {
 	await getProductVariantOrThrowById(id);
 	await db.Product_variant.destroy({
-		where: id,
+		where: { id },
 	});
 	return successResponse("Xóa thành công!");
 };

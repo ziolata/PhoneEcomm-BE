@@ -23,7 +23,7 @@ const getProductOrThrowById = async (id) => {
 };
 
 const throwIfProductNameValueExists = async (name) => {
-	const foundProduct = await db.Product.findOne({ where: name });
+	const foundProduct = await db.Product.findOne({ where: { name } });
 	if (foundProduct) {
 		throwError(400, "Tên sản phẩm đã tồn tại!");
 	}
@@ -55,7 +55,7 @@ export const updateProduct = async (data, id) => {
 			brand_id: data.brand_id,
 		},
 		{
-			where: id,
+			where: { id },
 		},
 	);
 	return successResponse("Cập nhật thành công!");
@@ -64,7 +64,7 @@ export const updateProduct = async (data, id) => {
 export const deleteProduct = async (id) => {
 	await getProductOrThrowById(id);
 	await db.Product.destroy({
-		where: id,
+		where: { id },
 	});
 
 	return successResponse("Xóa thành công!");

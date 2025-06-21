@@ -26,7 +26,7 @@ export const updateProfile = async (data, id) => {
 			phone: data.phone,
 		},
 		{
-			where: id,
+			where: { id },
 		},
 	);
 	return successResponse("Cập nhật thành công!");

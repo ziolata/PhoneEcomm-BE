@@ -33,7 +33,7 @@ export const createReview = async (data, user_id) => {
 };
 
 export const getAllReview = async (product_variant_id) => {
-	const response = await db.Review.findAll({ where: product_variant_id });
+	const response = await db.Review.findAll({ where: { product_variant_id } });
 	return successResponse(
 		`Lấy danh sách đánh giá của sản phẩm ${product_variant_id} thành công!`,
 		response,
