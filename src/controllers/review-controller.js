@@ -1,23 +1,21 @@
 import * as services from "../services/review-service.js";
 
-export const createReviewController = async (req, res) => {
+export const createReviewController = async (req, res, next) => {
 	try {
-		req.body.user_id = req.user.id;
-		const response = await services.createReview(req.body);
+		const user_id = req.user.id;
+		const response = await services.createReview(req.body, user_id);
 		return res.status(201).json(response);
 	} catch (error) {
-		console.log(error);
-		const status = error.status;
-		const message = error.message;
-		return res.status(status).json({ message });
+		next(error);
 	}
 };
 
-export const getAllReviewController = async (req, res) => {
+export const getAllReviewController = async (req, res, next) => {
 	try {
-		const response = await services.getAllReview();
+		const productVariantId = req.body.product_variant_id;
+		const response = await services.getAllReview(productVariantId);
 		return res.status(200).json(response);
 	} catch (error) {
-		console.log(error);
+		next(error);
 	}
 };

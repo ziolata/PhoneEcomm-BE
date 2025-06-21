@@ -1,6 +1,6 @@
 import * as controller from "../controllers/inventory-controller.js";
 import { Router } from "express";
-import { isAdmin } from "../middleware/checkauth.js";
+import { isAdmin } from "../middleware/auth-middleware.js";
 
 const routes = new Router();
 

@@ -1,56 +1,51 @@
 import db from "../models/index.js";
+import { successResponse, throwError } from "../utils/response-utils.js";
+
+export const getOptionOrThrowById = async (id) => {
+	const foundOption = await db.Option.findByPk(id);
+	if (!foundOption) {
+		throwError(404, "Không tìm thấy kho!");
+	}
+	return foundOption;
+};
+
+const throwIfOptionNameExists = async (name) => {
+	const foundOption = await db.Option.findOne({ where: name });
+	if (foundOption) {
+		throwError(400, "Tên option đã tồn tại!");
+	}
+	return foundOption;
+};
 
 export const createOption = async (data) => {
-	try {
-		const optionExist = await db.Option.findOne({
-			where: {
-				name: data.name,
-			},
-		});
-		if (optionExist) {
-			throw { status: 400, message: "Tên Option đã tồn tại" };
-		}
-		const response = await db.Option.create(data);
-		return { data: response };
-	} catch (error) {
-		console.log(error);
-		throw error;
-	}
+	await throwIfOptionNameExists(data.name);
+	const response = await db.Option.create(data);
+	return successResponse("Thêm thành công!", response);
 };
-export const updateOption = async (data) => {
-	try {
-		const existingOption = await db.Option.findOne({
-			where: {
-				id: data.id,
-			},
-		});
-		if (!existingOption) {
-			throw { status: 404, message: "Option không tồn tại không thể thêm" };
-		}
-		if (existingOption.name === data.name) {
-			throw { status: 400, message: "Tên option đã tồn tại" };
-		}
-		await db.Option.update(
-			{
-				name: data.name,
-			},
-			{
-				where: {
-					id: data.id,
-				},
-			},
-		);
-		return { message: "Cập nhật thành công" };
-	} catch (error) {
-		console.log(error);
-		throw error;
-	}
-};
+
 export const getAllOption = async () => {
-	try {
-		const response = await db.Option.findAll();
-		return { data: response };
-	} catch (error) {
-		console.log(error);
-	}
+	const response = await db.Option.findAll();
+	return successResponse("Lấy danh sách option thành công!", response);
+};
+
+export const updateOption = async (data, id) => {
+	await getOptionOrThrowById(id);
+	await throwIfOptionNameExists(data.name);
+	await db.Option.update(
+		{
+			name: data.name,
+		},
+		{
+			where: id,
+		},
+	);
+	return successResponse("Cập nhật thành công!");
+};
+
+export const deleteOption = async (data, id) => {
+	await getOptionOrThrowById(id);
+	await db.Option.destroy({
+		where: id,
+	});
+	return successResponse("Xóa thành công!");
 };

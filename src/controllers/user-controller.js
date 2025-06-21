@@ -1,64 +1,51 @@
 import * as Services from "../services/user-service.js";
 
-export const getProfileController = async (req, res) => {
+export const getProfileController = async (req, res, next) => {
 	try {
-		const response = await Services.getProfile();
-
+		const user_id = req.user.id;
+		const response = await Services.getProfileUser(user_id);
 		return res.status(200).json(response);
 	} catch (error) {
-		console.log(error);
-		const status = error.status;
-		const message = error.message;
-		return res.status(status).json({ message });
+		next(error);
 	}
 };
-export const updateProfileController = async (req, res) => {
+
+export const updateProfileController = async (req, res, next) => {
 	try {
 		const { id } = req.params;
 		const response = await Services.updateProfile(req.body, id);
 		return res.status(200).json(response);
 	} catch (error) {
-		console.log(error);
-		const status = error.status;
-		const message = error.message;
-		return res.status(status).json({ message });
+		next(error);
 	}
 };
-export const changePasswordController = async (req, res) => {
+
+export const changePasswordController = async (req, res, next) => {
 	try {
 		req.body.email = req.user.email;
-		console.log(req.body);
-
 		const response = await Services.changePassword(req.body);
 		return res.status(200).json(response);
 	} catch (error) {
-		console.log(error);
-		const status = error.status;
-		const message = error.message;
-		return res.status(status).json({ message });
+		next(error);
 	}
 };
-export const forgotPasswordController = async (req, res) => {
+
+export const forgotPasswordController = async (req, res, next) => {
 	try {
 		const response = await Services.forgotPassword(req.body.email);
 		return res.status(200).json(response);
 	} catch (error) {
-		console.log(error);
-		const status = error.status;
-		const message = error.message;
-		return res.status(status).json({ message });
+		next(error);
 	}
 };
-export const resetPasswordController = async (req, res) => {
+
+export const resetPasswordController = async (req, res, next) => {
 	try {
 		const { token } = req.params;
 		req.body.token = token;
 		const response = await Services.resetPassword(req.body);
 		return res.status(200).json(response);
 	} catch (error) {
-		console.log(error);
-		const status = error.status;
-		const message = error.message;
-		return res.status(status).json({ message });
+		next(error);
 	}
 };

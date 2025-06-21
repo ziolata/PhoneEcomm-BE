@@ -6,122 +6,98 @@ import { changePasswordValidate } from "../validations/user-validation.js";
 import { hashPassword } from "../utils/hash-utils.js";
 import { verifyToken } from "../utils/auth-utils.js";
 import { sendResetEmail } from "../utils/email-utils.js";
+import { successResponse, throwError } from "../utils/response-utils.js";
 
-export const getProfile = async () => {
-	try {
-		const response = await db.User.findAll({
-			where: {
-				id: user_id,
-			},
-		});
-		return response;
-	} catch (error) {
-		console.log(error);
-		throw error;
-	}
+export const getProfileUser = async (user_id) => {
+	const response = await db.User.findOne({
+		where: {
+			id: user_id,
+		},
+	});
+	return successResponse("Lấy thông tin thành công!", response);
 };
-export const updateProfile = async (data, param) => {
-	try {
-		handleValidate(userSchema, data);
-		const response = await db.User.update(
-			{
-				fullname: data.fullname,
-				avatar: data.avatar,
-				phone: data.phone,
-			},
+
+export const updateProfile = async (data, id) => {
+	handleValidate(userSchema, data);
+	await db.User.update(
+		{
+			fullname: data.fullname,
+			avatar: data.avatar,
+			phone: data.phone,
+		},
+		{
+			where: id,
+		},
+	);
+	return successResponse("Cập nhật thành công!");
+};
+
+export const changePassword = async (data) => {
+	const emailExist = await db.User.findOne({
+		where: {
+			email: data.email,
+		},
+	});
+	if (emailExist && bcrypt.compareSync(data.password, emailExist.password)) {
+		handleValidate(changePasswordValidate);
+		await db.User.update(
+			{ password: hashPassword(data.newpassword) },
 			{
 				where: {
-					id: param,
+					email: emailExist.email,
 				},
 			},
 		);
-		if (response) {
-			return { message: "Cập nhật thành công" };
-		}
-	} catch (error) {
-		console.log(error);
-		throw error;
+		return successResponse("Đổi mật khẩu thành công!");
 	}
 };
-export const changePassword = async (data) => {
-	try {
-		const emailExist = await db.User.findOne({
-			where: {
-				email: data.email,
-			},
-		});
-		if (emailExist && bcrypt.compareSync(data.password, emailExist.password)) {
-			handleValidate(changePasswordValidate);
-			await db.User.update(
-				{ password: hashPassword(data.newpassword) },
-				{
-					where: {
-						email: emailExist.email,
-					},
-				},
-			);
-			return { message: "Đổi mật khẩu thành công!" };
-		}
-	} catch (error) {
-		console.log(error);
-	}
-};
+
 export const forgotPassword = async (email) => {
-	try {
-		const emailExist = await db.User.findOne({
-			where: {
-				email: email,
-			},
-		});
-		if (!emailExist) {
-			throw { status: 400, message: "Email không tồn tại" };
-		}
-		const token = jwt.sign(
-			{ id: emailExist.id, email: emailExist.email },
-			process.env.JWT_SECRET,
-			{
-				expiresIn: "15m",
-			},
-		);
-		await db.User.update(
-			{ password_reset_token: token },
-			{ where: { id: emailExist.id } },
-		);
-		const link = `http://127.0.0.1:5000/api/v1/user/reset_password/${token}`;
-		await sendResetEmail(email, link);
-		return { message: "Yêu cầu đã được gửi vào email!" };
-	} catch (error) {
-		console.log(error);
-		throw error;
+	const emailExist = await db.User.findOne({
+		where: {
+			email: email,
+		},
+	});
+	if (!emailExist) {
+		throw { status: 400, message: "Email không tồn tại" };
 	}
+	const token = jwt.sign(
+		{ id: emailExist.id, email: emailExist.email },
+		process.env.JWT_SECRET,
+		{
+			expiresIn: "15m",
+		},
+	);
+	await db.User.update(
+		{ password_reset_token: token },
+		{ where: { id: emailExist.id } },
+	);
+	const link = `${process.env.LINK_EMAIL}/${token}`;
+	await sendResetEmail(email, link);
+	return successResponse("Yêu cầu đã được gửi vào email!");
 };
 export const resetPassword = async (data) => {
-	try {
-		const user = await db.User.findOne({
-			where: {
-				password_reset_token: data.token,
-			},
-		});
-		if (!user) {
-			throw { status: 404, message: "Yêu cầu đổi mật khẩu không hợp lệ!" };
-		}
-		const decode = verifyToken(data.token);
-
-		await db.User.update(
-			{
-				password: hashPassword(data.password),
-				password_reset_token: null,
-			},
-			{
-				where: {
-					email: decode.email,
-				},
-			},
-		);
-
-		return { message: "Đặt lại mật khẩu thành công!" };
-	} catch (error) {
-		console.log(error);
-		throw error;
+	const user = await db.User.findOne({
+		where: {
+			password_reset_token: data.token,
+		},
+	});
+	if (!user) {
+		throwError(404, "Yêu cầu đổi mật khẩu không hợp lệ!");
 	}
+	const decode = verifyToken(data.token);
+
+	await db.User.update(
+		{
+			password: hashPassword(data.password),
+			password_reset_token: null,
+		},
+		{
+			where: {
+				email: decode.email,
+			},
+		},
+	);
+
+	return successResponse("Đặt lại mật khẩu thành công!");
 };

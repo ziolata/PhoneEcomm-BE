@@ -1,5 +1,14 @@
 import db, { sequelize } from "../models/index.js";
+import { successResponse, throwError } from "../utils/response-utils.js";
 import { client } from "../config/elastic.js";
+
+const getProductVariantOrThrowById = async (id) => {
+	const foundProductVariant = await db.Product_variant.findByPk(id);
+	if (!foundProductVariant) {
+		throwError(404, "Không tìm thấy biến thể sản phẩm!");
+	}
+	return foundProductVariant;
+};
 
 export const createProductVariant = async (data) => {
 	const transaction = await sequelize.transaction();
@@ -42,79 +51,65 @@ export const createProductVariant = async (data) => {
 			},
 		});
 
-		return { data: response };
+		return successResponse(
+			`Thêm biến thể sản phẩm có id: ${product_id} thành công!`,
+			response,
+		);
 	} catch (error) {
-		console.log(error);
 		await transaction.rollback();
 		throw error;
 	}
 };
 
 export const getAllProductVariant = async () => {
-	try {
-		const response = await db.Product_variant.findAll();
-		return { data: response };
-	} catch (error) {
-		console.log(error);
-	}
+	const response = await db.Product_variant.findAll();
+	return successResponse(
+		"Lấy danh sách biến thể sản phẩm thành công!",
+		response,
+	);
 };
 
-export const getOneProductVariant = async (param) => {
-	try {
-		const response = await db.Product_variant.findByPk(param);
-		return { data: response };
-	} catch (error) {
-		console.log(error);
-	}
+export const getOneProductVariant = async (id) => {
+	const foundProductVarian = await getProductVariantOrThrowById(id);
+	return successResponse(
+		`Lấy thông tin biến thể sản phẩm có id:${id} thành công! `,
+		foundProductVarian,
+	);
 };
-export const updateProductVariant = async (data, param) => {
-	try {
-		const foundProduct = await db.Product.findByPk(data.product_id);
-		if (foundProduct) {
-			throw { status: 404, message: "Product id không tồn tại!" };
-		}
-		const response = await db.Product_variant.update(
-			{
-				product_id: data.product_id,
-				img: data.img,
-				sku: data.sku,
-				price: data.price,
-			},
-			{
-				where: { id: param },
-			},
-		);
-		await client.index({
-			index: "product_variants", // Index name
-			id: String(response.id),
-			body: {
-				name: foundProduct.name,
-				sku: response.sku,
-				price: response.price,
-			},
-		});
-		return { message: "Cập nhật thành công!" };
-	} catch (error) {
-		console.error(error);
-		throw error;
+
+export const updateProductVariant = async (data, id) => {
+	await getProductVariantOrThrowById(id);
+	const foundProduct = await db.Product.findByPk(data.product_id);
+	if (foundProduct) {
+		throw { status: 404, message: "Product id không tồn tại!" };
 	}
+	const response = await db.Product_variant.update(
+		{
+			product_id: data.product_id,
+			img: data.img,
+			sku: data.sku,
+			price: data.price,
+		},
+		{
+			where: id,
+		},
+	);
+	await client.index({
+		index: "product_variants", // Index name
+		id: String(response.id),
+		body: {
+			name: foundProduct.name,
+			sku: response.sku,
+			price: response.price,
+		},
+	});
+	return successResponse("Cập nhật thành công!");
 };
+
 export const deleteProductVariant = async (id) => {
-	try {
-		const existingProductVariant = await db.Product_variant.findByPk(id);
-		if (!existingProductVariant) {
-			throw { status: 404, message: "Biến thể không tồn tại, xóa thất bại!" };
-		}
-		await db.Product_variant.destroy({
-			where: {
-				id: id,
-			},
-		});
-		return {
-			message: "Xóa thành công!",
-		};
-	} catch (error) {
-		console.error(error);
-		throw error;
-	}
+	await getProductVariantOrThrowById(id);
+	await db.Product_variant.destroy({
+		where: id,
+	});
+	return successResponse("Xóa thành công!");
 };

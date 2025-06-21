@@ -1,44 +1,38 @@
 import * as services from "../services/order-service.js";
 
-export const createOrderController = async (req, res) => {
+export const createOrderController = async (req, res, next) => {
 	try {
-		req.body.user_id = req.user.id;
-		const response = await services.createOrder(req.body);
+		const user_id = req.user.id;
+		const response = await services.createOrder(req.body, user_id);
 		return res.status(201).json(response);
 	} catch (error) {
-		console.log(error);
-		const status = error.status;
-		const message = error.message;
-		return res.status(status).json({ message });
+		next(error);
 	}
 };
-export const getAllOrderController = async (req, res) => {
+export const getAllOrderController = async (req, res, next) => {
 	try {
 		const user = req.user.id;
 		const response = await services.getAllOrder(user);
 		return res.status(200).json(response);
 	} catch (error) {
-		return res.status(500).json({
-			error: -1,
-			message: "Server Internal Error",
-		});
+		next(error);
 	}
 };
-export const updateOrderController = async (req, res) => {
+export const updateOrderController = async (req, res, next) => {
 	try {
 		const { id } = req.params;
 		const response = await services.updateOrder(req.body, id);
 		return res.status(203).json(response);
 	} catch (error) {
-		console.log(error);
-		const statusError = error.status || 500;
-		const message = error.message || "Server Internal Error";
-		return res.status(statusError).json({ message });
+		next(error);
 	}
 };
-export const deleteOrderController = async (req, res) => {
+export const deleteOrderController = async (req, res, next) => {
 	try {
-		const response = await services.deleteOrder(req.params);
-		return res.status(200);
-	} catch (error) {}
+		const { id } = req.params;
+		const response = await services.deleteOrder(id);
+		return res.status(200).json(response);
+	} catch (error) {
+		next(error);
+	}
 };

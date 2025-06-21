@@ -1,19 +1,18 @@
 import * as services from "../services/discountcode-service.js";
 import Randomstring from "randomstring";
 
-export const createDiscountController = async (req, res) => {
+export const createDiscountController = async (req, res, next) => {
 	try {
 		const randomCode = Randomstring.generate();
 		req.body.code = randomCode;
 		const response = await services.createDiscount(req.body);
 		return res.status(201).json(response);
 	} catch (error) {
-		const status = error.status;
-		const message = error.message;
-		return res.status(status).json({ message });
+		next(error);
 	}
 };
-export const createMultiDiscountController = async (req, res) => {
+
+export const createMultiDiscountController = async (req, res, next) => {
 	try {
 		const numberCode = req.body.number;
 		const discounts = [];
@@ -25,6 +24,6 @@ export const createMultiDiscountController = async (req, res) => {
 		}
 		return res.status(201).json(discounts);
 	} catch (error) {
-		console.log(error);
+		next(error);
 	}
 };

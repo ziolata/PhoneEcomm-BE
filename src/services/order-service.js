@@ -1,15 +1,18 @@
-import db from "../models/index.js";
+import db, { sequelize } from "../models/index.js";
 import { calculateDistance } from "../utils/calculate-utils.js";
 import { sendEmailOrder } from "../utils/email-utils.js";
 import { calculateTotalPrice } from "../utils/calculate-utils.js";
-export const createOrder = async (data) => {
+import { successResponse, throwError } from "../utils/response-utils.js";
+
+export const createOrder = async (data, user_id) => {
+	const transaction = await sequelize.transaction();
 	try {
 		const productVariantData = [];
 
 		// Lấy dữ liệu từ giỏ hàng
 		const CartData = await db.Cart.findOne({
 			where: {
-				user_id: data.user_id,
+				user_id,
 			},
 			include: {
 				model: db.Cart_item,
@@ -19,36 +22,42 @@ export const createOrder = async (data) => {
 
 		const foundEmail = await db.User.findOne({
 			where: {
-				id: data.user_id,
+				id: user_id,
 			},
 		});
 		const totalInfo = await calculateTotalPrice(
-			data.user_id,
+			user_id,
 			data.discount_code,
 			CartData.Cart_items,
 		);
 		console.log(totalInfo);
 
 		// Tạo dữ liệu order
-		const response = await db.Order.create({
-			user_id: data.user_id,
-			total_amount: totalInfo.totalPrice,
-			discount_code_id: totalInfo.foundCode ? totalInfo.foundCode.id : null,
-		});
+		const response = await db.Order.create(
+			{
+				user_id,
+				total_amount: totalInfo.totalPrice,
+				discount_code_id: totalInfo.foundCode ? totalInfo.foundCode.id : null,
+			},
+			{ transaction },
+		);
 		// Tạo các order item dựa trên dữ liệu của giỏ hàng
 		for (const q of CartData.Cart_items) {
 			const productData = await db.Product_variant.findByPk(
 				q.product_variant_id,
 			);
 			productVariantData.push(productData);
-			await db.Order_item.create({
-				order_id: response.id,
-				product_variant_id: q.product_variant_id,
-				quantity: q.quantity,
-				price: productData.price * q.quantity,
-			});
+			await db.Order_item.create(
+				{
+					order_id: response.id,
+					product_variant_id: q.product_variant_id,
+					quantity: q.quantity,
+					price: productData.price * q.quantity,
+				},
+				{ transaction },
+			);
 		}
-
+		await transaction.commit();
 		// Lưu các thông tin liên quan đến ship.
 		// if (!data.shipping) {
 		// 	throw { status: 400, message: "Vui lòng cập nhật địa chỉ nhận hàng!" };
@@ -61,24 +70,25 @@ export const createOrder = async (data) => {
 		// 	shipfee: total_price * 0.015 + 15000,
 		// });
 		// Xóa giỏ hàng khi đã checkout thành công
-		await db.Cart.destroy({
-			where: {
-				user_id: data.user_id,
+		await db.Cart.destroy(
+			{
+				where: {
+					user_id,
+				},
 			},
-		});
-
-		sendEmailOrder(foundEmail.email, productVariantData);
-		return {
-			data: response,
-		};
+			{ transaction },
+		);
+		await sendEmailOrder(foundEmail.email, productVariantData);
+		return successResponse("Đặt hàng thành công!", response);
 	} catch (error) {
-		console.log(error);
+		await transaction.rollback();
 		throw error;
 	}
 };
-export const deleteOrder = async (param) => {
+
+export const deleteOrder = async (id) => {
 	try {
-		const foundOrder = await db.Order.findByPk(param);
+		const foundOrder = await db.Order.findByPk(id);
 		if (!foundOrder) {
 			throw {
 				status: 404,
@@ -86,7 +96,7 @@ export const deleteOrder = async (param) => {
 			};
 		}
 		await db.Order.destroy({
-			where: { id: param },
+			where: id,
 		});
 
 		return { message: "Xóa thành công!" };
@@ -95,9 +105,10 @@ export const deleteOrder = async (param) => {
 		throw new Error("Database Error");
 	}
 };
-export const updateOrder = async (data, param) => {
+
+export const updateOrder = async (data, id) => {
 	try {
-		const orderData = await db.Order.findByPk(param, {
+		const orderData = await db.Order.findByPk(id, {
 			include: [
 				{
 					model: db.Order_item,
@@ -125,7 +136,7 @@ export const updateOrder = async (data, param) => {
 				status: data.status,
 			},
 			{
-				where: { id: param },
+				where: id,
 			},
 		);
 		// Cập nhật lại tồn kho khi status shipping

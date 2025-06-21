@@ -1,29 +1,26 @@
 import db from "../models/index.js";
 import { client } from "../config/elastic.js";
+import { successResponse } from "../utils/response-utils.js";
 
 export const searchWithElastic = async (query) => {
-	try {
-		const esResult = await client.search({
-			index: "product_variants",
-			body: {
-				query: {
-					multi_match: {
-						query: query,
-						fields: ["name", "sku"],
-						fuzziness: "AUTO",
-					},
+	const esResult = await client.search({
+		index: "product_variants",
+		body: {
+			query: {
+				multi_match: {
+					query: query,
+					fields: ["name", "sku"],
+					fuzziness: "AUTO",
 				},
 			},
-		});
+		},
+	});
 
-		if (esResult.hits.hits.length > 0) {
-			return {
-				source: "Elasticsearch",
-				data: esResult.hits.hits.map((hit) => hit._source),
-			};
-		}
-	} catch (error) {
-		console.log(error);
+	if (esResult.hits.hits.length > 0) {
+		return successResponse(
+			`Kết quả tìm kiếm từ khóa: ${query}`,
+			esResult.hits.hits.map((hit) => hit._source),
+		);
 	}
 };
 

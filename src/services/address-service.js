@@ -1,75 +1,47 @@
 import db from "../models/index.js";
+import { successResponse, throwError } from "../utils/response-utils.js";
 
-export const createAddress = async (data) => {
-	try {
-		const response = await db.Address.create(data);
-		return { data: response };
-	} catch (error) {
-		console.log(error);
-		throw error;
+export const getAddressOrThrowById = async (id) => {
+	const foundAddress = await db.Address.findOne({ where: id });
+	if (!foundAddress) {
+		throwError(404, `Không tìm thấy địa chỉ có id: ${id}!`);
 	}
+	return foundAddress;
+};
+export const createAddress = async (data) => {
+	const response = await db.Address.create(data);
+	return successResponse("Thêm địa chỉ thành công!", response);
 };
 
-export const getAllAddress = async (user) => {
-	try {
-		const response = await db.Address.findAll({
-			where: {
-				user_id: user,
-			},
-		});
-		return response;
-	} catch (error) {
-		console.log(error);
-		throw error;
+export const getAllAddressByUserId = async (user) => {
+	const response = await db.Address.findAll({
+		where: {
+			user_id: user,
+		},
+	});
+	if (!response) {
+		throwError(400, `Không tìm thấy địa chỉ của user_id: ${user}`);
 	}
+	return successResponse(
+		`Lấy danh sách địa chỉ của user_id: ${user} thành công!`,
+		response,
+	);
 };
 
 export const updateAddress = async (id, user, data) => {
-	try {
-		const foundAddress = db.Address.findOne({
-			where: id,
-		});
-		if (!foundAddress) {
-			throw {
-				status: 404,
-				message: "Địa chỉ không tồn tại, cập nhật không thành công!",
-			};
-		}
-		if (foundAddress.user_id !== user.id && user.role !== "ADMIN") {
-			throw {
-				status: 400,
-				message: "Bạn không cập nhật được địa chỉ của tài khoản khác !",
-			};
-		}
-		await db.Address.update(data, { where: id });
-		return { message: "Cập nhật địa chỉ thành công!" };
-	} catch (error) {
-		console.log(error);
-		throw error;
+	const foundAddress = await getAddressOrThrowById(id);
+	if (foundAddress.user_id !== user.id && user.role !== "ADMIN") {
+		throwError(400, "Bạn không có quyền cập nhật địa chỉ của tài khoản khác !");
 	}
+	await db.Address.update(data, { where: id });
+	return successResponse("Cập nhật địa chỉ thành công!");
 };
 
 export const deleteAddress = async (id, user) => {
-	try {
-		const foundAddress = db.Address.findOne({
-			where: id,
-		});
-		if (!foundAddress) {
-			throw {
-				status: 404,
-				message: "Địa chỉ không tồn tại, cập nhật không thành công!",
-			};
-		}
-		if (foundAddress.user_id !== user.id && user.role !== "ADMIN") {
-			throw {
-				status: 400,
-				message: "Bạn không cập nhật được địa chỉ của tài khoản khác !",
-			};
-		}
-		await db.Address.destroy({ where: id });
-		return { message: "Xóa địa chỉ thành công!" };
-	} catch (error) {
-		console.log(error);
-		throw error;
+	const foundAddress = await getAddressOrThrowById(id);
+	if (foundAddress.user_id !== user.id && user.role !== "ADMIN") {
+		throwError(400, "Bạn không có quyền xóa địa chỉ của tài khoản khác !");
 	}
+	await db.Address.destroy({ where: id });
+	return successResponse("Xóa địa chỉ thành công!");
 };
