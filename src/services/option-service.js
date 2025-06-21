@@ -10,7 +10,7 @@ export const getOptionOrThrowById = async (id) => {
 };
 
 const throwIfOptionNameExists = async (name) => {
-	const foundOption = await db.Option.findOne({ where: name });
+	const foundOption = await db.Option.findOne({ where: { name } });
 	if (foundOption) {
 		throwError(400, "Tên option đã tồn tại!");
 	}
@@ -36,7 +36,7 @@ export const updateOption = async (data, id) => {
 			name: data.name,
 		},
 		{
-			where: id,
+			where: { id },
 		},
 	);
 	return successResponse("Cập nhật thành công!");
@@ -45,7 +45,7 @@ export const updateOption = async (data, id) => {
 export const deleteOption = async (data, id) => {
 	await getOptionOrThrowById(id);
 	await db.Option.destroy({
-		where: id,
+		where: { id },
 	});
 	return successResponse("Xóa thành công!");
 };

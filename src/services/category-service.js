@@ -2,7 +2,7 @@ import db from "../models/index.js";
 import { successResponse, throwError } from "../utils/response-utils.js";
 
 const throwIfCategoryNameExists = async (name) => {
-	const foundCategory = await db.Category.findOne({ where: name });
+	const foundCategory = await db.Category.findOne({ where: { name } });
 	if (foundCategory) {
 		throwError(400, "Danh mục đã tồn tại!");
 	}

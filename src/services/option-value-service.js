@@ -10,7 +10,7 @@ export const getOptionValueOrThrowById = async (id) => {
 };
 
 const throwIfOptionValueValueExists = async (value) => {
-	const foundOptionValue = await db.Option_value.findOne({ where: value });
+	const foundOptionValue = await db.Option_value.findOne({ where: { value } });
 	if (foundOptionValue) {
 		throwError(400, "Giá trị đã tồn tại!");
 	}

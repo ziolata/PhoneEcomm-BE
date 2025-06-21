@@ -114,11 +114,11 @@ export const getAllCart = async (user) => {
 
 export const updateCart = async (id, user_id) => {
 	const cartItemExist = await db.Cart_item.findOne({
-		where: id,
+		where: { id },
 		include: {
 			model: Cart,
 			attributes: ["user_id"],
-			where: user_id,
+			where: { user_id },
 		},
 	});
 	// Chỉ  tiếp tục nếu sản phẩm được thêm số lượng có quantity > 0
@@ -142,7 +142,7 @@ export const updateCart = async (id, user_id) => {
 			quantity: cartItemExist.quantity + 1,
 		},
 		{
-			where: id,
+			where: { id },
 		},
 	);
 	return successResponse("Cập nhật số lượng thành công!");
