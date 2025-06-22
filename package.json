@@ -1,10 +1,10 @@
 {
   "name": "ecommerce",
   "version": "1.0.0",
-  "main": "app.js",
+  "main": "server.js",
   "type": "module",
   "scripts": {
-    "dev": "nodemon --exec babel-node src/app.js"
+    "dev": "nodemon --exec babel-node src/server.js"
   },
   "author": "",
   "license": "ISC",
