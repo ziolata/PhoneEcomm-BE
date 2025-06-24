@@ -5,6 +5,8 @@ import { Routers } from "./routes/index.js";
 import fileUpload from "express-fileupload";
 import compression from "compression";
 import { errorHandler } from "./middleware/error-handle-middleware.js";
+import { swaggerServe, swaggerSetup, swaggerSpec } from "./config/swagger.js";
+
 // import cluster from "cluster";
 // import os from "os";
 const app = express();
@@ -47,6 +49,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(fileUpload({ useTempFiles: true, tempFileDir: "/tmp/" }));
 app.use(compression());
+app.use("/api-docs", swaggerServe, swaggerSetup(swaggerSpec));
 Routers(app);
 app.use(errorHandler);
 
