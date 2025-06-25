@@ -1,10 +1,84 @@
 import db, { sequelize } from "../models/index.js";
 import { calculateDistance } from "../utils/calculate-utils.js";
 import { sendEmailOrder } from "../utils/email-utils.js";
-import { calculateTotalPrice } from "../utils/calculate-utils.js";
 import { successResponse, throwError } from "../utils/response-utils.js";
+import { deleteCart } from "./cart-service.js";
+import { applyDiscount } from "./discountcode-service.js";
+import { checkInventoryByVariant } from "./inventory-service.js";
+
+//Tính tổng giá trị đơn hàng
+const calculateTotalPrice = async (user, discount, itemData) => {
+	let totalPrice = 0;
+	let foundCode = null;
+	let fix_amount = null;
+	if (discount) {
+		foundCode = await applyDiscount(discount, user);
+	}
+	for (const q of itemData) {
+		const foundProduct = await db.Product_variant.findByPk(
+			q.product_variant_id,
+		);
+		// Có áp mã giảm giá
+		if (!foundProduct) {
+			throwError(404, `Sản phẩm có id:${q.product_variant_id} không tồn tại!`);
+		}
+		if (foundCode) {
+			// Điều kiện của code trừ theo %
+
+			if (foundCode.discount_type === "percentage_discount") {
+				if (
+					foundCode.target_type === "all" ||
+					(foundCode.target_type === "product_variant" &&
+						foundCode.target_id === q.product_variant_id) ||
+					(foundCode.target_type === "category" &&
+						foundCode.target_id === foundProduct.category_id) ||
+					(foundCode.target_type === "brand" &&
+						foundCode.target_id === foundProduct.brand_id &&
+						foundProduct.price >= foundCode.min_value)
+				) {
+					// Số tiền được giảm giá
+					let max_discount_amount =
+						(foundCode.value * foundProduct.price) / 100;
+
+					if (
+						foundCode.max_discount_amount &&
+						max_discount_amount >= foundCode.max_discount_amount
+					) {
+						max_discount_amount = foundCode.max_discount_amount;
+					}
+					foundProduct.price = foundProduct.price - max_discount_amount;
+				}
+			}
+			// Điều kiện của code trừ thẳng giá tiền
+			if (foundCode.discount_type === "fixed_amount_discount") {
+				if (
+					foundCode.target_type === "all" ||
+					(foundCode.target_type === "product_variant" &&
+						foundCode.target_id === q.product_variant_id) ||
+					(foundCode.target_type === "category" &&
+						foundCode.target_id === foundProduct.category_id) ||
+					(foundCode.target_type === "brand" &&
+						foundCode.target_id === foundProduct.brand_id)
+				) {
+					fix_amount = true;
+				}
+			}
+		}
+		totalPrice += fix_amount
+			? q.quantity * foundProduct.price - foundCode.value
+			: q.quantity * foundProduct.price;
+	}
+	if (foundCode) {
+		await db.User_Discount.create({
+			user_id: user,
+			discount_code_id: foundCode.id,
+		});
+	}
+	return { totalPrice: totalPrice, foundCode };
+};
 
 export const createOrder = async (data, user_id) => {
+	// Khởi tạo transaction
 	const transaction = await sequelize.transaction();
 	try {
 		const productVariantData = [];
@@ -19,7 +93,9 @@ export const createOrder = async (data, user_id) => {
 				attributes: ["product_variant_id", "quantity"],
 			},
 		});
-
+		if (!CartData) {
+			throwError(404, "Giỏ hàng đang trống không thể đặt hàng!");
+		}
 		const foundEmail = await db.User.findOne({
 			where: {
 				id: user_id,
@@ -30,7 +106,6 @@ export const createOrder = async (data, user_id) => {
 			data.discount_code,
 			CartData.Cart_items,
 		);
-		console.log(totalInfo);
 
 		// Tạo dữ liệu order
 		const response = await db.Order.create(
@@ -46,7 +121,9 @@ export const createOrder = async (data, user_id) => {
 			const productData = await db.Product_variant.findByPk(
 				q.product_variant_id,
 			);
+
 			productVariantData.push(productData);
+			await checkInventoryByVariant(q.product_variant_id, q.quantity);
 			await db.Order_item.create(
 				{
 					order_id: response.id,
@@ -57,7 +134,6 @@ export const createOrder = async (data, user_id) => {
 				{ transaction },
 			);
 		}
-		await transaction.commit();
 		// Lưu các thông tin liên quan đến ship.
 		// if (!data.shipping) {
 		// 	throw { status: 400, message: "Vui lòng cập nhật địa chỉ nhận hàng!" };
@@ -69,18 +145,15 @@ export const createOrder = async (data, user_id) => {
 		// 	status: "pending",
 		// 	shipfee: total_price * 0.015 + 15000,
 		// });
+
 		// Xóa giỏ hàng khi đã checkout thành công
-		await db.Cart.destroy(
-			{
-				where: {
-					user_id,
-				},
-			},
-			{ transaction },
-		);
+		await deleteCart(user_id, transaction);
+		// Đảm bảo mọi dòng code đều chạy đúng và lưu thay đổi
+		await transaction.commit();
 		await sendEmailOrder(foundEmail.email, productVariantData);
 		return successResponse("Đặt hàng thành công!", response);
 	} catch (error) {
+		// Rollback lại những thứ đã lưu khi có lỗi
 		await transaction.rollback();
 		throw error;
 	}
@@ -200,13 +273,7 @@ export const getAllOrder = async (user) => {
 			include: [
 				{
 					model: db.Order_item,
-					attributes: [
-						"id",
-						"product_variant_id",
-						"quantity",
-						"price",
-						"status",
-					],
+					attributes: ["id", "product_variant_id", "quantity", "price"],
 				},
 				{
 					model: db.Shipping,
