@@ -67,3 +67,23 @@ export const deleteInventory = async (id) => {
 	});
 	return successResponse("Xóa thành công!");
 };
+
+export const checkInventoryByVariant = async (variant_id, quantity) => {
+	const foundProductVariant = await db.Product_variant.findByPk(variant_id, {
+		include: {
+			model: db.Inventory,
+			attributes: ["quantity"],
+		},
+	});
+	if (!foundProductVariant) throwError(404, "Sản phẩm không tồn tại!");
+	if (foundProductVariant.Inventories.length === 0)
+		throwError(404, "Không tìm thấy kho của sản phẩm!");
+	const totalAvailable = foundProductVariant.Inventories.reduce(
+		(sum, inv) => sum + inv.quantity,
+		0,
+	);
+
+	if (totalAvailable < quantity)
+		throwError(400, "Số lượng trong kho không đủ!");
+	return totalAvailable;
+};
