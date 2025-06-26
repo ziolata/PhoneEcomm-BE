@@ -11,15 +11,11 @@ export default (sequelize, DataTypes) => {
 			Address.belongsTo(models.User, {
 				foreignKey: "user_id",
 			});
-			Address.belongsTo(models.Shipping, {
-				foreignKey: "shipping_id",
-			});
 		}
 	}
 	Address.init(
 		{
 			user_id: DataTypes.INTEGER,
-			shipping_id: DataTypes.INTEGER,
 			name: DataTypes.STRING,
 			phone: DataTypes.INTEGER,
 			address_line_1: DataTypes.INTEGER,

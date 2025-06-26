@@ -1,10 +1,16 @@
 import db, { sequelize } from "../models/index.js";
-import { calculateDistance } from "../utils/calculate-utils.js";
+import {
+	calculateDistance,
+	calculateShippingFee,
+} from "../utils/calculate-utils.js";
 import { sendEmailOrder } from "../utils/email-utils.js";
 import { successResponse, throwError } from "../utils/response-utils.js";
 import { deleteCart } from "./cart-service.js";
 import { applyDiscount } from "./discountcode-service.js";
-import { checkInventoryByVariant } from "./inventory-service.js";
+import {
+	checkInventoryByVariant,
+	nereastInventory,
+} from "./inventory-service.js";
 
 //Tính tổng giá trị đơn hàng
 const calculateTotalPrice = async (user, discount, itemData) => {
@@ -82,7 +88,7 @@ export const createOrder = async (data, user_id) => {
 	const transaction = await sequelize.transaction();
 	try {
 		const productVariantData = [];
-
+		let warehouseAddress = null;
 		// Lấy dữ liệu từ giỏ hàng
 		const CartData = await db.Cart.findOne({
 			where: {
@@ -106,7 +112,6 @@ export const createOrder = async (data, user_id) => {
 			data.discount_code,
 			CartData.Cart_items,
 		);
-
 		// Tạo dữ liệu order
 		const response = await db.Order.create(
 			{
@@ -116,12 +121,27 @@ export const createOrder = async (data, user_id) => {
 			},
 			{ transaction },
 		);
+
+		const foundAddress = await db.Address.findOne({
+			where: {
+				id: data.shipping.address_id,
+				user_id,
+			},
+		});
+
+		if (!foundAddress) {
+			throwError(404, "Địa chỉ nhận hàng không tồn tại!");
+		}
 		// Tạo các order item dựa trên dữ liệu của giỏ hàng
+
 		for (const q of CartData.Cart_items) {
 			const productData = await db.Product_variant.findByPk(
 				q.product_variant_id,
 			);
-
+			warehouseAddress = await nereastInventory(
+				productData.id,
+				foundAddress.address_line_1,
+			);
 			productVariantData.push(productData);
 			await checkInventoryByVariant(q.product_variant_id, q.quantity);
 			await db.Order_item.create(
@@ -134,19 +154,29 @@ export const createOrder = async (data, user_id) => {
 				{ transaction },
 			);
 		}
+
+		// Tính phi ship
+		const feeShipByKm = await calculateShippingFee(
+			foundAddress.address_line_1,
+			warehouseAddress,
+		);
+		if (!data.shipping) {
+			throw { status: 400, message: "Vui lòng cập nhật địa chỉ nhận hàng!" };
+		}
 		// Lưu các thông tin liên quan đến ship.
-		// if (!data.shipping) {
-		// 	throw { status: 400, message: "Vui lòng cập nhật địa chỉ nhận hàng!" };
-		// }
-		// await db.Shipping.create({
-		// 	order_id: response.id,
-		// 	address_id: data.shipping.address_id,
-		// 	type: data.shipping.type,
-		// 	status: "pending",
-		// 	shipfee: total_price * 0.015 + 15000,
-		// });
+		await db.Shipping.create(
+			{
+				order_id: response.id,
+				address_id: data.shipping.address_id,
+				type: data.shipping.type,
+				status: "pending",
+				Shipfee: totalInfo.totalPrice * 0.005 + feeShipByKm,
+			},
+			{ transaction },
+		);
 
 		// Xóa giỏ hàng khi đã checkout thành công
+
 		await deleteCart(user_id, transaction);
 		// Đảm bảo mọi dòng code đều chạy đúng và lưu thay đổi
 		await transaction.commit();
@@ -181,7 +211,8 @@ export const deleteOrder = async (id) => {
 
 export const updateOrder = async (data, id) => {
 	try {
-		const orderData = await db.Order.findByPk(id, {
+		const orderData = await db.Order.findOne({
+			where: { id },
 			include: [
 				{
 					model: db.Order_item,
@@ -197,6 +228,7 @@ export const updateOrder = async (data, id) => {
 				},
 			],
 		});
+
 		// Kiểm tra tránh cùng một trạng thái cập nhật nhiều lần
 		if (orderData.status === data.status) {
 			throw {
@@ -214,8 +246,8 @@ export const updateOrder = async (data, id) => {
 		);
 		// Cập nhật lại tồn kho khi status shipping
 		if (data.status === "shipping") {
+			let nereastStock = null;
 			for (const e of orderData.Order_items) {
-				let nereastStock = null;
 				let minDistance = Number.POSITIVE_INFINITY;
 				const findProduct = await db.Product_variant.findByPk(
 					e.product_variant_id,
@@ -253,9 +285,6 @@ export const updateOrder = async (data, id) => {
 							id: nereastStock.id,
 						},
 					},
-				);
-				console.log(
-					`Cập nhật tồn kho thành công tại kho ${nereastStock.id} cho sản phẩm ${e.product_variant_id}`,
 				);
 			}
 		}
