@@ -1,5 +1,5 @@
-const { Model } = require("sequelize");
-module.exports = (sequelize, DataTypes) => {
+import { Model } from "sequelize";
+export default (sequelize, DataTypes) => {
 	class User extends Model {
 		/**
 		 * Helper method for defining associations.
@@ -22,6 +22,7 @@ module.exports = (sequelize, DataTypes) => {
 			sex: DataTypes.ENUM("male", "female"),
 			phone: DataTypes.INTEGER,
 			role_id: DataTypes.INTEGER,
+			password_reset_token: DataTypes.INTEGER,
 		},
 		{
 			sequelize,

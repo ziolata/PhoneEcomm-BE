@@ -1,5 +1,5 @@
-const { Model } = require("sequelize");
-module.exports = (sequelize, DataTypes) => {
+import { Model } from "sequelize";
+export default (sequelize, DataTypes) => {
 	class Review extends Model {
 		/**
 		 * Helper method for defining associations.
@@ -12,17 +12,17 @@ module.exports = (sequelize, DataTypes) => {
 				foreignKey: "user_id",
 			});
 			Review.belongsTo(models.Product_variant, {
-				foreignKey: "Product_variant_id",
+				foreignKey: "product_variant_id",
 			});
 		}
 	}
 	Review.init(
 		{
 			user_id: DataTypes.INTEGER,
-			Product_variant_id: DataTypes.INTEGER,
+			product_variant_id: DataTypes.INTEGER,
 			img: DataTypes.STRING,
-			rating: DataTypes.DECIMAL(1, 1),
-			comment: DataTypes.STRING,
+			rating: DataTypes.DECIMAL(3, 2),
+			review: DataTypes.STRING,
 		},
 		{
 			sequelize,

@@ -1,5 +1,5 @@
-const { Model } = require("sequelize");
-module.exports = (sequelize, DataTypes) => {
+import { Model } from "sequelize";
+export default (sequelize, DataTypes) => {
 	class Shipping extends Model {
 		/**
 		 * Helper method for defining associations.
@@ -11,14 +11,15 @@ module.exports = (sequelize, DataTypes) => {
 			Shipping.belongsTo(models.Order, {
 				foreignKey: "order_id",
 			});
-			Shipping.hasOne(models.Address, {
-				foreignKey: "shipping_id",
+			Shipping.belongsTo(models.Address, {
+				foreignKey: "address_id",
 			});
 		}
 	}
 	Shipping.init(
 		{
 			order_id: DataTypes.INTEGER,
+			address_id: DataTypes.INTEGER,
 			type: DataTypes.ENUM("Post office", "Express delivery"),
 			status: DataTypes.ENUM("pending", "shipped", "completed"),
 			Shipfee: DataTypes.DECIMAL(10, 2),
