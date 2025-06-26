@@ -1,4 +1,5 @@
 import db from "../models/index.js";
+import { calculateDistance } from "../utils/calculate-utils.js";
 import { successResponse, throwError } from "../utils/response-utils.js";
 
 export const getInventoryOrThrowById = async (id) => {
@@ -86,4 +87,26 @@ export const checkInventoryByVariant = async (variant_id, quantity) => {
 	if (totalAvailable < quantity)
 		throwError(400, "Số lượng trong kho không đủ!");
 	return totalAvailable;
+};
+
+export const nereastInventory = async (product_variant_id, userAdress) => {
+	let nereastStock = null;
+	let minDistance = Number.POSITIVE_INFINITY;
+	const foundInventories = await db.Inventory.findAll({
+		where: { product_variant_id },
+	});
+	if (foundInventories.length === 1) {
+		return foundInventories[0].location;
+	}
+	for (const inventory of foundInventories) {
+		const distance = await calculateDistance(userAdress, inventory.location);
+		if (distance < minDistance) {
+			minDistance = distance;
+			nereastStock = inventory;
+		}
+	}
+	if (nereastStock) {
+		return nereastStock.location;
+	}
+	throwError(400, "Không tìm thấy địa chỉ kho gần nhất!");
 };

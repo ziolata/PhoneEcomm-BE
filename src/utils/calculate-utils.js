@@ -3,6 +3,7 @@ import haversine from "haversine";
 const options = {
 	provider: "openstreetmap", // Dùng dịch vụ OpenStreetMap miễn phí
 };
+const delay = (ms) => new Promise((res) => setTimeout(res, ms));
 const geocoder = node_geocoder(options);
 export const getCoordinates = async (address) => {
 	try {
@@ -21,6 +22,7 @@ export const getCoordinates = async (address) => {
 };
 export const calculateDistance = async (home, stock) => {
 	const addrHome = await getCoordinates(home);
+	await delay(500);
 	const addrStock = await getCoordinates(stock);
 	const distance = haversine(addrHome, addrStock);
 	return distance;
@@ -50,6 +52,7 @@ export const calculatorQuantityOnePrd = async (data) => {
 		}
 	}
 };
+
 export const calculatorProductVarianQuantity = async (data) => {
 	let totalQuantity = 0;
 	for (const p of data.Product_variants) {
@@ -60,4 +63,11 @@ export const calculatorProductVarianQuantity = async (data) => {
 			}
 		}
 	}
+};
+
+export const calculateShippingFee = async (userAddress, warehouseAddress) => {
+	const distance = await calculateDistance(userAddress, warehouseAddress); // đơn vị km
+	if (distance <= 50) return 19000;
+	if (distance <= 200) return 29000;
+	return 39000;
 };
