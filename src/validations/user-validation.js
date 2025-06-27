@@ -3,31 +3,35 @@ import Joi from "joi";
 const pattern = /^[a-zA-Z0-9!@#$%&*]{6,25}$/;
 
 export const userSchema = Joi.object({
-	fullname: Joi.string().min(6).required().messages({
+	fullname: Joi.string().min(6).messages({
 		"string.required": "Họ và tên là bắt buộc",
 	}),
-	avatar: Joi.object().keys({
-		size: Joi.number()
-			.max(2 * 1024 * 1024)
-			.message({
-				"number.max": "Kích thước ảnh phải dưới 2MB",
-			}),
-	}),
+	avatar: Joi.alternatives().try(
+		Joi.string().uri().messages({
+			"string.uri": "Avatar phải là đường dẫn hợp lệ",
+		}),
+		Joi.object().keys({
+			size: Joi.number()
+				.max(2 * 1024 * 1024)
+				.messages({
+					"number.max": "Kích thước ảnh phải dưới 2MB",
+				}),
+		}),
+	),
+
 	phone: Joi.string()
 		.pattern(/^[0-9]{10,11}$/)
 		.messages({
 			"string.pattern.base":
 				"Số điện thoại phải có 10-11 chữ số và chỉ chứa số",
 		}),
+	email: Joi.string()
+		.email({ tlds: { allow: false } }) // kiểm tra định dạng email
+		.messages({
+			"string.email": "Email không hợp lệ",
+		}),
 });
 export const changePasswordValidate = Joi.object({
-	email: Joi.string()
-		.email({ minDomainSegments: 2, tlds: { allow: ["com", "net"] } })
-		.required()
-		.messages({
-			"string.email": "Email không hợp lệ.",
-			"any.required": "Email là bắt buộc.",
-		}),
 	password: Joi.string().regex(pattern).required().messages({
 		"any.required": "Mật khẩu là bắt buộc",
 		"string.pattern.base": "Mật khẩu phải có độ dài từ 6 - 25 ký tự",
