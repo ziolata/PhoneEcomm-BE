@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import configPath from "../config/config.js";
+import configPath from "../config/mysql.js";
 import Sequelize from "sequelize";
 import { fileURLToPath } from "url";
 import process from "process";

@@ -13,7 +13,7 @@ const options = {
 
 		servers: [
 			{
-				url: `${process.env.HOST}:${process.env.PORT}`,
+				url: `${process.env.HOST}`,
 			},
 		],
 		components: {

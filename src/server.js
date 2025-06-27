@@ -1,5 +1,4 @@
 import express from "express";
-import { config } from "./database/config.js";
 import cors from "cors";
 import { Routers } from "./routes/index.js";
 import fileUpload from "express-fileupload";
@@ -53,7 +52,7 @@ app.use("/api-docs", swaggerServe, swaggerSetup(swaggerSpec));
 Routers(app);
 app.use(errorHandler);
 
-app.listen(config.port, () => {
+app.listen(process.env.PORT, () => {
 	console.log("Server đang hoạt động bình thường");
 });
 
