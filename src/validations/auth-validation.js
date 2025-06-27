@@ -2,7 +2,7 @@ import Joi from "joi";
 const pattern = /^[a-zA-Z0-9!@#$%&*]{6,25}$/;
 export const loginSchema = Joi.object({
 	email: Joi.string()
-		.email({ minDomainSegments: 2, tlds: { allow: ["com", "net"] } })
+		.email({ tlds: { allow: false } })
 		.required()
 		.messages({
 			"string.email": "Email không hợp lệ.",

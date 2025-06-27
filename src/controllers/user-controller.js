@@ -1,49 +1,56 @@
-import * as Services from "../services/user-service.js";
+import * as services from "../services/user-service.js";
+import { uploadImage } from "../utils/cloudinary-utils.js";
 
-export const getProfileController = async (req, res, next) => {
-	try {
-		const user_id = req.user.id;
-		const response = await Services.getProfileUser(user_id);
-		return res.status(200).json(response);
-	} catch (error) {
-		next(error);
-	}
-};
-
-export const updateProfileController = async (req, res, next) => {
+export const getUserController = async (req, res, next) => {
 	try {
 		const { id } = req.params;
-		const response = await Services.updateProfile(req.body, id);
+		const target_id = id ? id : req.user.id;
+		const response = await services.getUser(target_id);
 		return res.status(200).json(response);
 	} catch (error) {
 		next(error);
 	}
 };
 
-export const changePasswordController = async (req, res, next) => {
+export const getAllUserController = async (req, res, next) => {
 	try {
-		req.body.email = req.user.email;
-		const response = await Services.changePassword(req.body);
+		const response = await services.getAllUser();
 		return res.status(200).json(response);
 	} catch (error) {
 		next(error);
 	}
 };
 
-export const forgotPasswordController = async (req, res, next) => {
+export const updateUserController = async (req, res, next) => {
 	try {
-		const response = await Services.forgotPassword(req.body.email);
+		const { id } = req.params;
+		const role = req.user.role;
+		const user_id = req.user.id;
+		const targetUserId = role === "admin" && id ? id : user_id;
+		if (req.files?.avatar) {
+			const imgFile = req.files.avatar;
+			const uploadResult = await uploadImage(
+				imgFile.tempFilePath,
+				`avatar_${id ? id : user_id}`,
+				"avatar",
+			);
+			console.log(uploadResult);
+
+			req.body.avatar = uploadResult;
+		}
+		console.log(req.body.avatar);
+
+		const response = await services.updateUser(req.body, role, targetUserId);
 		return res.status(200).json(response);
 	} catch (error) {
 		next(error);
 	}
 };
 
-export const resetPasswordController = async (req, res, next) => {
+export const deleteUserController = async (req, res, next) => {
 	try {
-		const { token } = req.params;
-		req.body.token = token;
-		const response = await Services.resetPassword(req.body);
+		const { id } = req.params;
+		const response = await services.deleteUser(id);
 		return res.status(200).json(response);
 	} catch (error) {
 		next(error);
