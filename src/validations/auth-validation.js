@@ -1,5 +1,6 @@
 import Joi from "joi";
 const pattern = /^[a-zA-Z0-9!@#$%&*]{6,25}$/;
+
 export const loginSchema = Joi.object({
 	email: Joi.string()
 		.email({ tlds: { allow: false } })
@@ -13,6 +14,7 @@ export const loginSchema = Joi.object({
 		"any.required": "Sai mật khẩu",
 	}),
 });
+
 export const registerSchema = Joi.object({
 	email: Joi.string()
 		.email({ minDomainSegments: 2, tlds: { allow: ["com", "net"] } })
@@ -29,7 +31,6 @@ export const registerSchema = Joi.object({
 		"any.only": "Mật khẩu nhập lại không khớp",
 		"any.required": "Bạn phải nhập lại mật khẩu",
 	}),
-
 	fullname: Joi.string().min(6).required().messages({
 		"string.required": "Họ và tên là bắt buộc",
 	}),

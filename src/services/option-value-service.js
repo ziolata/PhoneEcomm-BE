@@ -1,5 +1,7 @@
 import db from "../models/index.js";
 import { successResponse, throwError } from "../utils/response-utils.js";
+import { handleValidate } from "../utils/handle-validation-utils.js";
+import { optionValueValidate } from "../validations/option-validation.js";
 
 export const getOptionValueOrThrowById = async (id) => {
 	const foundOptionValue = await db.Option_value.findByPk(id);
@@ -18,8 +20,9 @@ const throwIfOptionValueValueExists = async (value) => {
 };
 
 export const createOptionValue = async (data) => {
-	await throwIfOptionValueValueExists(data.value);
-	const response = await db.Option_value.create(data);
+	const validData = handleValidate(optionValueValidate, data);
+	await throwIfOptionValueValueExists(validData.value);
+	const response = await db.Option_value.create(validData);
 	return successResponse("Thêm thành công!", response);
 };
 
