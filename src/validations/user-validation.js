@@ -1,5 +1,4 @@
 import Joi from "joi";
-
 const pattern = /^[a-zA-Z0-9!@#$%&*]{6,25}$/;
 
 export const userSchema = Joi.object({
@@ -18,7 +17,6 @@ export const userSchema = Joi.object({
 				}),
 		}),
 	),
-
 	phone: Joi.string()
 		.pattern(/^[0-9]{10,11}$/)
 		.messages({
@@ -31,6 +29,7 @@ export const userSchema = Joi.object({
 			"string.email": "Email không hợp lệ",
 		}),
 });
+
 export const changePasswordValidate = Joi.object({
 	password: Joi.string().regex(pattern).required().messages({
 		"any.required": "Mật khẩu là bắt buộc",
@@ -50,5 +49,9 @@ export const changePasswordValidate = Joi.object({
 	repassword: Joi.string().valid(Joi.ref("newpassword")).required().messages({
 		"any.only": "Mật khẩu nhập lại không khớp với mật khẩu mới.",
 		"any.required": "Bạn phải nhập lại mật khẩu mới.",
+	}),
+	sex: Joi.string().valid("male", "female").required().messages({
+		"any.only": "Trường chỉ được nhận giá trị: 'male', 'female'!",
+		"any.required": "Trường này là bắt buộc!",
 	}),
 });

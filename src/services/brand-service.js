@@ -1,5 +1,7 @@
 import db from "../models/index.js";
+import { handleValidate } from "../utils/handle-validation-utils.js";
 import { successResponse, throwError } from "../utils/response-utils.js";
+import { brandValidate } from "../validations/brand-validation.js";
 
 const throwIfBrandNameExists = async (name) => {
 	const foundBrand = await db.Brand.findOne({ where: { name } });
@@ -15,24 +17,21 @@ const getBrandOrThrowById = async (id) => {
 	}
 };
 export const addBrand = async (data) => {
-	await throwIfBrandNameExists(data.name);
-	const response = await db.Brand.create(data);
+	const validData = handleValidate(brandValidate, data);
+	await throwIfBrandNameExists(validData.name);
+	const response = await db.Brand.create(validData);
 	return successResponse("Thêm thành công!", response);
 };
 
 export const updateBrand = async (id, data) => {
+	const validData = handleValidate(brandValidate, data);
 	await getBrandOrThrowById(id);
-	if (data.name) {
-		await throwIfBrandNameExists(data.name);
-	}
-	await db.Brand.update(
-		{ name: data.name, img: data.img, description: data.description },
-		{
-			where: {
-				id: param,
-			},
+	await throwIfBrandNameExists(validData.name);
+	await db.Brand.update(validData, {
+		where: {
+			id: param,
 		},
-	);
+	});
 	return successResponse("Cập nhật thành công!");
 };
 

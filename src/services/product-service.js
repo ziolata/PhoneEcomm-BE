@@ -31,33 +31,23 @@ const throwIfProductNameValueExists = async (name) => {
 };
 
 export const createProduct = async (data) => {
-	handleValidate(productValidate, data);
-	await checkCategoryAndBrandExist(data.category_id, data.brand_id);
-	await throwIfProductNameValueExists(data.name);
-	const response = await db.Product.create(data);
+	const validData = handleValidate(productValidate, data);
+	await checkCategoryAndBrandExist(validData.category_id, validData.brand_id);
+	await throwIfProductNameValueExists(validData.name);
+	const response = await db.Product.create(validData);
 	return successResponse("Thêm sản phẩm thành công!", response);
 };
 
 export const updateProduct = async (data, id) => {
-	handleValidate(productValidate, data);
+	const validData = handleValidate(productValidate, data);
 	await getProductOrThrowById(id);
-	if (data.category_id && data.brand_id) {
-		await checkCategoryAndBrandExist(data.category_id, data.brand_id);
+	if (validData.category_id && validData.brand_id) {
+		await checkCategoryAndBrandExist(validData.category_id, validData.brand_id);
 	}
-	await throwIfProductNameValueExists(data.name);
-	await db.Product.update(
-		{
-			name: data.name,
-			img: data.img,
-			description: data.description,
-			features: data.features,
-			category_id: data.category_id,
-			brand_id: data.brand_id,
-		},
-		{
-			where: { id },
-		},
-	);
+	await throwIfProductNameValueExists(validData.name);
+	await db.Product.update(validData, {
+		where: { id },
+	});
 	return successResponse("Cập nhật thành công!");
 };
 

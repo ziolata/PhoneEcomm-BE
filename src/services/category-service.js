@@ -1,5 +1,7 @@
 import db from "../models/index.js";
+import { handleValidate } from "../utils/handle-validation-utils.js";
 import { successResponse, throwError } from "../utils/response-utils.js";
+import { categoryValidate } from "../validations/category-validation.js";
 
 const throwIfCategoryNameExists = async (name) => {
 	const foundCategory = await db.Category.findOne({ where: { name } });
@@ -15,24 +17,21 @@ const getCategoryOrThrowById = async (id) => {
 	}
 };
 export const addCategory = async (data) => {
-	await throwIfCategoryNameExists(data.name);
-	const response = await db.Category.create(data);
+	const validData = handleValidate(categoryValidate, data);
+	await throwIfCategoryNameExists(categoryValidate.name);
+	const response = await db.Category.create(validData);
 	return successResponse("Thêm thành công!", response);
 };
 
 export const updateCategory = async (id, data) => {
+	const validData = handleValidate(categoryValidate, data);
+	await throwIfCategoryNameExists(categoryValidate.name);
 	await getCategoryOrThrowById(id);
-	if (data.name) {
-		await throwIfCategoryNameExists(data.name);
-	}
-	await db.Category.update(
-		{ name: data.name, img: data.img, description: data.description },
-		{
-			where: {
-				id: param,
-			},
+	await db.Category.update(validData, {
+		where: {
+			id,
 		},
-	);
+	});
 	return successResponse("Cập nhật thành công!");
 };
 
@@ -40,7 +39,7 @@ export const deleteCategory = async (id) => {
 	await getCategoryOrThrowById(id);
 	await db.Category.destroy({
 		where: {
-			id: id,
+			id,
 		},
 	});
 	return successResponse("Xóa thành công!");
