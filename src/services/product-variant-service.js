@@ -2,6 +2,12 @@ import db, { sequelize } from "../models/index.js";
 import { successResponse, throwError } from "../utils/response-utils.js";
 import { client } from "../config/elastic.js";
 
+// Tạo mã Sku dựa trên id sản phẩm
+const generateSku = (id) => {
+	const prefix = "SP-";
+	const idString = String(id).padStart(6, "0"); // '000123'
+	return prefix + idString; // 'SP-000123'
+};
 const getProductVariantOrThrowById = async (id) => {
 	const foundProductVariant = await db.Product_variant.findByPk(id);
 	if (!foundProductVariant) {
@@ -15,7 +21,7 @@ export const createProductVariant = async (data) => {
 	try {
 		const existingProduct = await db.Product.findByPk(data.product_id);
 		if (!existingProduct) {
-			throw { status: 404, message: "product_id không tồn tại!" };
+			throwError(404, "Sản phẩm không tồn tại!");
 		}
 		const response = await db.Product_variant.create(data, { transaction });
 		//  Thêm option Value cho Product Variant
@@ -30,17 +36,32 @@ export const createProductVariant = async (data) => {
 				},
 			});
 			if (valueIdExist.length !== OptionValue.length) {
-				throw { status: 400, message: "Một số giá trị option không hợp lệ!" };
+				throwError(404, "Một số value option không hợp lệ!");
 			}
-			await db.Variant_option_value.bulkCreate(OptionValue);
+			await db.Variant_option_value.bulkCreate(OptionValue, { transaction });
 		}
+		const sku = generateSku(response.id);
+		await db.Product_variant.update(
+			{ sku: sku },
+			{ where: { id: response.id }, transaction },
+		);
 		await transaction.commit();
 		const productInfo = await db.Product.findOne({
 			where: {
 				id: response.product_id,
 			},
+			include: [
+				{
+					model: db.Category,
+					attributes: ["name"],
+				},
+				{
+					model: db.Brand,
+					attributes: ["name"],
+				},
+			],
 		});
-		// Thêm dữ liệu Product Variant vào Elasticsearch
+		// Đồng bộ dữ liệu Product Variant vào Elasticsearch
 		await client.index({
 			index: "product_variants", // Index name
 			id: String(response.id),
@@ -48,13 +69,11 @@ export const createProductVariant = async (data) => {
 				name: productInfo.name,
 				sku: response.sku,
 				price: response.price,
+				category: productInfo.Category.name,
+				brand: productInfo.Brand.name,
 			},
 		});
-
-		return successResponse(
-			`Thêm biến thể sản phẩm có id: ${product_id} thành công!`,
-			response,
-		);
+		return successResponse("Thêm thành công!", response);
 	} catch (error) {
 		await transaction.rollback();
 		throw error;
@@ -94,6 +113,7 @@ export const updateProductVariant = async (data, id) => {
 			where: { id },
 		},
 	);
+	// Đồng bộ lại dữ liệu Product Variant khi cập nhật vào Elasticsearch
 	await client.index({
 		index: "product_variants", // Index name
 		id: String(response.id),
@@ -110,6 +130,11 @@ export const deleteProductVariant = async (id) => {
 	await getProductVariantOrThrowById(id);
 	await db.Product_variant.destroy({
 		where: { id },
+	});
+	// Xóa dữ liệu khỏi elastic đồng bộ với database
+	await client.delete({
+		index: "product_variants",
+		id: String(id),
 	});
 	return successResponse("Xóa thành công!");
 };

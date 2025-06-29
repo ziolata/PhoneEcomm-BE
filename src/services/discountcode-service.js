@@ -1,5 +1,5 @@
 import db from "../models/index.js";
-import { successResponse } from "../utils/response-utils.js";
+import { successResponse, throwError } from "../utils/response-utils.js";
 export const createDiscount = async (data) => {
 	const existingDiscount = await db.Discount_code.findOne({
 		where: {
@@ -12,6 +12,23 @@ export const createDiscount = async (data) => {
 	}
 	const response = await db.Discount_code.create(data);
 	return successResponse("Thêm mã khuyến mãi thành công!", response);
+};
+
+export const getAllDiscount = async () => {
+	const foundDiscount = await db.Discount_code.findAll();
+	return successResponse(
+		"Lấy danh sách mã giảm giá thành công!",
+		foundDiscount,
+	);
+};
+
+export const deleteDiscount = async (id) => {
+	const foundDiscount = await db.Discount_code.findByPk(id);
+	if (!foundDiscount) {
+		throwError(404, "Mã giảm giá không tồn tại!");
+	}
+	await db.Discount_code.destroy({ where: { id } });
+	return successResponse("Xóa thành công!");
 };
 
 export const applyDiscount = async (discountCode, user) => {

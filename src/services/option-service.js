@@ -31,6 +31,11 @@ export const getAllOption = async () => {
 	return successResponse("Lấy danh sách option thành công!", response);
 };
 
+export const getOneOption = async (id) => {
+	const foundOption = await getOptionOrThrowById(id);
+	return successResponse("Lấy thông tin option thành công!", foundOption);
+};
+
 export const updateOption = async (data, id) => {
 	const validData = handleValidate(optionValidate, data);
 	await getOptionOrThrowById(id);

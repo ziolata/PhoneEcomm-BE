@@ -69,7 +69,80 @@ import { isAuthenticated } from "../middleware/auth-middleware.js";
  *         description: Chưa đăng nhập
  */
 
+/**
+ * @swagger
+ * /api/v1/review/{id}:
+ *   get:
+ *     summary: Lấy danh sách đánh giá của sản phẩm
+ *     tags: [Review]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: id
+ *         in: query
+ *         description: ID đánh giá cần xem
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Lấy thông tin đánh giá thành công
+ *       401:
+ *         description: Chưa đăng nhập
+ */
+
+/**
+ * @swagger
+ * /api/v1/review/update/{id}:
+ *   put:
+ *     summary: Cập nhật đánh giá của sản phẩm
+ *     tags: [Review]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: id
+ *         in: query
+ *         description: ID đánh giá cần cập nhật
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Cập nhật thành công!
+ *       401:
+ *         description: Chưa đăng nhập
+ */
+
+/**
+ * @swagger
+ * /api/v1/review/delete/{id}:
+ *   delete:
+ *     summary: Xóa đánh giá của sản phẩm
+ *     tags: [Review]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: id
+ *         in: query
+ *         description: ID đánh giá cần xóa
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Xóa thành công!
+ *       401:
+ *         description: Chưa đăng nhập
+ */
+
 const routes = new Router();
 routes.post("/add/", isAuthenticated, controller.createReviewController);
 routes.get("/", isAuthenticated, controller.getAllReviewController);
+routes.get("/:id", isAuthenticated, controller.getOneReviewController);
+routes.get("/update/:id", isAuthenticated, controller.updateReviewController);
+routes.delete(
+	"/delete/:id",
+	isAuthenticated,
+	controller.deleteReviewController,
+);
 export default routes;

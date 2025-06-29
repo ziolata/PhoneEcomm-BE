@@ -323,3 +323,14 @@ export const getAllOrder = async (user) => {
 		throw error;
 	}
 };
+
+export const getOneOrder = async (id, user) => {
+	const foundOrder = await db.Order.findByPk(id);
+	if (foundOrder.user_id !== user.id && user.role !== "ADMIN") {
+		throwError(403, "Bạn không có quyền coi đơn hàng của tài khoản khác!");
+	}
+	if (!foundOrder) {
+		throwError(404, "Không tìm thấy đơn hàng!");
+	}
+	return successResponse("Lấy thông tin đơn hàng thành công", foundOrder);
+};
