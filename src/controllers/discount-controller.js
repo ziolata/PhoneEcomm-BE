@@ -27,3 +27,22 @@ export const createMultiDiscountController = async (req, res, next) => {
 		next(error);
 	}
 };
+
+export const getAllDiscountController = async (req, res, next) => {
+	try {
+		const response = await services.getAllDiscount();
+		return res.status(201).json(response);
+	} catch (error) {
+		next(error);
+	}
+};
+
+export const deleteDiscountController = async (req, res, next) => {
+	try {
+		const { id } = req.params;
+		const response = await services.deleteDiscount(id);
+		return res.status(201).json(response);
+	} catch (error) {
+		next(error);
+	}
+};

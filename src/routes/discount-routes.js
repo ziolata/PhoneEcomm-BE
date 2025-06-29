@@ -123,9 +123,46 @@ import { isAdmin } from "../middleware/auth-middleware.js";
  *         description: Không có quyền truy cập
  */
 
+/**
+ * @swagger
+ * /api/v1/discount/:
+ *   post:
+ *     summary: Thêm một mã giảm giá
+ *     tags: [Discount]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Lấy danh sách mã giảm giá thành công!
+ *       401:
+ *         description: Không có quyền truy cập
+ */
+
+/**
+ * @swagger
+ * /api/v1/discount/delete/{id}:
+ *   post:
+ *     summary: Thêm một mã giảm giá
+ *     tags: [Discount]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID của mã giảm giá cần xóa
+ *     responses:
+ *       200:
+ *         description: Xóa thành công!
+ *       401:
+ *         description: Không có quyền truy cập
+ */
 const routes = new Router();
 
 routes.post("/add", isAdmin, controller.createDiscountController);
 routes.post("/add/multi", isAdmin, controller.createMultiDiscountController);
-
+routes.get("/", isAdmin, controller.getAllDiscountController);
+routes.delete("/delete/:id", isAdmin, controller.deleteDiscountController);
 export default routes;

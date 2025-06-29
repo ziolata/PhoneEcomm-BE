@@ -26,6 +26,31 @@ import { isAuthenticated } from "../middleware/auth-middleware.js";
 
 /**
  * @swagger
+ * /api/v1/order/{id}:
+ *   get:
+ *     summary: Lấy danh sách đơn hàng của người dùng (người dùng chỉ có thể xem đơn hàng của bản thân)
+ *     tags: [Order]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         description: ID đơn hàng cần lấy thông tin
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Lấy thông tin đơn hàng thành công!
+ *       403:
+ *         description: Bạn không có quyền coi đơn hàng của tài khoản khác!
+ *       404:
+ *         description: Không tìm thấy đơn hàng!
+ *
+ */
+
+/**
+ * @swagger
  * /api/v1/order/add:
  *   post:
  *     summary: Tạo đơn hàng mới từ giỏ hàng
@@ -56,7 +81,7 @@ import { isAuthenticated } from "../middleware/auth-middleware.js";
  * @swagger
  * /api/v1/order/update/{id}:
  *   put:
- *     summary: Cập nhật trạng thái đơn hàng (Chức năng cho Admin hoặc xử lý nội bộ)
+ *     summary: Cập nhật trạng thái đơn hàng (Chức năng cho Admin)
  *     tags: [Order]
  *     parameters:
  *       - name: id
@@ -86,10 +111,33 @@ import { isAuthenticated } from "../middleware/auth-middleware.js";
  *         description: Đơn hàng không tồn tại
  */
 
+/**
+ * @swagger
+ * /api/v1/order/delete/{id}:
+ *   delete:
+ *     summary: Xóa đơn hàng (chức năng cho Admin)
+ *     tags: [Order]
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         description: ID đơn hàng cần cập nhật
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Xóa thành công!
+ *       400:
+ *         description: Trạng thái không hợp lệ hoặc kho hết hàng
+ *       404:
+ *         description: Đơn hàng không tồn tại
+ */
+
 const routes = new Router();
 
 routes.get("/", isAuthenticated, controller.getAllOrderController);
+routes.get("/:id", isAuthenticated, controller.getOneOrderController);
 routes.post("/add", isAuthenticated, controller.createOrderController);
 routes.put("/update/:id", controller.updateOrderController);
-
+routes.delete("/delete/:id", controller.deleteOrderController);
 export default routes;

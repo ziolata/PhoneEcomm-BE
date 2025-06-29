@@ -137,10 +137,35 @@ import { isAdmin } from "../middleware/auth-middleware.js";
  *         description: Sản phẩm không tồn tại
  */
 
+/**
+ * @swagger
+ * /api/v1/product/delete/{id}:
+ *   delete:
+ *     summary: Xoá người dùng (chỉ dành cho admin)
+ *     tags: [Product]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID sản phẩm cần xóa
+ *     responses:
+ *       200:
+ *         description: Xoá thành công!
+ *       403:
+ *         description: Không có quyền!
+ *
+ */
+
 const routes = new Router();
 
 routes.get("/", controller.getAllProductController);
 routes.get("/:id", controller.getOneProductController);
 routes.post("/add", isAdmin, controller.createProductController);
 routes.put("/update/:id", isAdmin, controller.updateProductController);
+routes.put("/delete/:id", isAdmin, controller.deleteProductController);
+
 export default routes;

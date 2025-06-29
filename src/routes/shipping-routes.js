@@ -116,5 +116,5 @@ import { isAuthenticated } from "../middleware/auth-middleware.js";
 const routes = new Router();
 routes.post("/", isAuthenticated, controller.getShippingController);
 routes.get("/update/:id", isAdmin, controller.updateShippingController);
-routes.get("/delete/:id", isAdmin, controller.deleteShippingController);
+routes.delete("/delete/:id", isAdmin, controller.deleteShippingController);
 export default routes;

@@ -1,5 +1,7 @@
 import db from "../models/index.js";
+import { handleValidate } from "../utils/handle-validation-utils.js";
 import { successResponse, throwError } from "../utils/response-utils.js";
+import { optionValidate } from "../validations/option-validation.js";
 
 export const getOptionOrThrowById = async (id) => {
 	const foundOption = await db.Option.findByPk(id);
@@ -18,8 +20,9 @@ const throwIfOptionNameExists = async (name) => {
 };
 
 export const createOption = async (data) => {
-	await throwIfOptionNameExists(data.name);
-	const response = await db.Option.create(data);
+	const validData = handleValidate(optionValidate, data);
+	await throwIfOptionNameExists(validData.name);
+	const response = await db.Option.create(validData);
 	return successResponse("Thêm thành công!", response);
 };
 
@@ -28,12 +31,18 @@ export const getAllOption = async () => {
 	return successResponse("Lấy danh sách option thành công!", response);
 };
 
+export const getOneOption = async (id) => {
+	const foundOption = await getOptionOrThrowById(id);
+	return successResponse("Lấy thông tin option thành công!", foundOption);
+};
+
 export const updateOption = async (data, id) => {
+	const validData = handleValidate(optionValidate, data);
 	await getOptionOrThrowById(id);
-	await throwIfOptionNameExists(data.name);
+	await throwIfOptionNameExists(validData.name);
 	await db.Option.update(
 		{
-			name: data.name,
+			name: validData.name,
 		},
 		{
 			where: { id },
@@ -42,7 +51,7 @@ export const updateOption = async (data, id) => {
 	return successResponse("Cập nhật thành công!");
 };
 
-export const deleteOption = async (data, id) => {
+export const deleteOption = async (id) => {
 	await getOptionOrThrowById(id);
 	await db.Option.destroy({
 		where: { id },

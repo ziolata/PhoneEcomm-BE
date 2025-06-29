@@ -13,10 +13,13 @@ import address from "./address-routes.js";
 import review from "./review-routes.js";
 import search from "./search-routes.js";
 import user from "./user-routes.js";
+import brand from "./brand-routes.js";
+
 // Exports the routes as a function
 export const Routers = (app) => {
 	app.use("/api/v1/auth", auth);
 	app.use("/api/v1/category", category);
+	app.use("/api/v1/brand", brand);
 	app.use("/api/v1/product", product);
 	app.use("/api/v1/cart", cart);
 	app.use("/api/v1/order", order);
