@@ -34,6 +34,7 @@ export const createProductVariant = async (data) => {
 			}
 			await db.Variant_option_value.bulkCreate(OptionValue, { transaction });
 		}
+		await transaction.commit();
 		const productInfo = await db.Product.findOne({
 			where: {
 				id: response.product_id,
@@ -50,22 +51,17 @@ export const createProductVariant = async (data) => {
 			],
 		});
 		// Đồng bộ dữ liệu Product Variant vào Elasticsearch
-		await client.index(
-			{
-				index: "product_variants", // Index name
-				id: String(response.id),
-				body: {
-					name: productInfo.name,
-					sku: response.sku,
-					price: response.price,
-					category: productInfo.Category.name,
-					brand: productInfo.Brand.name,
-				},
+		await client.index({
+			index: "product_variants", // Index name
+			id: String(response.id),
+			body: {
+				name: productInfo.name,
+				sku: response.sku,
+				price: response.price,
+				category: productInfo.Category.name,
+				brand: productInfo.Brand.name,
 			},
-			{ transaction },
-		);
-		await transaction.commit();
-
+		});
 		return successResponse("Thêm thành công!", response);
 	} catch (error) {
 		await transaction.rollback();
