@@ -2,6 +2,12 @@ import db, { sequelize } from "../models/index.js";
 import { successResponse, throwError } from "../utils/response-utils.js";
 import { client } from "../config/elastic.js";
 
+// Tạo mã Sku dựa trên id sản phẩm
+const generateSku = (id) => {
+	const prefix = "SP-";
+	const idString = String(id).padStart(6, "0"); // '000123'
+	return prefix + idString; // 'SP-000123'
+};
 const getProductVariantOrThrowById = async (id) => {
 	const foundProductVariant = await db.Product_variant.findByPk(id);
 	if (!foundProductVariant) {
@@ -34,6 +40,11 @@ export const createProductVariant = async (data) => {
 			}
 			await db.Variant_option_value.bulkCreate(OptionValue, { transaction });
 		}
+		const sku = generateSku(response.id);
+		await db.Product_variant.update(
+			{ sku: sku },
+			{ where: { id: response.id }, transaction },
+		);
 		await transaction.commit();
 		const productInfo = await db.Product.findOne({
 			where: {

@@ -24,9 +24,29 @@ import { isAdmin } from "../middleware/auth-middleware.js";
  *         description: Từ khóa tìm kiếm (theo tên hoặc SKU)
  *     responses:
  *       200:
- *         description: Kết quả tìm kiếm thành công
- *       404:
- *         description: Không tìm thấy kết quả
+ *         description: Kết quả tìm kiếm từ khóa
+ */
+
+/**
+ * @swagger
+ * /api/v1/search/filter:
+ *   get:
+ *     summary: Tìm kiếm sản phẩm qua Search
+ *     tags: [Search]
+ *     parameters:
+ *       - in: query
+ *         name: brand
+ *         schema:
+ *           type: string
+ *         description: filter theo thương hiệu sản phẩm
+ *       - in: query
+ *         name: category
+ *         schema:
+ *           type: string
+ *
+ *     responses:
+ *       200:
+ *         description: Dữ liệu đã lọc
  */
 
 /**
