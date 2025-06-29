@@ -9,6 +9,16 @@ export const searchWithElasticSearchController = async (req, res, next) => {
 		next(error);
 	}
 };
+
+export const filterProductVariantController = async (req, res, next) => {
+	try {
+		const { brand, category } = req.query;
+		const response = await services.filterProductVariants({ brand, category });
+		return res.status(200).json(response);
+	} catch (error) {
+		next(error);
+	}
+};
 export const syncElastic = async (req, res, next) => {
 	try {
 		const response = await services.syncProductVariantsToElastic();

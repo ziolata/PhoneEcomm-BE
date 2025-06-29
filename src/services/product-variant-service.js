@@ -34,27 +34,39 @@ export const createProductVariant = async (data) => {
 			}
 			await db.Variant_option_value.bulkCreate(OptionValue, { transaction });
 		}
-		await transaction.commit();
 		const productInfo = await db.Product.findOne({
 			where: {
 				id: response.product_id,
 			},
+			include: [
+				{
+					model: db.Category,
+					attributes: ["name"],
+				},
+				{
+					model: db.Brand,
+					attributes: ["name"],
+				},
+			],
 		});
 		// Đồng bộ dữ liệu Product Variant vào Elasticsearch
-		await client.index({
-			index: "product_variants", // Index name
-			id: String(response.id),
-			body: {
-				name: productInfo.name,
-				sku: response.sku,
-				price: response.price,
+		await client.index(
+			{
+				index: "product_variants", // Index name
+				id: String(response.id),
+				body: {
+					name: productInfo.name,
+					sku: response.sku,
+					price: response.price,
+					category: productInfo.Category.name,
+					brand: productInfo.Brand.name,
+				},
 			},
-		});
-
-		return successResponse(
-			`Thêm biến thể sản phẩm có id: ${product_id} thành công!`,
-			response,
+			{ transaction },
 		);
+		await transaction.commit();
+
+		return successResponse("Thêm thành công!", response);
 	} catch (error) {
 		await transaction.rollback();
 		throw error;
@@ -94,6 +106,7 @@ export const updateProductVariant = async (data, id) => {
 			where: { id },
 		},
 	);
+	// Đồng bộ lại dữ liệu Product Variant khi cập nhật vào Elasticsearch
 	await client.index({
 		index: "product_variants", // Index name
 		id: String(response.id),
@@ -110,6 +123,11 @@ export const deleteProductVariant = async (id) => {
 	await getProductVariantOrThrowById(id);
 	await db.Product_variant.destroy({
 		where: { id },
+	});
+	// Xóa dữ liệu khỏi elastic đồng bộ với database
+	await client.delete({
+		index: "product_variants",
+		id: String(id),
 	});
 	return successResponse("Xóa thành công!");
 };

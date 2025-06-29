@@ -50,4 +50,6 @@ const routes = new Router();
 
 routes.get("/sync_data", isAdmin, controller.syncElastic);
 routes.get("", controller.searchWithElasticSearchController);
+routes.get("/filter", controller.filterProductVariantController);
+
 export default routes;
