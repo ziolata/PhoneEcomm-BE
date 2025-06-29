@@ -18,6 +18,18 @@ export const getAllOrderController = async (req, res, next) => {
 		next(error);
 	}
 };
+
+export const getOneOrderController = async (req, res, next) => {
+	try {
+		const { id } = req.params;
+		const user = req.user;
+		const response = await services.getOneOrder(id, user);
+		return res.status(200).json(response);
+	} catch (error) {
+		next(error);
+	}
+};
+
 export const updateOrderController = async (req, res, next) => {
 	try {
 		const { id } = req.params;

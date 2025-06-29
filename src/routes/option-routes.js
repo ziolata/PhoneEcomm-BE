@@ -102,8 +102,8 @@ import { isAdmin } from "../middleware/auth-middleware.js";
  */
 
 const routes = new Router();
-
 routes.post("/add", isAdmin, controller.createOptionController);
 routes.get("/", controller.getAllOptionController);
-
+routes.get("/update/:id", controller.updateOptionController);
+routes.delete("/delete/:id", controller.deleteOptionController);
 export default routes;

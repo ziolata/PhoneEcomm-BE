@@ -15,7 +15,7 @@ export const createProductVariant = async (data) => {
 	try {
 		const existingProduct = await db.Product.findByPk(data.product_id);
 		if (!existingProduct) {
-			throw { status: 404, message: "product_id không tồn tại!" };
+			throwError(404, "Sản phẩm không tồn tại!");
 		}
 		const response = await db.Product_variant.create(data, { transaction });
 		//  Thêm option Value cho Product Variant
@@ -30,9 +30,9 @@ export const createProductVariant = async (data) => {
 				},
 			});
 			if (valueIdExist.length !== OptionValue.length) {
-				throw { status: 400, message: "Một số giá trị option không hợp lệ!" };
+				throwError(404, "Một số value option không hợp lệ!");
 			}
-			await db.Variant_option_value.bulkCreate(OptionValue);
+			await db.Variant_option_value.bulkCreate(OptionValue, { transaction });
 		}
 		await transaction.commit();
 		const productInfo = await db.Product.findOne({
@@ -40,7 +40,7 @@ export const createProductVariant = async (data) => {
 				id: response.product_id,
 			},
 		});
-		// Thêm dữ liệu Product Variant vào Elasticsearch
+		// Đồng bộ dữ liệu Product Variant vào Elasticsearch
 		await client.index({
 			index: "product_variants", // Index name
 			id: String(response.id),

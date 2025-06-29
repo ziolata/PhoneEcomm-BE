@@ -1,6 +1,13 @@
 import db from "../models/index.js";
 import { successResponse, throwError } from "../utils/response-utils.js";
 
+const getOrThrowReviewById = async (id) => {
+	const foundReview = await db.Review.findByPk(id);
+	if (!foundReview) {
+		throwError(404, "Không tìm thấy đánh giá!");
+	}
+	return foundReview;
+};
 export const createReview = async (data, user_id) => {
 	const existingProduct = await db.Order_item.findOne({
 		where: {
@@ -38,4 +45,28 @@ export const getAllReview = async (product_variant_id) => {
 		`Lấy danh sách đánh giá của sản phẩm ${product_variant_id} thành công!`,
 		response,
 	);
+};
+
+export const getOneReview = async (id) => {
+	const foundReview = await getOrThrowReviewById(id);
+	return successResponse(
+		`Lấy danh sách đánh giá của sản phẩm ${id} thành công!`,
+		foundReview,
+	);
+};
+
+export const deleteReview = async (id) => {
+	await getOrThrowReviewById(id);
+	await db.Review.destroy({ where: { id } });
+	return successResponse("Xóa thành công!");
+};
+
+export const updateReview = async (id, data) => {
+	await getOrThrowReviewById(id);
+	await db.Review.update(data, {
+		where: {
+			id,
+		},
+	});
+	return successResponse("Cập nhật thành công!");
 };
