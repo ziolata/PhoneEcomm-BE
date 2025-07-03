@@ -12,9 +12,7 @@ export const createPaymentController = async (req, res, next) => {
 export const getPaymentController = async (req, res, next) => {
 	try {
 		const response = await services.getPayment(req.query);
-		if (response) {
-			return res.redirect("http://e-commerceee.vn:3000");
-		}
+		return res.status(200).json(response);
 	} catch (error) {
 		next(error);
 	}

@@ -50,6 +50,9 @@ export const createCart = async (data) => {
 		);
 	}
 	// Sản phẩm chưa tồn tại trong giỏ hàng
+
+	await checkInventoryByVariant(data.product_variant_id, data.quantity);
+
 	await db.Cart_item.create({
 		cart_id: cart.id,
 		product_variant_id: data.product_variant_id,

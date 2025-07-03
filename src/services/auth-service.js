@@ -20,10 +20,10 @@ export const register = async (data) => {
 		},
 	});
 	// Nếu email tồn tại
-	if (user) {
-		throwError(400, "Email đăng ký đã tồn tại!");
+	if (created) {
+		return successResponse("Đăng ký thành công!");
 	}
-	return successResponse("Đăng ký thành công!");
+	throwError(400, "Email đăng ký đã tồn tại!");
 };
 
 export const login = async (email, password) => {
@@ -46,7 +46,9 @@ export const login = async (email, password) => {
 			},
 		);
 		const bearerToken = `Bearer ${token}`;
-		return successResponse("Đăng nhập thành công!", bearerToken);
+		return successResponse("Đăng nhập thành công!", {
+			access_token: bearerToken,
+		});
 	}
 	throwError(400, "Sai tài khoản hoặc mật khẩu!");
 };
