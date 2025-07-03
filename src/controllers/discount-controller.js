@@ -22,7 +22,7 @@ export const createMultiDiscountController = async (req, res, next) => {
 			const response = await services.createDiscount(req.body);
 			discounts.push(response);
 		}
-		return res.status(201).json(discounts);
+		return res.status(200).json(discounts);
 	} catch (error) {
 		next(error);
 	}
@@ -31,7 +31,7 @@ export const createMultiDiscountController = async (req, res, next) => {
 export const getAllDiscountController = async (req, res, next) => {
 	try {
 		const response = await services.getAllDiscount();
-		return res.status(201).json(response);
+		return res.status(200).json(response);
 	} catch (error) {
 		next(error);
 	}
@@ -41,7 +41,7 @@ export const deleteDiscountController = async (req, res, next) => {
 	try {
 		const { id } = req.params;
 		const response = await services.deleteDiscount(id);
-		return res.status(201).json(response);
+		return res.status(200).json(response);
 	} catch (error) {
 		next(error);
 	}
