@@ -11,53 +11,33 @@ import { isAdmin, isAuthenticated } from "../middleware/auth-middleware.js";
 
 /**
  * @swagger
- * components:
- *   schemas:
- *     Shipping:
- *       type: object
- *       required:
- *         - order_id
- *         - type
- *         - status
- *         - Shipfee
- *       properties:
- *         order_id:
- *           type: integer
- *         type:
- *           type: string
- *           enum: [Post office, Express delivery]
- *         status:
- *           type: string
- *           enum: [pending, shipped, completed]
- *         Shipfee:
- *           type: number
- *           format: float
- *       example:
- *         order_id: 101
- *         type: Express delivery
- *         status: pending
- *         Shipfee: 25000.5
+ * /api/v1/shipping/:
+ *   post:
+ *     summary: Lấy tất cả thông tin Shipping (chỉ cho Admin)
+ *     tags: [Shipping]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Lấy danh sách địa chỉ nhận hàng thành công!
+ *       404:
+ *         description: Đơn hàng không tồn tại
  */
 
 /**
  * @swagger
- * /api/shipping/:
+ * /api/v1/shipping/{order_id}:
  *   post:
  *     summary: Lấy thông tin giao hàng theo order_id
  *     tags: [Shipping]
  *     security:
  *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - order_id
- *             properties:
- *               order_id:
- *                 type: integer
+ *     parameters:
+ *       - in: path
+ *         name: order_id
+ *         required: true
+ *         schema:
+ *           type: integer
  *     responses:
  *       200:
  *         description: Lấy địa chỉ nhận hàng thành công
@@ -67,7 +47,7 @@ import { isAdmin, isAuthenticated } from "../middleware/auth-middleware.js";
 
 /**
  * @swagger
- * /api/shipping/update/{id}:
+ * /api/v1/shipping/update/{id}:
  *   put:
  *     summary: Cập nhật thông tin giao hàng
  *     tags: [Shipping]
@@ -94,7 +74,7 @@ import { isAdmin, isAuthenticated } from "../middleware/auth-middleware.js";
 
 /**
  * @swagger
- * /api/shipping/delete/{id}:
+ * /api/v1/shipping/delete/{id}:
  *   delete:
  *     summary: Xóa thông tin giao hàng
  *     tags: [Shipping]
