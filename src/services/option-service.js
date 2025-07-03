@@ -6,7 +6,7 @@ import { optionValidate } from "../validations/option-validation.js";
 export const getOptionOrThrowById = async (id) => {
 	const foundOption = await db.Option.findByPk(id);
 	if (!foundOption) {
-		throwError(404, "Không tìm thấy kho!");
+		throwError(404, "Option không tồn tại!");
 	}
 	return foundOption;
 };

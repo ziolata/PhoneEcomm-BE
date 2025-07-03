@@ -1,5 +1,7 @@
 import db, { sequelize } from "../models/index.js";
 import { successResponse, throwError } from "../utils/response-utils.js";
+import { handleValidate } from "../utils/handle-validation-utils.js";
+import { productVariantValidate } from "../validations/product-vadidation.js";
 import { client } from "../config/elastic.js";
 
 // Tạo mã Sku dựa trên id sản phẩm
@@ -9,7 +11,30 @@ const generateSku = (id) => {
 	return prefix + idString; // 'SP-000123'
 };
 const getProductVariantOrThrowById = async (id) => {
-	const foundProductVariant = await db.Product_variant.findByPk(id);
+	const foundProductVariant = await db.Product_variant.findByPk(id, {
+		include: [
+			{
+				model: db.Product,
+				attributes: ["name"],
+			},
+			{
+				model: db.Variant_option_value,
+				attributes: ["id"],
+				include: [
+					{
+						model: db.Option_value,
+						attributes: ["value"],
+						include: [
+							{
+								model: db.Option,
+								attributes: ["name"],
+							},
+						],
+					},
+				],
+			},
+		],
+	});
 	if (!foundProductVariant) {
 		throwError(404, "Không tìm thấy biến thể sản phẩm!");
 	}
@@ -19,16 +44,24 @@ const getProductVariantOrThrowById = async (id) => {
 export const createProductVariant = async (data) => {
 	const transaction = await sequelize.transaction();
 	try {
-		const existingProduct = await db.Product.findByPk(data.product_id);
+		const validData = handleValidate(productVariantValidate, data);
+		const existingProduct = await db.Product.findByPk(validData.product_id);
 		if (!existingProduct) {
 			throwError(404, "Sản phẩm không tồn tại!");
 		}
-		const response = await db.Product_variant.create(data, { transaction });
+		const response = await db.Product_variant.create(validData, {
+			transaction,
+		});
 		//  Thêm option Value cho Product Variant
-		if (data.Option_value && data.Option_value.length > 0) {
-			const OptionValue = data.Option_value.map((value) => ({
+		if (
+			validData.Option_value &&
+			Array.isArray(validData.Option_value) &&
+			validData.Option_value.length > 0
+		) {
+			// Tạo ra mảng gồm product_variant_id và option_value_id
+			const OptionValue = validData.Option_value.map((value) => ({
 				product_variant_id: response.id,
-				option_value_id: value.id,
+				option_value_id: value,
 			}));
 			const valueIdExist = await db.Option_value.findAll({
 				where: {
@@ -81,7 +114,30 @@ export const createProductVariant = async (data) => {
 };
 
 export const getAllProductVariant = async () => {
-	const response = await db.Product_variant.findAll();
+	const response = await db.Product_variant.findAll({
+		include: [
+			{
+				model: db.Product,
+				attributes: ["name"],
+			},
+			{
+				model: db.Variant_option_value,
+				attributes: ["id"],
+				include: [
+					{
+						model: db.Option_value,
+						attributes: ["value"],
+						include: [
+							{
+								model: db.Option,
+								attributes: ["name"],
+							},
+						],
+					},
+				],
+			},
+		],
+	});
 	return successResponse(
 		"Lấy danh sách biến thể sản phẩm thành công!",
 		response,
@@ -98,29 +154,30 @@ export const getOneProductVariant = async (id) => {
 
 export const updateProductVariant = async (data, id) => {
 	await getProductVariantOrThrowById(id);
-	const foundProduct = await db.Product.findByPk(data.product_id);
-	if (foundProduct) {
-		throw { status: 404, message: "Product id không tồn tại!" };
-	}
-	const response = await db.Product_variant.update(
+	const validData = handleValidate(productVariantValidate, data);
+	await db.Product_variant.update(
 		{
-			product_id: data.product_id,
-			img: data.img,
-			sku: data.sku,
-			price: data.price,
+			product_id: validData.product_id,
+			img: validData.img,
+			sku: validData.sku,
+			price: validData.price,
 		},
 		{
 			where: { id },
 		},
 	);
+	// Lấy lại thông tin productVariant mới cập nhật!
+	const updatedProductVariant = await db.Product_variant.findByPk(id, {
+		include: [{ model: db.Product, attributes: ["name"] }],
+	});
 	// Đồng bộ lại dữ liệu Product Variant khi cập nhật vào Elasticsearch
 	await client.index({
 		index: "product_variants", // Index name
 		id: String(response.id),
 		body: {
-			name: foundProduct.name,
-			sku: response.sku,
-			price: response.price,
+			name: updatedProductVariant.Product.name,
+			sku: updatedProductVariant.sku,
+			price: updatedProductVariant.price,
 		},
 	});
 	return successResponse("Cập nhật thành công!");
@@ -128,6 +185,10 @@ export const updateProductVariant = async (data, id) => {
 
 export const deleteProductVariant = async (id) => {
 	await getProductVariantOrThrowById(id);
+	// Xóa dữ liệu trong Variant_option_value trước
+	await db.Variant_option_value.destroy({
+		where: { product_variant_id: id },
+	});
 	await db.Product_variant.destroy({
 		where: { id },
 	});

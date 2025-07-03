@@ -28,6 +28,7 @@ export const createReview = async (data, user_id) => {
 			user_id,
 		},
 	});
+
 	if (!existingProduct) {
 		throwError(400, "Bạn chưa mua sản phẩm này không thể đánh giá!");
 	}

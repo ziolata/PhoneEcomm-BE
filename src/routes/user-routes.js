@@ -11,7 +11,7 @@ import { isAdmin, isAuthenticated } from "../middleware/auth-middleware.js";
 
 /**
  * @swagger
- * /api/v1/user/all:
+ * /api/v1/user:
  *   get:
  *     summary: Lấy tất cả thông tin người dùng (chỉ dành cho admin)
  *     tags: [User]
@@ -162,7 +162,7 @@ import { isAdmin, isAuthenticated } from "../middleware/auth-middleware.js";
  */
 
 const routes = new Router();
-routes.get("/all", isAdmin, controller.getAllUserController);
+routes.get("/", isAdmin, controller.getAllUserController);
 routes.get("/me", isAuthenticated, controller.getUserController);
 routes.get("/:id", controller.getUserController);
 routes.put("/update/me", isAuthenticated, controller.updateUserController);

@@ -3,6 +3,7 @@ import * as services from "../services/review-service.js";
 export const createReviewController = async (req, res, next) => {
 	try {
 		const user_id = req.user.id;
+		req.body.user_id = user_id;
 		const response = await services.createReview(req.body, user_id);
 		return res.status(201).json(response);
 	} catch (error) {
