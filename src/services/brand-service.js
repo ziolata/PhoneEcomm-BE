@@ -1,7 +1,10 @@
 import db from "../models/index.js";
 import { handleValidate } from "../utils/handle-validation-utils.js";
 import { successResponse, throwError } from "../utils/response-utils.js";
-import { brandValidate } from "../validations/brand-validation.js";
+import {
+	brandValidate,
+	updateBrandValidate,
+} from "../validations/brand-validation.js";
 
 const throwIfBrandNameExists = async (name) => {
 	const foundBrand = await db.Brand.findOne({ where: { name } });
@@ -24,7 +27,7 @@ export const addBrand = async (data) => {
 };
 
 export const updateBrand = async (id, data) => {
-	const validData = handleValidate(brandValidate, data);
+	const validData = handleValidate(updateBrandValidate, data);
 	await getBrandOrThrowById(id);
 	await throwIfBrandNameExists(validData.name);
 	await db.Brand.update(validData, {

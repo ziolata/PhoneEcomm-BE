@@ -1,7 +1,10 @@
 import db from "../models/index.js";
 import { handleValidate } from "../utils/handle-validation-utils.js";
 import { successResponse, throwError } from "../utils/response-utils.js";
-import { categoryValidate } from "../validations/category-validation.js";
+import {
+	categoryValidate,
+	updateCategoryValidate,
+} from "../validations/category-validation.js";
 
 const throwIfCategoryNameExists = async (name) => {
 	const foundCategory = await db.Category.findOne({ where: { name } });
@@ -24,8 +27,8 @@ export const addCategory = async (data) => {
 };
 
 export const updateCategory = async (id, data) => {
-	const validData = handleValidate(categoryValidate, data);
-	await throwIfCategoryNameExists(categoryValidate.name);
+	const validData = handleValidate(updateCategoryValidate, data);
+	await throwIfCategoryNameExists(validData.name);
 	await getCategoryOrThrowById(id);
 	await db.Category.update(validData, {
 		where: {

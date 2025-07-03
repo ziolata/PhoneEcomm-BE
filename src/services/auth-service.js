@@ -7,7 +7,7 @@ import { hashPassword } from "../utils/hash-utils.js";
 import { successResponse, throwError } from "../utils/response-utils.js";
 import { sendResetEmail } from "../utils/email-utils.js";
 import { verifyToken } from "../utils/auth-utils.js";
-import { changePasswordValidate } from "../validations/user-validation.js";
+import { changePasswordValidate } from "../validations/auth-validation.js";
 
 export const register = async (data) => {
 	handleValidate(registerSchema, data);

@@ -1,7 +1,10 @@
 import db, { sequelize } from "../models/index.js";
 import { successResponse, throwError } from "../utils/response-utils.js";
 import { handleValidate } from "../utils/handle-validation-utils.js";
-import { productVariantValidate } from "../validations/product-vadidation.js";
+import {
+	productVariantValidate,
+	updateProductVariantValidate,
+} from "../validations/product-vadidation.js";
 import { client } from "../config/elastic.js";
 
 // Tạo mã Sku dựa trên id sản phẩm
@@ -154,7 +157,7 @@ export const getOneProductVariant = async (id) => {
 
 export const updateProductVariant = async (data, id) => {
 	await getProductVariantOrThrowById(id);
-	const validData = handleValidate(productVariantValidate, data);
+	const validData = handleValidate(updateProductVariantValidate, data);
 	await db.Product_variant.update(
 		{
 			product_id: validData.product_id,
