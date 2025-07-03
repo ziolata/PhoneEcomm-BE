@@ -11,8 +11,8 @@ import { isAdmin, isAuthenticated } from "../middleware/auth-middleware.js";
 
 /**
  * @swagger
- * /api/v1/shipping/:
- *   post:
+ * /api/v1/shipping:
+ *   get:
  *     summary: Lấy tất cả thông tin Shipping (chỉ cho Admin)
  *     tags: [Shipping]
  *     security:
@@ -27,7 +27,7 @@ import { isAdmin, isAuthenticated } from "../middleware/auth-middleware.js";
 /**
  * @swagger
  * /api/v1/shipping/{order_id}:
- *   post:
+ *   get:
  *     summary: Lấy thông tin giao hàng theo order_id
  *     tags: [Shipping]
  *     security:

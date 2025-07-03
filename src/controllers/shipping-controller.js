@@ -4,7 +4,7 @@ export const getShippingByOrderIdController = async (req, res, next) => {
 	try {
 		const { order_id } = req.params;
 		const response = await services.getShippingByOrderId(order_id);
-		return res.status(201).json(response);
+		return res.status(200).json(response);
 	} catch (error) {
 		next(error);
 	}
@@ -13,7 +13,7 @@ export const getShippingByOrderIdController = async (req, res, next) => {
 export const getAllShippingController = async (req, res, next) => {
 	try {
 		const response = await services.getAllShipping();
-		return res.status(201).json(response);
+		return res.status(200).json(response);
 	} catch (error) {
 		next(error);
 	}
@@ -23,7 +23,7 @@ export const updateShippingController = async (req, res, next) => {
 	try {
 		const { id } = req.params;
 		const response = await services.updateShipping(id, req.body);
-		return res.status(201).json(response);
+		return res.status(200).json(response);
 	} catch (error) {
 		next(error);
 	}
@@ -33,7 +33,7 @@ export const deleteShippingController = async (req, res) => {
 	try {
 		const { id } = req.params;
 		const response = await services.deleteShipping(id, user);
-		return res.status(201).json(response);
+		return res.status(200).json(response);
 	} catch (error) {
 		next(error);
 	}

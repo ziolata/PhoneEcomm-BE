@@ -14,6 +14,7 @@ import review from "./review-routes.js";
 import search from "./search-routes.js";
 import user from "./user-routes.js";
 import brand from "./brand-routes.js";
+import shipping from "./shipping-routes.js";
 
 // Exports the routes as a function
 export const Routers = (app) => {
@@ -33,4 +34,5 @@ export const Routers = (app) => {
 	app.use("/api/v1/review", review);
 	app.use("/api/v1/search", search);
 	app.use("/api/v1/user", user);
+	app.use("/api/v1/shipping", shipping);
 };
