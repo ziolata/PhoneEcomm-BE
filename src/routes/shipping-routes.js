@@ -1,6 +1,6 @@
 import * as controller from "../controllers/shipping-controller.js";
 import { Router } from "express";
-import { isAuthenticated } from "../middleware/auth-middleware.js";
+import { isAdmin, isAuthenticated } from "../middleware/auth-middleware.js";
 
 /**
  * @swagger
@@ -114,7 +114,12 @@ import { isAuthenticated } from "../middleware/auth-middleware.js";
  */
 
 const routes = new Router();
-routes.post("/", isAuthenticated, controller.getShippingController);
+routes.get("/", isAdmin, controller.getAllShippingController);
+routes.get(
+	"/:order_id",
+	isAuthenticated,
+	controller.getShippingByOrderIdController,
+);
 routes.get("/update/:id", isAdmin, controller.updateShippingController);
 routes.delete("/delete/:id", isAdmin, controller.deleteShippingController);
 export default routes;

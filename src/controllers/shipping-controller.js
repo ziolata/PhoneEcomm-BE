@@ -1,9 +1,18 @@
 import * as services from "../services/shipping-service.js";
 
-export const getShippingController = async (req, res, next) => {
+export const getShippingByOrderIdController = async (req, res, next) => {
 	try {
-		const order_id = req.body.order_id;
+		const { order_id } = req.params;
 		const response = await services.getShippingByOrderId(order_id);
+		return res.status(201).json(response);
+	} catch (error) {
+		next(error);
+	}
+};
+
+export const getAllShippingController = async (req, res, next) => {
+	try {
+		const response = await services.getAllShipping();
 		return res.status(201).json(response);
 	} catch (error) {
 		next(error);
