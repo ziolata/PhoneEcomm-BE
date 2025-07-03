@@ -1,7 +1,10 @@
 import db from "../models/index.js";
 import { handleValidate } from "../utils/handle-validation-utils.js";
 import { successResponse, throwError } from "../utils/response-utils.js";
-import { productValidate } from "../validations/product-vadidation.js";
+import {
+	productValidate,
+	updateProductValidate,
+} from "../validations/product-vadidation.js";
 
 const checkCategoryAndBrandExist = async (category_id, brand_id) => {
 	const foundCategory = await db.Category.findByPk(category_id);
@@ -39,7 +42,7 @@ export const createProduct = async (data) => {
 };
 
 export const updateProduct = async (data, id) => {
-	const validData = handleValidate(productValidate, data);
+	const validData = handleValidate(updateProductValidate, data);
 	await getProductOrThrowById(id);
 	if (validData.category_id && validData.brand_id) {
 		await checkCategoryAndBrandExist(validData.category_id, validData.brand_id);

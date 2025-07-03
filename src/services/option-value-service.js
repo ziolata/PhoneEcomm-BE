@@ -1,7 +1,10 @@
 import db from "../models/index.js";
 import { successResponse, throwError } from "../utils/response-utils.js";
 import { handleValidate } from "../utils/handle-validation-utils.js";
-import { optionValueValidate } from "../validations/option-validation.js";
+import {
+	optionValueValidate,
+	updateOptionValueValidate,
+} from "../validations/option-validation.js";
 
 export const getOptionValueOrThrowById = async (id) => {
 	const foundOptionValue = await db.Option_value.findByPk(id);
@@ -38,7 +41,7 @@ export const getOneOptionValue = async (id) => {
 
 export const updateOptionValue = async (id, data) => {
 	await getOptionValueOrThrowById(id);
-	const validData = handleValidate(optionValueValidate, data);
+	const validData = handleValidate(updateOptionValueValidate, data);
 	await throwIfValueExists(validData.value);
 	await db.Option_value.update(validData, { where: { id } });
 	return successResponse("Cập nhật thành công!");
