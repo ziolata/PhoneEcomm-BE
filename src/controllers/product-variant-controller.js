@@ -1,16 +1,11 @@
 import * as services from "../services/product-variant-service.js";
-import { uploadImage } from "../utils/cloudinary-utils.js";
 
 export const createProductVariantController = async (req, res, next) => {
 	try {
-		const imgFile = req.files?.img;
-		const imgUrl = await uploadImage(
-			imgFile.tempFilePath,
-			req.body.name,
-			"ProductVariant",
+		const response = await services.createProductVariant(
+			req.body,
+			req.files?.img,
 		);
-		req.body.img = imgUrl;
-		const response = await services.createProductVariant(req.body);
 		return res.status(201).json(response);
 	} catch (error) {
 		next(error);
@@ -39,17 +34,11 @@ export const getOneProductVariantController = async (req, res, next) => {
 export const updateProductVariantController = async (req, res, next) => {
 	try {
 		const { id } = req.params;
-		if (req.files?.img) {
-			const imgFile = req.files.img;
-			const imgUrl = await uploadImage(
-				imgFile.tempFilePath,
-				req.body.name,
-				"Product",
-			);
-
-			req.body.img = imgUrl;
-		}
-		const response = await services.updateProductVariant(req.body, id);
+		const response = await services.updateProductVariant(
+			id,
+			req.body,
+			req.files?.img,
+		);
 		return res.status(200).json(response);
 	} catch (error) {
 		next(error);

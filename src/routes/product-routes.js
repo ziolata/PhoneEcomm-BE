@@ -37,7 +37,7 @@ import { isAdmin } from "../middleware/auth-middleware.js";
  *       200:
  *         description: Lấy thông tin sản phẩm thành công
  *       404:
- *         description: Sản phẩm không tồn tại
+ *         description: Không tìm thấy sản phẩm!
  */
 
 /**
@@ -51,16 +51,19 @@ import { isAdmin } from "../middleware/auth-middleware.js";
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             properties:
  *               name:
  *                 type: string
+ *                 example: iPhone 16 Promax
  *               img:
  *                 type: string
+ *                 format: binary
  *               description:
  *                 type: string
+ *                 example: Mẫu điện thoại Apple mới nhất
  *               features:
  *                 type: string
  *                 enum: [hot, discount, over]
@@ -68,20 +71,24 @@ import { isAdmin } from "../middleware/auth-middleware.js";
  *                 type: integer
  *               brand_id:
  *                 type: integer
- *             example:
- *               name: Áo thun nam
- *               img: url-hinh-anh
- *               description: Mô tả sản phẩm
- *               features: hot
- *               category_id: 1
- *               brand_id: 1
+ *
  *     responses:
- *       200:
- *         description: Thêm sản phẩm thành công
+ *       201:
+ *         description: Thêm thành công!
  *       400:
- *         description: Dữ liệu không hợp lệ hoặc tên sản phẩm đã tồn tại
+ *         description: Dữ liệu không hợp lệ hoặc Tên sản phẩm đã tồn tại!
  *       401:
- *         description: Chưa đăng nhập
+ *        description: >
+ *         - Phiên đăng nhập đã hết thời gian, vui lòng đăng nhập lại !
+ *
+ *         - Token xác thực không hợp lệ, vui lòng đăng nhập lại!
+ *
+ *         - Chưa đăng nhập: Vui lòng đăng nhập để tiếp tục.
+ *
+ *       403:
+ *         description: Bạn không đủ quyền truy cập!
+ *       500:
+ *         description: Đã xảy ra lỗi khi xác thực phiên đăng nhập, vui lòng thử lại sau!
  */
 
 /**
@@ -102,16 +109,19 @@ import { isAdmin } from "../middleware/auth-middleware.js";
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             properties:
  *               name:
  *                 type: string
+ *                 example: iPhone 16 Promax
  *               img:
  *                 type: string
+ *                 format: binary
  *               description:
  *                 type: string
+ *                 example: Mẫu điện thoại Apple mới nhất
  *               features:
  *                 type: string
  *                 enum: [hot, discount, over]
@@ -119,22 +129,26 @@ import { isAdmin } from "../middleware/auth-middleware.js";
  *                 type: integer
  *               brand_id:
  *                 type: integer
- *             example:
- *               name: Áo thun nam
- *               img: url-hinh-anh
- *               description: Mô tả sản phẩm cập nhật
- *               features: discount
- *               category_id: 1
- *               brand_id: 2
+ *
  *     responses:
  *       200:
  *         description: Cập nhật sản phẩm thành công
  *       400:
- *         description: Dữ liệu không hợp lệ hoặc tên sản phẩm đã tồn tại
+ *         description: Dữ liệu không hợp lệ hoặc Tên sản phẩm đã tồn tại!
  *       401:
- *         description: Chưa đăng nhập
+ *        description: >
+ *         - Phiên đăng nhập đã hết thời gian, vui lòng đăng nhập lại !
+ *
+ *         - Token xác thực không hợp lệ, vui lòng đăng nhập lại!
+ *
+ *         - Chưa đăng nhập: Vui lòng đăng nhập để tiếp tục.
+ *
+ *       403:
+ *         description: Bạn không đủ quyền truy cập!
+ *       500:
+ *         description: Đã xảy ra lỗi khi xác thực phiên đăng nhập, vui lòng thử lại sau!
  *       404:
- *         description: Sản phẩm không tồn tại
+ *         description: Không tìm thấy sản phẩm!
  */
 
 /**
@@ -155,9 +169,20 @@ import { isAdmin } from "../middleware/auth-middleware.js";
  *     responses:
  *       200:
  *         description: Xoá thành công!
- *       403:
- *         description: Không có quyền!
+ *       401:
+ *        description: >
+ *         - Phiên đăng nhập đã hết thời gian, vui lòng đăng nhập lại !
  *
+ *         - Token xác thực không hợp lệ, vui lòng đăng nhập lại!
+ *
+ *         - Chưa đăng nhập: Vui lòng đăng nhập để tiếp tục.
+ *
+ *       403:
+ *         description: Bạn không đủ quyền truy cập!
+ *       500:
+ *         description: Đã xảy ra lỗi khi xác thực phiên đăng nhập, vui lòng thử lại sau!
+ *       404:
+ *         description: Không tìm thấy sản phẩm!
  */
 
 const routes = new Router();
@@ -166,6 +191,6 @@ routes.get("/", controller.getAllProductController);
 routes.get("/:id", controller.getOneProductController);
 routes.post("/add", isAdmin, controller.createProductController);
 routes.put("/update/:id", isAdmin, controller.updateProductController);
-routes.put("/delete/:id", isAdmin, controller.deleteProductController);
+routes.delete("/delete/:id", isAdmin, controller.deleteProductController);
 
 export default routes;

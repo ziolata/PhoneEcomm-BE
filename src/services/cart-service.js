@@ -62,26 +62,28 @@ export const createCart = async (data) => {
 	return successResponse("Thêm thành công!");
 };
 
-export const deleteCartItem = async (id, user_id) => {
-	const itemExist = await db.Cart_item.findAll(
-		{
-			where: { id },
+export const deleteCartItem = async (id, user) => {
+	const itemExist = await db.Cart_item.findByPk(id, {
+		include: {
+			model: db.Cart,
+			attributes: ["user_id"],
+			where: { user_id: user.id },
 		},
-		{
-			include: {
-				model: Cart,
-				attributes: ["user_id"],
-				where: {
-					user_id: user_id,
-				},
-			},
-		},
-	);
+	});
+	console.log(itemExist);
+
 	if (!itemExist) {
 		throwError(404, "Sản phẩm không tồn tại!");
 	}
+	if (itemExist.Cart.user_id !== user.id) {
+		throwError(
+			403,
+			"Bạn không thể xóa sản phẩm trong giỏ hàng của tài khoản khác!",
+		);
+	}
+
 	await db.Cart_item.destroy({
-		where: { id: param },
+		where: { id },
 	});
 
 	return successResponse("Xóa thành công!");
@@ -122,30 +124,53 @@ export const getAllCart = async (user_id) => {
 	return successResponse("Lấy danh sách giỏ hàng thành công!", response);
 };
 
-export const updateCart = async (id, user_id) => {
+export const updateCart = async (id, data, user) => {
 	const cartItemExist = await db.Cart_item.findOne({
 		where: { id },
 		include: {
-			model: Cart,
+			model: db.Cart,
 			attributes: ["user_id"],
-			where: { user_id },
+			where: { user_id: user.id },
 		},
 	});
 	if (!cartItemExist) {
 		throwError(404, "Sản phẩm này không tồn tại trong giỏ hàng !");
 	}
-	// Kiểm tra tồn kho
-	await checkInventoryByVariant(
-		cartItemExist.product_variant_id,
-		cartItemExist.quantity + 1,
-	);
-	await db.Cart_item.update(
-		{
-			quantity: cartItemExist.quantity + 1,
-		},
-		{
-			where: { id },
-		},
-	);
+	if (cartItemExist.Cart.user_id !== user.id) {
+		throwError(
+			403,
+			"Bạn không thể cập nhật sản phẩm trong giỏ hàng của tài khoản khác!",
+		);
+	}
+
+	if (data.quantity && data.quantity > 0) {
+		// Kiểm tra tồn kho
+		await checkInventoryByVariant(
+			cartItemExist.product_variant_id,
+			data.quantity,
+		);
+		await db.Cart_item.update(
+			{
+				quantity: data.quantity,
+			},
+			{
+				where: { id },
+			},
+		);
+	} else {
+		await checkInventoryByVariant(
+			cartItemExist.product_variant_id,
+			cartItemExist.quantity + 1,
+		);
+		await db.Cart_item.update(
+			{
+				quantity: cartItemExist.quantity + 1,
+			},
+			{
+				where: { id },
+			},
+		);
+	}
+
 	return successResponse("Cập nhật số lượng thành công!");
 };

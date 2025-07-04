@@ -10,13 +10,16 @@ import { verifyToken } from "../utils/auth-utils.js";
 import { changePasswordValidate } from "../validations/auth-validation.js";
 
 export const register = async (data) => {
-	handleValidate(registerSchema, data);
+	const validData = handleValidate(registerSchema, data);
 	const [user, created] = await db.User.findOrCreate({
 		where: { email: data.email },
 		defaults: {
-			email: data.email,
-			fullname: data.fullname,
-			password: hashPassword(data.password),
+			email: validData.email,
+			fullname: validData.fullname,
+			password: hashPassword(validData.password),
+			sex: validData.sex,
+			phone: validData.phone,
+			role_id: 2,
 		},
 	});
 	// Nếu email tồn tại
@@ -28,16 +31,16 @@ export const register = async (data) => {
 
 export const login = async (email, password) => {
 	// Kiểm tra đầu vào bằng thư viện Joi
-	handleValidate(loginSchema, { email, password });
+	const validData = handleValidate(loginSchema, { email, password });
 	const foundUser = await db.User.findOne({
-		where: { email },
+		where: { email: validData.email },
 		include: {
 			model: db.Role,
 			attributes: ["id", "name"],
 		},
 	});
 	// Email tồn tại và kiểm tra mã khẩu được mã hóa và mật khẩu truyền vào bằng thư viên bcrypt
-	if (foundUser && bcrypt.compareSync(password, foundUser.password)) {
+	if (foundUser && bcrypt.compareSync(validData.password, foundUser.password)) {
 		const token = jwt.sign(
 			{ id: foundUser.id, email: foundUser.email, role: foundUser.Role.name },
 			process.env.JWT_SECRET,
@@ -45,9 +48,8 @@ export const login = async (email, password) => {
 				expiresIn: "3d",
 			},
 		);
-		const bearerToken = `Bearer ${token}`;
 		return successResponse("Đăng nhập thành công!", {
-			access_token: bearerToken,
+			access_token: token,
 		});
 	}
 	throwError(400, "Sai tài khoản hoặc mật khẩu!");
@@ -86,7 +88,7 @@ export const forgotPassword = async (email) => {
 		},
 	});
 	if (!emailExist) {
-		throw { status: 400, message: "Email không tồn tại" };
+		throw { status: 404, message: "Email không tồn tại!" };
 	}
 	const token = jwt.sign(
 		{ id: emailExist.id, email: emailExist.email },
@@ -105,19 +107,20 @@ export const forgotPassword = async (email) => {
 };
 
 export const resetPassword = async (data) => {
+	const validData = handleValidate(changePasswordValidate, data);
 	const user = await db.User.findOne({
 		where: {
 			password_reset_token: data.token,
 		},
 	});
 	if (!user) {
-		throwError(404, "Yêu cầu đổi mật khẩu không hợp lệ!");
+		throwError(404, "Yêu cầu đổi mật khẩu không tồn tại!");
 	}
 	const decode = verifyToken(data.token);
 
 	await db.User.update(
 		{
-			password: hashPassword(data.password),
+			password: hashPassword(validData.password),
 			password_reset_token: null,
 		},
 		{

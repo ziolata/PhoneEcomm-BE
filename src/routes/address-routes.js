@@ -11,42 +11,6 @@ import { isAuthenticated } from "../middleware/auth-middleware.js";
 
 /**
  * @swagger
- * components:
- *   schemas:
- *     Address:
- *       type: object
- *       properties:
- *         user_id:
- *           type: integer
- *         shipping_id:
- *           type: integer
- *         name:
- *           type: string
- *         phone:
- *           type: integer
- *         address_line_1:
- *           type: integer
- *         address_line_2:
- *           type: integer
- *         address_type:
- *           type: string
- *           enum: [Home, Office]
- *         address_default:
- *           type: string
- *           enum: [Yes, No]
- *       example:
- *         user_id: 1
- *         shipping_id: 10
- *         name: Nguyễn Văn A
- *         phone: 0123456789
- *         address_line_1: 123
- *         address_line_2: 456
- *         address_type: Home
- *         address_default: Yes
- */
-
-/**
- * @swagger
  * /api/v1/address/add:
  *   post:
  *     summary: Thêm địa chỉ mới
@@ -58,12 +22,34 @@ import { isAuthenticated } from "../middleware/auth-middleware.js";
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/Address'
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               phone:
+ *                 type: string
+ *               address_line_1:
+ *                 type: string
+ *               address_line_2:
+ *                 type: string
+ *               address_type:
+ *                 type: string
+ *                 enum: [Home, Office]
+ *               address_default:
+ *                 type: string
+ *                 enum: [Yes, No]
  *     responses:
- *       200:
- *         description: Thêm địa chỉ thành công
+ *       201:
+ *         description: Thêm địa chỉ thành công!
  *       401:
- *         description: Chưa đăng nhập
+ *        description: >
+ *         - Phiên đăng nhập đã hết thời gian, vui lòng đăng nhập lại !
+ *
+ *         - Token xác thực không hợp lệ, vui lòng đăng nhập lại!
+ *
+ *         - Chưa đăng nhập: Vui lòng đăng nhập để tiếp tục.
+ *       500:
+ *         description: Đã xảy ra lỗi khi xác thực phiên đăng nhập, vui lòng thử lại sau!
  */
 
 /**
@@ -77,16 +63,21 @@ import { isAuthenticated } from "../middleware/auth-middleware.js";
  *     responses:
  *       200:
  *         description: Lấy danh sách địa chỉ thành công
- *       400:
- *         description: Không tìm thấy địa chỉ
  *       401:
- *         description: Chưa đăng nhập
+ *        description: >
+ *         - Phiên đăng nhập đã hết thời gian, vui lòng đăng nhập lại !
+ *
+ *         - Token xác thực không hợp lệ, vui lòng đăng nhập lại!
+ *
+ *         - Chưa đăng nhập: Vui lòng đăng nhập để tiếp tục.
+ *       500:
+ *         description: Đã xảy ra lỗi khi xác thực phiên đăng nhập, vui lòng thử lại sau!
  */
 
 /**
  * @swagger
  * /api/v1/address/update/{id}:
- *   get:
+ *   put:
  *     summary: Cập nhật địa chỉ
  *     tags: [Address]
  *     security:
@@ -103,14 +94,38 @@ import { isAuthenticated } from "../middleware/auth-middleware.js";
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/Address'
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               phone:
+ *                 type: string
+ *               address_line_1:
+ *                 type: string
+ *               address_line_2:
+ *                 type: string
+ *               address_type:
+ *                 type: string
+ *                 enum: [Home, Office]
+ *               address_default:
+ *                 type: string
+ *                 enum: [Yes, No]
  *     responses:
  *       200:
- *         description: Cập nhật địa chỉ thành công
- *       400:
- *         description: Không có quyền cập nhật
+ *         description: Cập nhật địa chỉ thành công!
+ *       404:
+ *         description: Không tìm thấy địa chỉ!
+ *       403:
+ *         description: Bạn không có quyền cập nhật địa chỉ của tài khoản khác!
  *       401:
- *         description: Chưa đăng nhập
+ *        description: >
+ *         - Phiên đăng nhập đã hết thời gian, vui lòng đăng nhập lại !
+ *
+ *         - Token xác thực không hợp lệ, vui lòng đăng nhập lại!
+ *
+ *         - Chưa đăng nhập: Vui lòng đăng nhập để tiếp tục.
+ *       500:
+ *         description: Đã xảy ra lỗi khi xác thực phiên đăng nhập, vui lòng thử lại sau!
  */
 
 /**
@@ -131,10 +146,17 @@ import { isAuthenticated } from "../middleware/auth-middleware.js";
  *     responses:
  *       200:
  *         description: Xóa địa chỉ thành công
- *       400:
- *         description: Không có quyền xóa
+ *       403:
+ *         description: Bạn không có quyền xóa địa chỉ của tài khoản khác!
  *       401:
- *         description: Chưa đăng nhập
+ *        description: >
+ *         - Phiên đăng nhập đã hết thời gian, vui lòng đăng nhập lại !
+ *
+ *         - Token xác thực không hợp lệ, vui lòng đăng nhập lại!
+ *
+ *         - Chưa đăng nhập: Vui lòng đăng nhập để tiếp tục.
+ *       500:
+ *         description: Đã xảy ra lỗi khi xác thực phiên đăng nhập, vui lòng thử lại sau!
  */
 
 const routes = new Router();

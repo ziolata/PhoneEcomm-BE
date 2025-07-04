@@ -11,26 +11,6 @@ import { isAuthenticated } from "../middleware/auth-middleware.js";
 
 /**
  * @swagger
- * components:
- *   schemas:
- *     CartItem:
- *       type: object
- *       properties:
- *         product_variant_id:
- *           type: integer
- *         quantity:
- *           type: integer
- *         price:
- *           type: number
- *           format: float
- *       example:
- *         product_variant_id: 1
- *         quantity: 2
- *         price: 5000000
- */
-
-/**
- * @swagger
  * /api/v1/cart:
  *   get:
  *     summary: Lấy danh sách giỏ hàng của người dùng
@@ -41,7 +21,14 @@ import { isAuthenticated } from "../middleware/auth-middleware.js";
  *       200:
  *         description: Lấy danh sách giỏ hàng thành công
  *       401:
- *         description: Chưa đăng nhập
+ *        description: >
+ *         - Phiên đăng nhập đã hết thời gian, vui lòng đăng nhập lại !
+ *
+ *         - Token xác thực không hợp lệ, vui lòng đăng nhập lại!
+ *
+ *         - Chưa đăng nhập: Vui lòng đăng nhập để tiếp tục.
+ *       500:
+ *         description: Đã xảy ra lỗi khi xác thực phiên đăng nhập, vui lòng thử lại sau!
  */
 
 /**
@@ -59,54 +46,81 @@ import { isAuthenticated } from "../middleware/auth-middleware.js";
  *           schema:
  *             type: object
  *             properties:
- *               user_id:
- *                 type: integer
  *               product_variant_id:
  *                 type: integer
  *               quantity:
  *                 type: integer
  *             example:
- *               user_id: 1
  *               product_variant_id: 2
  *               quantity: 1
  *     responses:
- *       200:
- *         description: Thêm sản phẩm vào giỏ hàng thành công
+ *       201:
+ *         description: >
+ *          - Thêm thành công!
+ *
+ *          - Sản phẩm đã tồn tại, tăng số lượng sản phẩm trong giỏ hàng!
  *       400:
- *         description: Sản phẩm đã hết hàng hoặc dữ liệu không hợp lệ
+ *         description: Số lượng trong kho không đủ!
  *       401:
- *         description: Chưa đăng nhập
+ *        description: >
+ *         - Phiên đăng nhập đã hết thời gian, vui lòng đăng nhập lại !
+ *
+ *         - Token xác thực không hợp lệ, vui lòng đăng nhập lại!
+ *
+ *         - Chưa đăng nhập: Vui lòng đăng nhập để tiếp tục.
+ *       404:
+ *        description: >
+ *         - Sản phẩm không tồn tại!
+ *
+ *         - Không tìm thấy kho của sản phẩm!
+ *       500:
+ *         description: Đã xảy ra lỗi khi xác thực phiên đăng nhập, vui lòng thử lại sau!
  */
 
 /**
  * @swagger
- * /api/v1/cart/update:
+ * /api/v1/cart/update/{id}:
  *   put:
  *     summary: Cập nhật số lượng sản phẩm trong giỏ hàng (tăng số lượng)
  *     tags: [Cart]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID của cartItem cần cập nhật
  *     requestBody:
- *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
  *             properties:
- *               id:
- *                 type: integer
- *               user_id:
+ *               quantity:
  *                 type: integer
  *             example:
- *               id: 1
- *               user_id: 1
+ *               quantity: 5
  *     responses:
  *       200:
  *         description: Cập nhật số lượng thành công
  *       400:
- *         description: Hàng đã hết hoặc không có quyền cập nhật
+ *         description: Số lượng trong kho không đủ!
  *       401:
- *         description: Chưa đăng nhập
+ *        description: >
+ *         - Phiên đăng nhập đã hết thời gian, vui lòng đăng nhập lại !
+ *
+ *         - Token xác thực không hợp lệ, vui lòng đăng nhập lại!
+ *
+ *         - Chưa đăng nhập: Vui lòng đăng nhập để tiếp tục.
+ *       404:
+ *        description: >
+ *         - Sản phẩm không tồn tại!
+ *
+ *         - Không tìm thấy kho của sản phẩm!
+ *       500:
+ *         description: Đã xảy ra lỗi khi xác thực phiên đăng nhập, vui lòng thử lại sau!
  */
 
 /**
@@ -126,16 +140,23 @@ import { isAuthenticated } from "../middleware/auth-middleware.js";
  *         description: ID của cart_item cần xóa
  *     responses:
  *       200:
- *         description: Xóa sản phẩm khỏi giỏ hàng thành công
+ *         description: Xóa thành công!
  *       404:
- *         description: Sản phẩm không tồn tại
+ *         description: Sản phẩm không tồn tại!
  *       401:
- *         description: Chưa đăng nhập
+ *        description: >
+ *         - Phiên đăng nhập đã hết thời gian, vui lòng đăng nhập lại !
+ *
+ *         - Token xác thực không hợp lệ, vui lòng đăng nhập lại!
+ *
+ *         - Chưa đăng nhập: Vui lòng đăng nhập để tiếp tục.
+ *       500:
+ *         description: Đã xảy ra lỗi khi xác thực phiên đăng nhập, vui lòng thử lại sau!
  */
 
 const routes = new Router();
 routes.get("/", isAuthenticated, controller.getAllCartController);
 routes.post("/add", isAuthenticated, controller.createCartController);
-routes.put("/update", isAuthenticated, controller.updateCartController);
+routes.put("/update/:id", isAuthenticated, controller.updateCartController);
 routes.delete("/delete/:id", isAuthenticated, controller.deleteCartController);
 export default routes;

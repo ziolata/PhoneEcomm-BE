@@ -21,7 +21,16 @@ import { isAdmin, isAuthenticated } from "../middleware/auth-middleware.js";
  *       200:
  *         description: Lấy danh sách người dùng thành công!
  *       401:
- *         description: Chưa xác thực
+ *        description: >
+ *         - Phiên đăng nhập đã hết thời gian, vui lòng đăng nhập lại !
+ *
+ *         - Token xác thực không hợp lệ, vui lòng đăng nhập lại!
+ *
+ *         - Chưa đăng nhập: Vui lòng đăng nhập để tiếp tục.
+ *       403:
+ *         description: Bạn không đủ quyền truy cập!
+ *       500:
+ *         description: Đã xảy ra lỗi khi xác thực phiên đăng nhập, vui lòng thử lại sau!
  */
 
 /**
@@ -36,7 +45,15 @@ import { isAdmin, isAuthenticated } from "../middleware/auth-middleware.js";
  *       200:
  *         description: Lấy thông tin thành công
  *       401:
- *         description: Chưa xác thực
+ *        description: >
+ *         - Phiên đăng nhập đã hết thời gian, vui lòng đăng nhập lại !
+ *
+ *         - Token xác thực không hợp lệ, vui lòng đăng nhập lại!
+ *
+ *         - Chưa đăng nhập: Vui lòng đăng nhập để tiếp tục.
+ *
+ *       500:
+ *         description: Đã xảy ra lỗi khi xác thực phiên đăng nhập, vui lòng thử lại sau!
  */
 
 /**
@@ -54,9 +71,20 @@ import { isAdmin, isAuthenticated } from "../middleware/auth-middleware.js";
  *         description: ID người dùng
  *     responses:
  *       200:
- *         description: Lấy thông tin thành công
+ *         description: Lấy thông tin thành công!
  *       404:
- *         description: Không tìm thấy người dùng
+ *         description: Không tìm thấy người dùng!
+ *       401:
+ *        description: >
+ *         - Phiên đăng nhập đã hết thời gian, vui lòng đăng nhập lại !
+ *
+ *         - Token xác thực không hợp lệ, vui lòng đăng nhập lại!
+ *
+ *         - Chưa đăng nhập: Vui lòng đăng nhập để tiếp tục.
+ *       403:
+ *         description: Bạn không đủ quyền truy cập!
+ *       500:
+ *         description: Đã xảy ra lỗi khi xác thực phiên đăng nhập, vui lòng thử lại sau!
  */
 
 /**
@@ -90,7 +118,18 @@ import { isAdmin, isAuthenticated } from "../middleware/auth-middleware.js";
  *       400:
  *         description: Dữ liệu không hợp lệ
  *       401:
- *         description: Chưa xác thực
+ *        description: >
+ *         - Phiên đăng nhập đã hết thời gian, vui lòng đăng nhập lại !
+ *
+ *         - Token xác thực không hợp lệ, vui lòng đăng nhập lại!
+ *
+ *         - Chưa đăng nhập: Vui lòng đăng nhập để tiếp tục.
+ *       403:
+ *         description: Bạn không có quyền thay đổi vai trò!
+ *       404:
+ *         description: Không tìm thấy người dùng!
+ *       500:
+ *         description: Đã xảy ra lỗi khi xác thực phiên đăng nhập, vui lòng thử lại sau!
  */
 
 /**
@@ -131,10 +170,17 @@ import { isAdmin, isAuthenticated } from "../middleware/auth-middleware.js";
  *     responses:
  *       200:
  *         description: Cập nhật thành công!
+ *       401:
+ *        description: >
+ *         - Phiên đăng nhập đã hết thời gian, vui lòng đăng nhập lại !
+ *
+ *         - Token xác thực không hợp lệ, vui lòng đăng nhập lại!
+ *
+ *         - Chưa đăng nhập: Vui lòng đăng nhập để tiếp tục.
  *       403:
- *         description: Bạn không có quyền thay đổi vai trò!
- *       404:
- *         description: Không tìm thấy người dùng!
+ *         description: Bạn không đủ quyền truy cập!
+ *       500:
+ *         description: Đã xảy ra lỗi khi xác thực phiên đăng nhập, vui lòng thử lại sau!
  */
 
 /**
@@ -154,11 +200,21 @@ import { isAdmin, isAuthenticated } from "../middleware/auth-middleware.js";
  *         description: ID người dùng cần xoá
  *     responses:
  *       200:
- *         description: Xoá thành công
+ *         description: Xoá thành công!
+ *       401:
+ *        description: >
+ *         - Phiên đăng nhập đã hết thời gian, vui lòng đăng nhập lại !
+ *
+ *         - Token xác thực không hợp lệ, vui lòng đăng nhập lại!
+ *
+ *         - Chưa đăng nhập: Vui lòng đăng nhập để tiếp tục.
  *       403:
- *         description: Không có quyền
+ *         description: Bạn không đủ quyền truy cập!
  *       404:
  *         description: Không tìm thấy người dùng
+ *       500:
+ *         description: Đã xảy ra lỗi khi xác thực phiên đăng nhập, vui lòng thử lại sau!
+ *
  */
 
 const routes = new Router();

@@ -36,12 +36,22 @@ import { isAdmin } from "../middleware/auth-middleware.js";
  *               img: https://example.com/image.jpg
  *               description: Thương hiệu Sam Sung
  *     responses:
- *       200:
+ *       201:
  *         description: Thêm thành công!
  *       400:
- *         description: Thương hiệu đã tồn tại hoặc dữ liệu không hợp lệ
+ *         description: Thương hiệu đã tồn tại!
  *       401:
- *         description: Chưa đăng nhập hoặc không có quyền
+ *        description: >
+ *         - Phiên đăng nhập đã hết thời gian, vui lòng đăng nhập lại !
+ *
+ *         - Token xác thực không hợp lệ, vui lòng đăng nhập lại!
+ *
+ *         - Chưa đăng nhập: Vui lòng đăng nhập để tiếp tục.
+ *
+ *       403:
+ *         description: Bạn không đủ quyền truy cập!
+ *       500:
+ *         description: Đã xảy ra lỗi khi xác thực phiên đăng nhập, vui lòng thử lại sau!
  */
 
 /**
@@ -68,24 +78,33 @@ import { isAdmin } from "../middleware/auth-middleware.js";
  *             properties:
  *               name:
  *                 type: string
+ *                 example: Xiaomi
  *               img:
  *                 type: string
  *                 format: binary
  *               description:
  *                 type: string
+ *                 example: Thương hiệu xiaomi
  *             example:
  *               name: Xiaomi
- *               img: https://example.com/new-image.jpg
  *               description: Thương hiệu xiaomi
  *     responses:
  *       200:
  *         description: Cập nhật thành công!
  *       400:
- *         description: Danh mục đã tồn tại hoặc dữ liệu không hợp lệ
+ *         description: Thương hiệu đã tồn tại!
  *       401:
- *         description: Chưa đăng nhập hoặc không có quyền
- *       404:
- *         description: Không tìm thấy thương hiệu!
+ *        description: >
+ *         - Phiên đăng nhập đã hết thời gian, vui lòng đăng nhập lại !
+ *
+ *         - Token xác thực không hợp lệ, vui lòng đăng nhập lại!
+ *
+ *         - Chưa đăng nhập: Vui lòng đăng nhập để tiếp tục.
+ *
+ *       403:
+ *         description: Bạn không đủ quyền truy cập!
+ *       500:
+ *         description: Đã xảy ra lỗi khi xác thực phiên đăng nhập, vui lòng thử lại sau!
  */
 
 /**
@@ -107,17 +126,27 @@ import { isAdmin } from "../middleware/auth-middleware.js";
  *       200:
  *         description: Xóa thành công!
  *       401:
- *         description: Chưa đăng nhập hoặc không có quyền
+ *        description: >
+ *         - Phiên đăng nhập đã hết thời gian, vui lòng đăng nhập lại !
+ *
+ *         - Token xác thực không hợp lệ, vui lòng đăng nhập lại!
+ *
+ *         - Chưa đăng nhập: Vui lòng đăng nhập để tiếp tục.
+ *
+ *       403:
+ *         description: Bạn không đủ quyền truy cập!
+ *       500:
+ *         description: Đã xảy ra lỗi khi xác thực phiên đăng nhập, vui lòng thử lại sau!
  *       404:
- *         description: Không tìm thấy thương hiệu!
+ *         description: Thương hiệu không tồn tại!
  */
 
 /**
  * @swagger
- * /api/v1/category:
+ * /api/v1/brand:
  *   get:
  *     summary: Lấy danh sách tất cả thương hiệu sản phẩm
- *     tags: [Category]
+ *     tags: [Brand]
  *     responses:
  *       200:
  *         description: Lấy danh sách thương hiệu thành công!

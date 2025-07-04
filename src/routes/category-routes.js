@@ -20,27 +20,40 @@ import { isAdmin } from "../middleware/auth-middleware.js";
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *          multipart/form-data:
  *           schema:
  *             type: object
  *             properties:
  *               name:
  *                 type: string
+ *                 example: Xiaomi
  *               img:
  *                 type: string
+ *                 format: binary
  *               description:
  *                 type: string
+ *                 example: Thương hiệu xiaomi
  *             example:
  *               name: Điện thoại
  *               img: https://example.com/image.jpg
  *               description: Các dòng điện thoại mới nhất
  *     responses:
- *       200:
- *         description: Thêm danh mục thành công
+ *       201:
+ *         description: Thêm thành công!
  *       400:
  *         description: Danh mục đã tồn tại hoặc dữ liệu không hợp lệ
  *       401:
- *         description: Chưa đăng nhập hoặc không có quyền
+ *        description: >
+ *         - Phiên đăng nhập đã hết thời gian, vui lòng đăng nhập lại !
+ *
+ *         - Token xác thực không hợp lệ, vui lòng đăng nhập lại!
+ *
+ *         - Chưa đăng nhập: Vui lòng đăng nhập để tiếp tục.
+ *
+ *       403:
+ *         description: Bạn không đủ quyền truy cập!
+ *       500:
+ *         description: Đã xảy ra lỗi khi xác thực phiên đăng nhập, vui lòng thử lại sau!
  */
 
 /**
@@ -61,29 +74,43 @@ import { isAdmin } from "../middleware/auth-middleware.js";
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *          multipart/form-data:
  *           schema:
  *             type: object
  *             properties:
  *               name:
  *                 type: string
+ *                 example: Xiaomi
  *               img:
  *                 type: string
+ *                 format: binary
  *               description:
  *                 type: string
+ *                 example: Thương hiệu xiaomi
  *             example:
  *               name: Điện thoại mới
  *               img: https://example.com/new-image.jpg
  *               description: Danh mục điện thoại cao cấp
  *     responses:
  *       200:
- *         description: Cập nhật danh mục thành công
+ *         description: Cập nhật thành công!
  *       400:
  *         description: Danh mục đã tồn tại hoặc dữ liệu không hợp lệ
  *       401:
- *         description: Chưa đăng nhập hoặc không có quyền
+ *        description: >
+ *         - Phiên đăng nhập đã hết thời gian, vui lòng đăng nhập lại !
+ *
+ *         - Token xác thực không hợp lệ, vui lòng đăng nhập lại!
+ *
+ *         - Chưa đăng nhập: Vui lòng đăng nhập để tiếp tục.
+ *
+ *       403:
+ *         description: Bạn không đủ quyền truy cập!
+ *       500:
+ *         description: Đã xảy ra lỗi khi xác thực phiên đăng nhập, vui lòng thử lại sau!
  *       404:
- *         description: Không tìm thấy danh mục
+ *         description: Danh mục không tồn tại!
+ *
  */
 
 /**
@@ -103,11 +130,22 @@ import { isAdmin } from "../middleware/auth-middleware.js";
  *         description: ID của danh mục cần xóa
  *     responses:
  *       200:
- *         description: Xóa danh mục thành công
+ *         description: Xóa thành công!
  *       401:
- *         description: Chưa đăng nhập hoặc không có quyền
+ *        description: >
+ *         - Phiên đăng nhập đã hết thời gian, vui lòng đăng nhập lại !
+ *
+ *         - Token xác thực không hợp lệ, vui lòng đăng nhập lại!
+ *
+ *         - Chưa đăng nhập: Vui lòng đăng nhập để tiếp tục.
+ *
+ *       403:
+ *         description: Bạn không đủ quyền truy cập!
+ *
  *       404:
- *         description: Không tìm thấy danh mục
+ *         description: Danh mục không tồn tại!
+ *       500:
+ *         description: Đã xảy ra lỗi khi xác thực phiên đăng nhập, vui lòng thử lại sau!
  */
 
 /**
@@ -118,7 +156,7 @@ import { isAdmin } from "../middleware/auth-middleware.js";
  *     tags: [Category]
  *     responses:
  *       200:
- *         description: Lấy danh sách danh mục thành công
+ *         description: Lấy danh sách danh mục thành công!
  */
 
 /**
@@ -138,7 +176,7 @@ import { isAdmin } from "../middleware/auth-middleware.js";
  *       200:
  *         description: Lấy thông tin danh mục thành công
  *       404:
- *         description: Không tìm thấy danh mục
+ *         description: Danh mục không tồn tại!
  */
 
 const routes = new Router();
