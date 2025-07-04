@@ -41,5 +41,5 @@ export const updateBrandValidate = Joi.object({
 				}),
 		}),
 	),
-	description: Joi.string().required().messages({}),
+	description: Joi.string().messages({}),
 });
