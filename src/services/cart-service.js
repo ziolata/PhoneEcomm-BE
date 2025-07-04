@@ -63,29 +63,25 @@ export const createCart = async (data) => {
 };
 
 export const deleteCartItem = async (id, user) => {
-	const itemExist = await db.Cart_item.findAll(
-		{
-			where: { id },
+	const itemExist = await db.Cart_item.findByPk(id, {
+		include: {
+			model: db.Cart,
+			attributes: ["user_id"],
+			where: { user_id: user.id },
 		},
-		{
-			include: {
-				model: db.Cart,
-				attributes: ["user_id"],
-				where: {
-					user_id: user.id,
-				},
-			},
-		},
-	);
+	});
+	console.log(itemExist);
+
+	if (!itemExist) {
+		throwError(404, "Sản phẩm không tồn tại!");
+	}
 	if (itemExist.Cart.user_id !== user.id) {
 		throwError(
 			403,
 			"Bạn không thể xóa sản phẩm trong giỏ hàng của tài khoản khác!",
 		);
 	}
-	if (!itemExist) {
-		throwError(404, "Sản phẩm không tồn tại!");
-	}
+
 	await db.Cart_item.destroy({
 		where: { id },
 	});
