@@ -4,7 +4,8 @@ import { successResponse, throwError } from "../utils/response-utils.js";
 import {
 	productValidate,
 	updateProductValidate,
-} from "../validations/product-vadidation.js";
+} from "../validations/product-validation.js";
+import { uploadImage } from "../utils/cloudinary-utils.js";
 
 const checkCategoryAndBrandExist = async (category_id, brand_id) => {
 	const foundCategory = await db.Category.findByPk(category_id);
@@ -33,21 +34,43 @@ const throwIfProductNameValueExists = async (name) => {
 	return foundProduct;
 };
 
-export const createProduct = async (data) => {
+export const createProduct = async (data, imgFile) => {
+	if (imgFile) {
+		data.img = { size: imgFile.size };
+	}
 	const validData = handleValidate(productValidate, data);
 	await checkCategoryAndBrandExist(validData.category_id, validData.brand_id);
 	await throwIfProductNameValueExists(validData.name);
+
+	const image = await uploadImage(
+		imgFile.tempFilePath,
+		validData.name,
+		"Products",
+	);
+	validData.img = image;
+
 	const response = await db.Product.create(validData);
-	return successResponse("Thêm sản phẩm thành công!", response);
+	return successResponse("Thêm thành công!", response);
 };
 
-export const updateProduct = async (data, id) => {
+export const updateProduct = async (id, data, imgFile) => {
+	if (imgFile) {
+		data.img = { size: imgFile.size };
+	}
 	const validData = handleValidate(updateProductValidate, data);
 	await getProductOrThrowById(id);
 	if (validData.category_id && validData.brand_id) {
 		await checkCategoryAndBrandExist(validData.category_id, validData.brand_id);
 	}
 	await throwIfProductNameValueExists(validData.name);
+	if (validData.img) {
+		const image = await uploadImage(
+			imgFile.tempFilePath,
+			validData.name,
+			"Products",
+		);
+		validData.img = image;
+	}
 	await db.Product.update(validData, {
 		where: { id },
 	});
@@ -65,10 +88,7 @@ export const deleteProduct = async (id) => {
 
 export const getOneProduct = async (id) => {
 	const foundProduct = await getProductOrThrowById(id);
-	return successResponse(
-		`Lấy thông tin sản phẩm có id: ${id} thành công!`,
-		foundProduct,
-	);
+	return successResponse("Lấy thông tin sản phẩm thành công!", foundProduct);
 };
 
 export const getAllProduct = async () => {

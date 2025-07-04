@@ -24,7 +24,8 @@ export const getAllCartController = async (req, res, next) => {
 export const deleteCartController = async (req, res, next) => {
 	try {
 		const { id } = req.params;
-		const response = await Services.deleteCartItem(id);
+		const user = req.user;
+		const response = await Services.deleteCartItem(id, user);
 		return res.status(200).json(response);
 	} catch (error) {
 		next(error);
@@ -34,8 +35,8 @@ export const deleteCartController = async (req, res, next) => {
 export const updateCartController = async (req, res, next) => {
 	try {
 		const { id } = req.params;
-		const user_id = req.user.id;
-		const response = await Services.updateCart(id, user_id);
+		const user = req.user;
+		const response = await Services.updateCart(id, req.body, user);
 		return res.status(200).json(response);
 	} catch (error) {
 		next(error);

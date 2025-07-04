@@ -20,7 +20,7 @@ const throwIfInventoryNameExists = async (name) => {
 
 export const getAllInventory = async () => {
 	const response = await db.Inventory.findAll();
-	return successResponse("Lấy danh sách kho thành công", response);
+	return successResponse("Lấy danh sách kho thành công!", response);
 };
 
 export const getInventoryByVariantId = async (product_variant_id) => {
@@ -28,20 +28,17 @@ export const getInventoryByVariantId = async (product_variant_id) => {
 		where: { product_variant_id },
 	});
 	if (!foundInventory) {
-		throwError(
-			404,
-			`Không tìm thấy kho có của biến thể sản phẩm có id: ${product_variant_id}`,
-		);
+		throwError(404, "Không tìm thấy kho!");
 	}
 	return successResponse(
-		`Lấy thông tin kho biến thể sản phẩm có id: ${product_variant_id}`,
+		"Lấy thông tin kho của biến thể sản phẩm!",
 		foundInventory,
 	);
 };
 
 export const getOneInventory = async (id) => {
 	const response = await getInventoryOrThrowById(id);
-	return successResponse(`Lấy thông tin kho có id:${id} thành công!`, response);
+	return successResponse("Lấy thông tin kho thành công!", response);
 };
 
 export const createInventory = async (data) => {

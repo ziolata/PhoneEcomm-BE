@@ -1,5 +1,10 @@
 import db from "../models/index.js";
 import { successResponse, throwError } from "../utils/response-utils.js";
+import { handleValidate } from "../utils/handle-validation-utils.js";
+import {
+	reviewValidate,
+	updateReviewValidate,
+} from "../validations/review-validation.js";
 
 const getOrThrowReviewById = async (id) => {
 	const foundReview = await db.Review.findByPk(id);
@@ -8,10 +13,12 @@ const getOrThrowReviewById = async (id) => {
 	}
 	return foundReview;
 };
+
 export const createReview = async (data, user_id) => {
+	const validData = handleValidate(reviewValidate, data);
 	const existingProduct = await db.Order_item.findOne({
 		where: {
-			product_variant_id: data.product_variant_id,
+			product_variant_id: validData.product_variant_id,
 		},
 		include: {
 			model: db.Order,
@@ -28,7 +35,6 @@ export const createReview = async (data, user_id) => {
 			user_id,
 		},
 	});
-
 	if (!existingProduct) {
 		throwError(400, "Bạn chưa mua sản phẩm này không thể đánh giá!");
 	}
@@ -36,7 +42,7 @@ export const createReview = async (data, user_id) => {
 		throwError(400, "Sản phẩm này bạn đã đánh giá!");
 	}
 
-	const response = await db.Review.create(data);
+	const response = await db.Review.create(validData);
 	return successResponse("Đánh giá thành công!", response);
 };
 
@@ -56,15 +62,25 @@ export const getOneReview = async (id) => {
 	);
 };
 
-export const deleteReview = async (id) => {
-	await getOrThrowReviewById(id);
+export const deleteReview = async (id, user) => {
+	const foundReview = await getOrThrowReviewById(id);
+	if (foundReview.user_id !== user.id && user.role !== "ADMIN") {
+		throwError(403, "Bạn không thể xóa đánh giá của tài khoản khác!");
+	}
 	await db.Review.destroy({ where: { id } });
 	return successResponse("Xóa thành công!");
 };
 
-export const updateReview = async (id, data) => {
-	await getOrThrowReviewById(id);
-	await db.Review.update(data, {
+export const updateReview = async (id, data, user) => {
+	const validData = handleValidate(updateReviewValidate, data);
+	const foundReview = await getOrThrowReviewById(id);
+	if (validData.product_variant_id) {
+		throwError(400, "Product_variant_id không thể cập nhật!");
+	}
+	if (foundReview.user_id !== user.id && user.role !== "ADMIN") {
+		throwError(403, "Bạn không thể chỉnh sửa đánh giá của tài khoản khác!");
+	}
+	await db.Review.update(validData, {
 		where: {
 			id,
 		},

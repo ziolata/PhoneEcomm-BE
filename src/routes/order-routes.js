@@ -67,10 +67,14 @@ import { isAuthenticated } from "../middleware/auth-middleware.js";
  *               discount_code:
  *                 type: string
  *             example:
- *               discount_code: GIAM10
+ *               discount_code: cxibkml7KIdwtBFJalSTCJF5GEReeyvi
+ *               "shipping":
+ *                  "address_id": 1,
+ *                  "type": "Post office"
+ *
  *     responses:
- *       200:
- *         description: Đặt hàng thành công
+ *       201:
+ *         description: Đặt hàng thành công!
  *       400:
  *         description: Dữ liệu không hợp lệ hoặc giỏ hàng rỗng
  *       401:

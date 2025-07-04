@@ -3,7 +3,8 @@ import * as services from "../services/address-service.js";
 export const createAddressController = async (req, res, next) => {
 	try {
 		const user_id = req.user.id;
-		const response = await services.createAddress(user_id);
+		req.body.user_id = user_id;
+		const response = await services.createAddress(req.body);
 		return res.status(201).json(response);
 	} catch (error) {
 		next(error);
@@ -24,14 +25,14 @@ export const updateAddressController = async (req, res, next) => {
 	try {
 		const { id } = req.params;
 		const user = req.user;
-		const response = await services.updateAddress(id, user);
+		const response = await services.updateAddress(id, user, req.body);
 		return res.status(200).json(response);
 	} catch (error) {
 		next(error);
 	}
 };
 
-export const deleteAddressController = async (req, res) => {
+export const deleteAddressController = async (req, res, next) => {
 	try {
 		const { id } = req.params;
 		const user = req.user;

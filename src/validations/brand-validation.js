@@ -7,6 +7,7 @@ export const brandValidate = Joi.object({
 	}),
 	img: Joi.alternatives()
 		.required()
+		.messages({ "any.required": "Trường img là bắt buộc!" })
 		.try(
 			Joi.string().uri().messages({
 				"string.uri": "Img phải là đường dẫn hợp lệ",
@@ -40,5 +41,5 @@ export const updateBrandValidate = Joi.object({
 				}),
 		}),
 	),
-	description: Joi.string().required().messages({}),
+	description: Joi.string().messages({}),
 });

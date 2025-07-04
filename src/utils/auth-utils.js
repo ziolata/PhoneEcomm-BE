@@ -1,21 +1,24 @@
 import jwt from "jsonwebtoken";
-import createHttpError from "http-errors";
+import { throwError } from "./response-utils.js";
 export const verifyToken = (token) => {
 	try {
 		if (!token) {
-			return createHttpError.Unauthorized();
+			throwError(401, "Vui lòng đăng nhập để tiếp tục!");
 		}
 		return jwt.verify(token, process.env.JWT_SECRET);
 	} catch (error) {
 		if (error.name === "TokenExpiredError") {
-			throw { status: 400, message: "Yêu cầu đã hết thời gian!" };
+			throwError(
+				401,
+				"Phiên đăng nhập đã hết thời gian, vui lòng đăng nhập lại !",
+			);
 		}
 		if (error.name === "JsonWebTokenError") {
-			throw {
-				status: 400,
-				message: "Token không hợp lệ.",
-			};
+			throwError(401, "Token xác thực không hợp lệ, vui lòng đăng nhập lại!");
 		}
-		throw { status: 500, message: "Lỗi xác thực token" };
+		throwError(
+			500,
+			"Đã xảy ra lỗi khi xác thực phiên đăng nhập, vui lòng thử lại sau!",
+		);
 	}
 };
