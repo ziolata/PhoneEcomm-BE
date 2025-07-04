@@ -4,7 +4,7 @@ import { handleValidate } from "../utils/handle-validation-utils.js";
 import {
 	productVariantValidate,
 	updateProductVariantValidate,
-} from "../validations/product-vadidation.js";
+} from "../validations/product-validation.js";
 import { client } from "../config/elastic.js";
 
 // Tạo mã Sku dựa trên id sản phẩm
@@ -150,7 +150,7 @@ export const getAllProductVariant = async () => {
 export const getOneProductVariant = async (id) => {
 	const foundProductVarian = await getProductVariantOrThrowById(id);
 	return successResponse(
-		`Lấy thông tin biến thể sản phẩm có id:${id} thành công! `,
+		"Lấy thông tin biến thể thành công! ",
 		foundProductVarian,
 	);
 };
