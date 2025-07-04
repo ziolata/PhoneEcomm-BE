@@ -12,6 +12,7 @@ export const throwError = (statusCode, mess) => {
 		403: "Forbidden",
 		404: "Not Found",
 		409: "Conflict",
+		500: "InternalServerError",
 	};
 
 	const error = new Error(mess);

@@ -1,7 +1,6 @@
 export const errorHandler = (err, req, res, next) => {
 	const status = err.status || 500;
-	const errorName =
-		err.error || (status === 500 ? "Internal Server Error" : "Unknown Error");
+	const errorName = err.error || "Unknown Error";
 
 	res.status(status).json({
 		success: false,
