@@ -20,16 +20,19 @@ import { isAdmin } from "../middleware/auth-middleware.js";
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *          multipart/form-data:
  *           schema:
  *             type: object
  *             properties:
  *               name:
  *                 type: string
+ *                 example: Xiaomi
  *               img:
  *                 type: string
+ *                 format: binary
  *               description:
  *                 type: string
+ *                 example: Thương hiệu xiaomi
  *             example:
  *               name: Điện thoại
  *               img: https://example.com/image.jpg
@@ -61,16 +64,19 @@ import { isAdmin } from "../middleware/auth-middleware.js";
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *          multipart/form-data:
  *           schema:
  *             type: object
  *             properties:
  *               name:
  *                 type: string
+ *                 example: Xiaomi
  *               img:
  *                 type: string
+ *                 format: binary
  *               description:
  *                 type: string
+ *                 example: Thương hiệu xiaomi
  *             example:
  *               name: Điện thoại mới
  *               img: https://example.com/new-image.jpg

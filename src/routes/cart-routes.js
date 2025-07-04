@@ -11,26 +11,6 @@ import { isAuthenticated } from "../middleware/auth-middleware.js";
 
 /**
  * @swagger
- * components:
- *   schemas:
- *     CartItem:
- *       type: object
- *       properties:
- *         product_variant_id:
- *           type: integer
- *         quantity:
- *           type: integer
- *         price:
- *           type: number
- *           format: float
- *       example:
- *         product_variant_id: 1
- *         quantity: 2
- *         price: 5000000
- */
-
-/**
- * @swagger
  * /api/v1/cart:
  *   get:
  *     summary: Lấy danh sách giỏ hàng của người dùng
@@ -59,14 +39,11 @@ import { isAuthenticated } from "../middleware/auth-middleware.js";
  *           schema:
  *             type: object
  *             properties:
- *               user_id:
- *                 type: integer
  *               product_variant_id:
  *                 type: integer
  *               quantity:
  *                 type: integer
  *             example:
- *               user_id: 1
  *               product_variant_id: 2
  *               quantity: 1
  *     responses:
@@ -80,26 +57,29 @@ import { isAuthenticated } from "../middleware/auth-middleware.js";
 
 /**
  * @swagger
- * /api/v1/cart/update:
+ * /api/v1/cart/update/{id}:
  *   put:
  *     summary: Cập nhật số lượng sản phẩm trong giỏ hàng (tăng số lượng)
  *     tags: [Cart]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID của cartItem cần cập nhật
  *     requestBody:
- *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
  *             properties:
- *               id:
- *                 type: integer
- *               user_id:
+ *               quantity:
  *                 type: integer
  *             example:
- *               id: 1
- *               user_id: 1
+ *               quantity: 5
  *     responses:
  *       200:
  *         description: Cập nhật số lượng thành công

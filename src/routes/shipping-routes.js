@@ -45,54 +45,6 @@ import { isAdmin, isAuthenticated } from "../middleware/auth-middleware.js";
  *         description: Đơn hàng không tồn tại
  */
 
-/**
- * @swagger
- * /api/v1/shipping/update/{id}:
- *   put:
- *     summary: Cập nhật thông tin giao hàng
- *     tags: [Shipping]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/Shipping'
- *     responses:
- *       200:
- *         description: Cập nhật thành công
- *       404:
- *         description: Địa chỉ nhận hàng không tồn tại
- */
-
-/**
- * @swagger
- * /api/v1/shipping/delete/{id}:
- *   delete:
- *     summary: Xóa thông tin giao hàng
- *     tags: [Shipping]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *     responses:
- *       200:
- *         description: Xóa thành công
- *       404:
- *         description: Địa chỉ nhận hàng không tồn tại
- */
-
 const routes = new Router();
 routes.get("/", isAdmin, controller.getAllShippingController);
 routes.get(

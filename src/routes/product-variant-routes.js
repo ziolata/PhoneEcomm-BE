@@ -51,19 +51,20 @@ import { isAdmin } from "../middleware/auth-middleware.js";
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             properties:
  *               product_id:
  *                 type: integer
+ *                 example: 1
  *               img:
  *                 type: string
- *               sku:
- *                 type: string
+ *                 format: binary
  *               price:
  *                 type: number
  *                 format: decimal
+ *                 example: 299000
  *               Option_value:
  *                 type: array
  *                 items:
@@ -71,14 +72,7 @@ import { isAdmin } from "../middleware/auth-middleware.js";
  *                   properties:
  *                     id:
  *                       type: integer
- *             example:
- *               product_id: 1
- *               img: "url-hinh-anh"
- *               sku: "SKU001"
- *               price: 100000
- *               Option_value:
- *                 - id: 1
- *                 - id: 2
+ *                       example: 3
  *     responses:
  *       200:
  *         description: Thêm biến thể sản phẩm thành công
@@ -106,24 +100,29 @@ import { isAdmin } from "../middleware/auth-middleware.js";
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             properties:
  *               product_id:
  *                 type: integer
+ *                 example: 1
  *               img:
  *                 type: string
- *               sku:
- *                 type: string
+ *                 format: binary
  *               price:
  *                 type: number
  *                 format: decimal
- *             example:
- *               product_id: 1
- *               img: "url-hinh-anh-moi"
- *               sku: "SKU002"
- *               price: 120000
+ *                 example: 299000
+ *               Option_value:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                       example: 3
+ *
  *     responses:
  *       200:
  *         description: Cập nhật biến thể sản phẩm thành công

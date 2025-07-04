@@ -26,8 +26,6 @@ import { isAuthenticated } from "../middleware/auth-middleware.js";
  *             properties:
  *               product_variant_id:
  *                 type: integer
- *               img:
- *                 type: string
  *               rating:
  *                 type: number
  *                 format: decimal
@@ -35,7 +33,6 @@ import { isAuthenticated } from "../middleware/auth-middleware.js";
  *                 type: string
  *             example:
  *               product_variant_id: 1
- *               img: "url-hinh-anh"
  *               rating: 4.5
  *               review: "Sản phẩm rất tốt!"
  *     responses:

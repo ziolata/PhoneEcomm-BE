@@ -51,16 +51,19 @@ import { isAdmin } from "../middleware/auth-middleware.js";
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             properties:
  *               name:
  *                 type: string
+ *                 example: iPhone 16 Promax
  *               img:
  *                 type: string
+ *                 format: binary
  *               description:
  *                 type: string
+ *                 example: Mẫu điện thoại Apple mới nhất
  *               features:
  *                 type: string
  *                 enum: [hot, discount, over]
@@ -68,13 +71,7 @@ import { isAdmin } from "../middleware/auth-middleware.js";
  *                 type: integer
  *               brand_id:
  *                 type: integer
- *             example:
- *               name: Áo thun nam
- *               img: url-hinh-anh
- *               description: Mô tả sản phẩm
- *               features: hot
- *               category_id: 1
- *               brand_id: 1
+ *
  *     responses:
  *       200:
  *         description: Thêm sản phẩm thành công
@@ -102,16 +99,19 @@ import { isAdmin } from "../middleware/auth-middleware.js";
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             properties:
  *               name:
  *                 type: string
+ *                 example: iPhone 16 Promax
  *               img:
  *                 type: string
+ *                 format: binary
  *               description:
  *                 type: string
+ *                 example: Mẫu điện thoại Apple mới nhất
  *               features:
  *                 type: string
  *                 enum: [hot, discount, over]
@@ -119,13 +119,7 @@ import { isAdmin } from "../middleware/auth-middleware.js";
  *                 type: integer
  *               brand_id:
  *                 type: integer
- *             example:
- *               name: Áo thun nam
- *               img: url-hinh-anh
- *               description: Mô tả sản phẩm cập nhật
- *               features: discount
- *               category_id: 1
- *               brand_id: 2
+ *
  *     responses:
  *       200:
  *         description: Cập nhật sản phẩm thành công

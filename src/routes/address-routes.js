@@ -16,8 +16,6 @@ import { isAuthenticated } from "../middleware/auth-middleware.js";
  *     Address:
  *       type: object
  *       properties:
- *         user_id:
- *           type: integer
  *         shipping_id:
  *           type: integer
  *         name:
@@ -35,7 +33,6 @@ import { isAuthenticated } from "../middleware/auth-middleware.js";
  *           type: string
  *           enum: [Yes, No]
  *       example:
- *         user_id: 1
  *         shipping_id: 10
  *         name: Nguyễn Văn A
  *         phone: 0123456789
@@ -58,7 +55,22 @@ import { isAuthenticated } from "../middleware/auth-middleware.js";
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/Address'
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               phone:
+ *                 type: string
+ *               address_line_1:
+ *                 type: string
+ *               address_line_2:
+ *                 type: string
+ *               address_type:
+ *                 type: string
+ *                 enum: [Home, Office]
+ *               address_default:
+ *                 type: string
+ *                 enum: [Yes, No]
  *     responses:
  *       200:
  *         description: Thêm địa chỉ thành công
@@ -86,7 +98,7 @@ import { isAuthenticated } from "../middleware/auth-middleware.js";
 /**
  * @swagger
  * /api/v1/address/update/{id}:
- *   get:
+ *   put:
  *     summary: Cập nhật địa chỉ
  *     tags: [Address]
  *     security:
@@ -103,7 +115,22 @@ import { isAuthenticated } from "../middleware/auth-middleware.js";
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/Address'
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               phone:
+ *                 type: string
+ *               address_line_1:
+ *                 type: string
+ *               address_line_2:
+ *                 type: string
+ *               address_type:
+ *                 type: string
+ *                 enum: [Home, Office]
+ *               address_default:
+ *                 type: string
+ *                 enum: [Yes, No]
  *     responses:
  *       200:
  *         description: Cập nhật địa chỉ thành công

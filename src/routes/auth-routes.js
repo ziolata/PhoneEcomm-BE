@@ -28,10 +28,21 @@ import { isAuthenticated } from "../middleware/auth-middleware.js";
  *                 type: string
  *               password:
  *                 type: string
+ *               repassword:
+ *                 type: string
+ *               sex:
+ *                 type: string
+ *                 enum: [male, female]
+ *               phone:
+ *                 type: string
+ *
  *             example:
  *               fullname: "Nguyen Van A"
  *               email: "nguyenvana@gmail.com"
  *               password: "123456"
+ *               repassword: "123456"
+ *               sex: "male"
+ *               phone: "0123456789"
  *     responses:
  *       200:
  *         description: Đăng ký thành công
@@ -70,7 +81,7 @@ import { isAuthenticated } from "../middleware/auth-middleware.js";
  * /api/v1/user/change_pass:
  *   post:
  *     summary: Đổi mật khẩu
- *     tags: [User]
+ *     tags: [Auth]
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -104,7 +115,7 @@ import { isAuthenticated } from "../middleware/auth-middleware.js";
  * /api/v1/user/forgot_password:
  *   post:
  *     summary: Quên mật khẩu
- *     tags: [User]
+ *     tags: [Auth]
  *     requestBody:
  *       required: true
  *       content:
@@ -128,7 +139,7 @@ import { isAuthenticated } from "../middleware/auth-middleware.js";
  * /api/v1/user/reset_password/{token}:
  *   post:
  *     summary: Đặt lại mật khẩu
- *     tags: [User]
+ *     tags: [Auth]
  *     parameters:
  *       - in: path
  *         name: token

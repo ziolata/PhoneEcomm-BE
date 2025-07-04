@@ -27,9 +27,9 @@ export const Routers = (app) => {
 	app.use("/api/v1/discount", discount);
 	app.use("/api/v1/inventory", inventory);
 	app.use("/api/v1/payment", payment);
-	app.use("/api/v1/productvariant", productVariant);
+	app.use("/api/v1/product-variant", productVariant);
 	app.use("/api/v1/option", option);
-	app.use("/api/v1/optionvalue", optionValue);
+	app.use("/api/v1/option-value", optionValue);
 	app.use("/api/v1/address", address);
 	app.use("/api/v1/review", review);
 	app.use("/api/v1/search", search);

@@ -68,14 +68,15 @@ import { isAdmin } from "../middleware/auth-middleware.js";
  *             properties:
  *               name:
  *                 type: string
+ *                 example: Xiaomi
  *               img:
  *                 type: string
  *                 format: binary
  *               description:
  *                 type: string
+ *                 example: Thương hiệu xiaomi
  *             example:
  *               name: Xiaomi
- *               img: https://example.com/new-image.jpg
  *               description: Thương hiệu xiaomi
  *     responses:
  *       200:
