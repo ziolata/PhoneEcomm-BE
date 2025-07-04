@@ -120,6 +120,6 @@ const routes = new Router();
 routes.post("/add", isAuthenticated, controller.createOptionValueController);
 routes.get("/", controller.getAllOptionValueController);
 routes.get("/:id", controller.getOneOptionValueController);
-routes.get("/update/:id", controller.updateOptionValueController);
+routes.put("/update/:id", controller.updateOptionValueController);
 routes.delete("/delete/:id", controller.deleteOptionValueController);
 export default routes;

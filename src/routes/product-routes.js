@@ -166,6 +166,6 @@ routes.get("/", controller.getAllProductController);
 routes.get("/:id", controller.getOneProductController);
 routes.post("/add", isAdmin, controller.createProductController);
 routes.put("/update/:id", isAdmin, controller.updateProductController);
-routes.put("/delete/:id", isAdmin, controller.deleteProductController);
+routes.delete("/delete/:id", isAdmin, controller.deleteProductController);
 
 export default routes;

@@ -139,7 +139,7 @@ const routes = new Router();
 routes.post("/add/", isAuthenticated, controller.createReviewController);
 routes.get("/", isAuthenticated, controller.getAllReviewController);
 routes.get("/:id", isAuthenticated, controller.getOneReviewController);
-routes.get("/update/:id", isAuthenticated, controller.updateReviewController);
+routes.put("/update/:id", isAuthenticated, controller.updateReviewController);
 routes.delete(
 	"/delete/:id",
 	isAuthenticated,

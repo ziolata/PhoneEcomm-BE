@@ -100,6 +100,6 @@ routes.get(
 	isAuthenticated,
 	controller.getShippingByOrderIdController,
 );
-routes.get("/update/:id", isAdmin, controller.updateShippingController);
+routes.put("/update/:id", isAdmin, controller.updateShippingController);
 routes.delete("/delete/:id", isAdmin, controller.deleteShippingController);
 export default routes;
