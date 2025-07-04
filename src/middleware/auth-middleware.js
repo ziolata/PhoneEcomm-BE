@@ -1,6 +1,7 @@
 import { userSchema } from "../validations/user-validation.js";
 import createHttpError from "http-errors";
 import { verifyToken } from "../utils/auth-utils.js";
+import { throwError } from "../utils/response-utils.js";
 export const validateAuth = (req, res, next) => {
 	const { error } = userSchema.validate(req.body);
 	if (error) {
@@ -17,7 +18,9 @@ export const isAuthenticated = (req, res, next) => {
 		const user = verifyToken(token);
 		req.user = user;
 		next();
-	} catch (error) {}
+	} catch (error) {
+		next(error);
+	}
 };
 export const isAdmin = (req, res, next) => {
 	try {
@@ -26,10 +29,10 @@ export const isAdmin = (req, res, next) => {
 		const user = verifyToken(token);
 		req.user = user;
 		if (req.user.role === "USER") {
-			return res.status(401).json({ message: "Access denied" });
+			throwError(403, "Bạn không đủ quyền truy cập!");
 		}
 		next();
 	} catch (error) {
-		console.log(error);
+		next(error);
 	}
 };

@@ -9,7 +9,7 @@ import {
 export const getOptionValueOrThrowById = async (id) => {
 	const foundOptionValue = await db.Option_value.findByPk(id);
 	if (!foundOptionValue) {
-		throwError(404, "Option_value không tồn tại!");
+		throwError(404, "Giá trị không tồn tại!");
 	}
 	return foundOptionValue;
 };

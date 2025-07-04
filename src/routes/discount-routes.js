@@ -58,12 +58,22 @@ import { isAdmin } from "../middleware/auth-middleware.js";
  *               usage_limit: 100
  *               expiry: 2025-12-31
  *     responses:
- *       200:
- *         description: Thêm mã giảm giá thành công
+ *       201:
+ *         description: Thêm mã khuyến mãi thành công!
  *       400:
- *         description: Mã giảm giá đã tồn tại hoặc dữ liệu không hợp lệ
+ *         description: Mã giảm giá đã tồn tại!
  *       401:
- *         description: Không có quyền truy cập
+ *        description: >
+ *         - Phiên đăng nhập đã hết thời gian, vui lòng đăng nhập lại !
+ *
+ *         - Token xác thực không hợp lệ, vui lòng đăng nhập lại!
+ *
+ *         - Chưa đăng nhập: Vui lòng đăng nhập để tiếp tục.
+ *
+ *       403:
+ *         description: Bạn không đủ quyền truy cập!
+ *       500:
+ *         description: Đã xảy ra lỗi khi xác thực phiên đăng nhập, vui lòng thử lại sau!
  */
 
 /**
@@ -115,19 +125,28 @@ import { isAdmin } from "../middleware/auth-middleware.js";
  *                 usage_limit: 50
  *                 expiry: 2025-10-01
  *     responses:
- *       200:
- *         description: Tạo danh sách mã giảm giá thành công
+ *       201:
+ *         description: Thêm mã khuyến mãi thành công!
  *       400:
- *         description: Có mã đã tồn tại hoặc dữ liệu không hợp lệ
+ *         description: Mã giảm giá không tồn tại! hoặc dữ liệu không hợp lệ
  *       401:
- *         description: Không có quyền truy cập
+ *        description: >
+ *         - Phiên đăng nhập đã hết thời gian, vui lòng đăng nhập lại !
+ *
+ *         - Token xác thực không hợp lệ, vui lòng đăng nhập lại!
+ *
+ *         - Chưa đăng nhập: Vui lòng đăng nhập để tiếp tục.
+ *
+ *         - Bạn không đủ quyền truy cập!
+ *       500:
+ *         description: Đã xảy ra lỗi khi xác thực phiên đăng nhập, vui lòng thử lại sau!
  */
 
 /**
  * @swagger
  * /api/v1/discount/:
  *   post:
- *     summary: Thêm một mã giảm giá
+ *     summary: Lấy danh sách mã giảm giá!
  *     tags: [Discount]
  *     security:
  *       - bearerAuth: []
@@ -135,7 +154,17 @@ import { isAdmin } from "../middleware/auth-middleware.js";
  *       200:
  *         description: Lấy danh sách mã giảm giá thành công!
  *       401:
- *         description: Không có quyền truy cập
+ *        description: >
+ *         - Phiên đăng nhập đã hết thời gian, vui lòng đăng nhập lại !
+ *
+ *         - Token xác thực không hợp lệ, vui lòng đăng nhập lại!
+ *
+ *         - Chưa đăng nhập: Vui lòng đăng nhập để tiếp tục.
+ *
+ *       403:
+ *         description: Bạn không đủ quyền truy cập!
+ *       500:
+ *         description: Đã xảy ra lỗi khi xác thực phiên đăng nhập, vui lòng thử lại sau!
  */
 
 /**
@@ -157,7 +186,17 @@ import { isAdmin } from "../middleware/auth-middleware.js";
  *       200:
  *         description: Xóa thành công!
  *       401:
- *         description: Không có quyền truy cập
+ *        description: >
+ *         - Phiên đăng nhập đã hết thời gian, vui lòng đăng nhập lại !
+ *
+ *         - Token xác thực không hợp lệ, vui lòng đăng nhập lại!
+ *
+ *         - Chưa đăng nhập: Vui lòng đăng nhập để tiếp tục.
+ *
+ *       403:
+ *         description: Bạn không đủ quyền truy cập!
+ *       500:
+ *         description: Đã xảy ra lỗi khi xác thực phiên đăng nhập, vui lòng thử lại sau!
  */
 const routes = new Router();
 

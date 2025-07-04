@@ -17,7 +17,7 @@ const throwIfCategoryNameExists = async (name) => {
 const getCategoryOrThrowById = async (id) => {
 	const foundCategory = await db.Category.findByPk(id);
 	if (!foundCategory) {
-		throwError(404, "Danh mục không tồn tại");
+		throwError(404, "Danh mục không tồn tại!");
 	}
 };
 export const addCategory = async (data, imgFile) => {

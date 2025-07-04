@@ -74,12 +74,22 @@ import { isAdmin } from "../middleware/auth-middleware.js";
  *                       type: integer
  *                       example: 3
  *     responses:
- *       200:
- *         description: Thêm biến thể sản phẩm thành công
+ *       201:
+ *         description: Thêm thành công!
  *       400:
  *         description: Dữ liệu không hợp lệ hoặc sản phẩm không tồn tại
  *       401:
- *         description: Chưa đăng nhập
+ *        description: >
+ *         - Phiên đăng nhập đã hết thời gian, vui lòng đăng nhập lại !
+ *
+ *         - Token xác thực không hợp lệ, vui lòng đăng nhập lại!
+ *
+ *         - Chưa đăng nhập: Vui lòng đăng nhập để tiếp tục.
+ *
+ *       403:
+ *         description: Bạn không đủ quyền truy cập!
+ *       500:
+ *         description: Đã xảy ra lỗi khi xác thực phiên đăng nhập, vui lòng thử lại sau!
  */
 
 /**
@@ -125,13 +135,23 @@ import { isAdmin } from "../middleware/auth-middleware.js";
  *
  *     responses:
  *       200:
- *         description: Cập nhật biến thể sản phẩm thành công
+ *         description: Cập nhật thành công!
  *       400:
  *         description: Dữ liệu không hợp lệ hoặc sản phẩm không tồn tại
  *       401:
- *         description: Chưa đăng nhập
+ *        description: >
+ *         - Phiên đăng nhập đã hết thời gian, vui lòng đăng nhập lại !
+ *
+ *         - Token xác thực không hợp lệ, vui lòng đăng nhập lại!
+ *
+ *         - Chưa đăng nhập: Vui lòng đăng nhập để tiếp tục.
+ *
+ *       403:
+ *         description: Bạn không đủ quyền truy cập!
  *       404:
- *         description: Biến thể sản phẩm không tồn tại
+ *         description: "Không tìm thấy biến thể sản phẩm!"
+ *       500:
+ *         description: Đã xảy ra lỗi khi xác thực phiên đăng nhập, vui lòng thử lại sau!
  */
 
 /**
@@ -151,11 +171,21 @@ import { isAdmin } from "../middleware/auth-middleware.js";
  *           type: integer
  *     responses:
  *       200:
- *         description: Xóa biến thể sản phẩm thành công
+ *         description: Xóa thành công!
  *       401:
- *         description: Chưa đăng nhập
+ *        description: >
+ *         - Phiên đăng nhập đã hết thời gian, vui lòng đăng nhập lại !
+ *
+ *         - Token xác thực không hợp lệ, vui lòng đăng nhập lại!
+ *
+ *         - Chưa đăng nhập: Vui lòng đăng nhập để tiếp tục.
+ *
+ *       403:
+ *         description: Bạn không đủ quyền truy cập!
  *       404:
- *         description: Biến thể sản phẩm không tồn tại
+ *         description: "Không tìm thấy biến thể sản phẩm!"
+ *       500:
+ *         description: Đã xảy ra lỗi khi xác thực phiên đăng nhập, vui lòng thử lại sau!
  */
 
 const routes = new Router();

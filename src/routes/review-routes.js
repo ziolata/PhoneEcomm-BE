@@ -36,22 +36,28 @@ import { isAuthenticated } from "../middleware/auth-middleware.js";
  *               rating: 4.5
  *               review: "Sản phẩm rất tốt!"
  *     responses:
- *       200:
- *         description: Đánh giá sản phẩm thành công
+ *       201:
+ *         description: Đánh giá sản phẩm thành công!
  *       400:
- *         description: Chưa mua sản phẩm hoặc đã đánh giá rồi
+ *         description: Bạn chưa mua sản phẩm này không thể đánh giá! hoặc Sản phẩm này bạn đã đánh giá!
  *       401:
- *         description: Chưa đăng nhập
+ *        description: >
+ *         - Phiên đăng nhập đã hết thời gian, vui lòng đăng nhập lại !
+ *
+ *         - Token xác thực không hợp lệ, vui lòng đăng nhập lại!
+ *
+ *         - Chưa đăng nhập: Vui lòng đăng nhập để tiếp tục.
+ *
+ *       500:
+ *         description: Đã xảy ra lỗi khi xác thực phiên đăng nhập, vui lòng thử lại sau!
  */
 
 /**
  * @swagger
  * /api/v1/review:
  *   get:
- *     summary: Lấy danh sách đánh giá của sản phẩm
+ *     summary: Lấy danh sách đánh giá của sản phẩm theo id của biến thể sản phẩm
  *     tags: [Review]
- *     security:
- *       - bearerAuth: []
  *     parameters:
  *       - name: product_variant_id
  *         in: query
@@ -61,9 +67,7 @@ import { isAuthenticated } from "../middleware/auth-middleware.js";
  *           type: integer
  *     responses:
  *       200:
- *         description: Lấy danh sách đánh giá thành công
- *       401:
- *         description: Chưa đăng nhập
+ *         description: Lấy danh sách đánh giá thành công!
  */
 
 /**
@@ -85,7 +89,16 @@ import { isAuthenticated } from "../middleware/auth-middleware.js";
  *       200:
  *         description: Lấy thông tin đánh giá thành công
  *       401:
- *         description: Chưa đăng nhập
+ *        description: >
+ *         - Phiên đăng nhập đã hết thời gian, vui lòng đăng nhập lại !
+ *
+ *         - Token xác thực không hợp lệ, vui lòng đăng nhập lại!
+ *
+ *         - Chưa đăng nhập: Vui lòng đăng nhập để tiếp tục.
+ *       404:
+ *         description: Không tìm thấy đánh giá!
+ *       500:
+ *         description: Đã xảy ra lỗi khi xác thực phiên đăng nhập, vui lòng thử lại sau!
  */
 
 /**
@@ -107,7 +120,16 @@ import { isAuthenticated } from "../middleware/auth-middleware.js";
  *       200:
  *         description: Cập nhật thành công!
  *       401:
- *         description: Chưa đăng nhập
+ *        description: >
+ *         - Phiên đăng nhập đã hết thời gian, vui lòng đăng nhập lại !
+ *
+ *         - Token xác thực không hợp lệ, vui lòng đăng nhập lại!
+ *
+ *         - Chưa đăng nhập: Vui lòng đăng nhập để tiếp tục.
+ *       404:
+ *         description: Không tìm thấy đánh giá!
+ *       500:
+ *         description: Đã xảy ra lỗi khi xác thực phiên đăng nhập, vui lòng thử lại sau!
  */
 
 /**
@@ -129,12 +151,21 @@ import { isAuthenticated } from "../middleware/auth-middleware.js";
  *       200:
  *         description: Xóa thành công!
  *       401:
- *         description: Chưa đăng nhập
+ *        description: >
+ *         - Phiên đăng nhập đã hết thời gian, vui lòng đăng nhập lại !
+ *
+ *         - Token xác thực không hợp lệ, vui lòng đăng nhập lại!
+ *
+ *         - Chưa đăng nhập: Vui lòng đăng nhập để tiếp tục.
+ *       404:
+ *         description: Không tìm thấy đánh giá!
+ *       500:
+ *         description: Đã xảy ra lỗi khi xác thực phiên đăng nhập, vui lòng thử lại sau!
  */
 
 const routes = new Router();
 routes.post("/add/", isAuthenticated, controller.createReviewController);
-routes.get("/", isAuthenticated, controller.getAllReviewController);
+routes.get("/", controller.getAllReviewController);
 routes.get("/:id", isAuthenticated, controller.getOneReviewController);
 routes.put("/update/:id", isAuthenticated, controller.updateReviewController);
 routes.delete(

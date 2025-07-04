@@ -80,15 +80,13 @@ export const deleteBrand = async (id) => {
 };
 
 export const getAllBrand = async () => {
-	const response = await db.Brand.findAll({
+	const foundBrand = await db.Brand.findAll({
 		attributes: ["id", "name", "img", "description"],
 	});
-	return successResponse("Lấy danh sách thương hiệu thành công!", response);
+	return successResponse("Lấy danh sách thương hiệu thành công!", foundBrand);
 };
 
 export const getOneBrand = async (id) => {
-	const response = await db.Brand.findByPk(id, {
-		attributes: ["id", "name", "img", "description"],
-	});
+	const response = await getBrandOrThrowById(id);
 	return successResponse("Lấy thông tin thương hiệu thành công!", response);
 };

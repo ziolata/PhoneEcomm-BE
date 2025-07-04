@@ -17,7 +17,7 @@ import { isAuthenticated } from "../middleware/auth-middleware.js";
  *     tags: [Option Value]
  *     responses:
  *       200:
- *         description: Lấy danh sách thành công
+ *         description: Lấy danh sách giá trị thành công!
  */
 
 /**
@@ -43,12 +43,22 @@ import { isAuthenticated } from "../middleware/auth-middleware.js";
  *               option_id: 1
  *               value: Đỏ
  *     responses:
- *       200:
- *         description: Thêm giá trị thành công
+ *       201:
+ *         description: Thêm thành công!
  *       400:
- *         description: Giá trị đã tồn tại hoặc dữ liệu không hợp lệ
+ *         description: Giá trị đã tồn tại! hoặc dữ liệu không hợp lệ
  *       401:
- *         description: Chưa đăng nhập
+ *        description: >
+ *         - Phiên đăng nhập đã hết thời gian, vui lòng đăng nhập lại !
+ *
+ *         - Token xác thực không hợp lệ, vui lòng đăng nhập lại!
+ *
+ *         - Chưa đăng nhập: Vui lòng đăng nhập để tiếp tục.
+ *
+ *         - Bạn không đủ quyền truy cập!
+ *       500:
+ *         description: Đã xảy ra lỗi khi xác thực phiên đăng nhập, vui lòng thử lại sau!
+ *
  */
 
 /**
@@ -60,6 +70,8 @@ import { isAuthenticated } from "../middleware/auth-middleware.js";
  *     responses:
  *       200:
  *         description: Lấy thông tin giá trị thành công!
+ *       404:
+ *         description: Giá trị không tồn tại!
  */
 
 /**
@@ -94,6 +106,20 @@ import { isAuthenticated } from "../middleware/auth-middleware.js";
  *     responses:
  *       200:
  *         description: Cập nhật thành công!
+ *       401:
+ *        description: >
+ *         - Phiên đăng nhập đã hết thời gian, vui lòng đăng nhập lại !
+ *
+ *         - Token xác thực không hợp lệ, vui lòng đăng nhập lại!
+ *
+ *         - Chưa đăng nhập: Vui lòng đăng nhập để tiếp tục.
+ *
+ *         - Bạn không đủ quyền truy cập!
+ *       404:
+ *         description: "Giá trị không tồn tại!"
+ *       500:
+ *         description: Đã xảy ra lỗi khi xác thực phiên đăng nhập, vui lòng thử lại sau!
+ *
  */
 
 /**
@@ -114,6 +140,19 @@ import { isAuthenticated } from "../middleware/auth-middleware.js";
  *     responses:
  *       200:
  *         description: Xóa thành công!
+ *       401:
+ *        description: >
+ *         - Phiên đăng nhập đã hết thời gian, vui lòng đăng nhập lại !
+ *
+ *         - Token xác thực không hợp lệ, vui lòng đăng nhập lại!
+ *
+ *         - Chưa đăng nhập: Vui lòng đăng nhập để tiếp tục.
+ *
+ *         - Bạn không đủ quyền truy cập!
+ *       404:
+ *         description: "Giá trị không tồn tại!"
+ *       500:
+ *         description: Đã xảy ra lỗi khi xác thực phiên đăng nhập, vui lòng thử lại sau!
  */
 const routes = new Router();
 

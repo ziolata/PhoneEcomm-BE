@@ -17,7 +17,7 @@ import { isAdmin } from "../middleware/auth-middleware.js";
  *     tags: [Inventory]
  *     responses:
  *       200:
- *         description: Lấy danh sách kho thành công
+ *         description: Lấy danh sách kho thành công!
  */
 
 /**
@@ -35,9 +35,9 @@ import { isAdmin } from "../middleware/auth-middleware.js";
  *         description: ID kho hàng
  *     responses:
  *       200:
- *         description: Lấy thông tin kho thành công
+ *         description: lấy thông tin kho thành công!
  *       404:
- *         description: Không tìm thấy kho
+ *         description: Không tìm thấy kho!
  */
 
 /**
@@ -55,9 +55,9 @@ import { isAdmin } from "../middleware/auth-middleware.js";
  *         description: ID biến thể sản phẩm
  *     responses:
  *       200:
- *         description: Lấy kho thành công
+ *         description: Lấy thông tin kho của biến thể sản phẩm!
  *       404:
- *         description: Không tìm thấy kho của biến thể
+ *         description: Không tìm thấy kho!
  */
 
 /**
@@ -89,10 +89,22 @@ import { isAdmin } from "../middleware/auth-middleware.js";
  *               location: Hà Nội
  *               product_variant_id: 3
  *     responses:
- *       200:
- *         description: Thêm kho thành công
+ *       201:
+ *         description: Thêm kho thành công!
  *       400:
- *         description: Tên kho đã tồn tại
+ *         description: Tên kho đã tồn tại!
+ *       401:
+ *        description: >
+ *         - Phiên đăng nhập đã hết thời gian, vui lòng đăng nhập lại !
+ *
+ *         - Token xác thực không hợp lệ, vui lòng đăng nhập lại!
+ *
+ *         - Chưa đăng nhập: Vui lòng đăng nhập để tiếp tục.
+ *
+ *       403:
+ *         description: Bạn không đủ quyền truy cập!
+ *       500:
+ *         description: Đã xảy ra lỗi khi xác thực phiên đăng nhập, vui lòng thử lại sau!
  */
 
 /**
@@ -129,9 +141,21 @@ import { isAdmin } from "../middleware/auth-middleware.js";
  *               location: Đà Nẵng
  *     responses:
  *       200:
- *         description: Cập nhật thành công
+ *         description: Cập nhật thành công!
  *       404:
- *         description: Không tìm thấy kho
+ *         description: Không tìm thấy kho!
+ *       401:
+ *        description: >
+ *         - Phiên đăng nhập đã hết thời gian, vui lòng đăng nhập lại !
+ *
+ *         - Token xác thực không hợp lệ, vui lòng đăng nhập lại!
+ *
+ *         - Chưa đăng nhập: Vui lòng đăng nhập để tiếp tục.
+ *
+ *       403:
+ *         description: Bạn không đủ quyền truy cập!
+ *       500:
+ *         description: Đã xảy ra lỗi khi xác thực phiên đăng nhập, vui lòng thử lại sau!
  */
 
 /**
@@ -151,9 +175,21 @@ import { isAdmin } from "../middleware/auth-middleware.js";
  *         description: ID kho cần xóa
  *     responses:
  *       200:
- *         description: Xóa thành công
+ *         description: Xóa thành công!
  *       404:
- *         description: Không tìm thấy kho
+ *         description: Không tìm thấy kho!
+ *       401:
+ *        description: >
+ *         - Phiên đăng nhập đã hết thời gian, vui lòng đăng nhập lại !
+ *
+ *         - Token xác thực không hợp lệ, vui lòng đăng nhập lại!
+ *
+ *         - Chưa đăng nhập: Vui lòng đăng nhập để tiếp tục.
+ *
+ *       403:
+ *         description: Bạn không đủ quyền truy cập!
+ *       500:
+ *         description: Đã xảy ra lỗi khi xác thực phiên đăng nhập, vui lòng thử lại sau!
  */
 
 const routes = new Router();

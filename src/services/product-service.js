@@ -50,7 +50,7 @@ export const createProduct = async (data, imgFile) => {
 	validData.img = image;
 
 	const response = await db.Product.create(validData);
-	return successResponse("Thêm sản phẩm thành công!", response);
+	return successResponse("Thêm thành công!", response);
 };
 
 export const updateProduct = async (id, data, imgFile) => {

@@ -88,7 +88,7 @@ export const forgotPassword = async (email) => {
 		},
 	});
 	if (!emailExist) {
-		throw { status: 400, message: "Email không tồn tại" };
+		throw { status: 404, message: "Email không tồn tại!" };
 	}
 	const token = jwt.sign(
 		{ id: emailExist.id, email: emailExist.email },
@@ -114,7 +114,7 @@ export const resetPassword = async (data) => {
 		},
 	});
 	if (!user) {
-		throwError(404, "Yêu cầu đổi mật khẩu không hợp lệ!");
+		throwError(404, "Yêu cầu đổi mật khẩu không tồn tại!");
 	}
 	const decode = verifyToken(data.token);
 

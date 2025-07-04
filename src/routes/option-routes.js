@@ -17,7 +17,7 @@ import { isAdmin } from "../middleware/auth-middleware.js";
  *     tags: [Option]
  *     responses:
  *       200:
- *         description: Lấy danh sách option thành công
+ *         description: Lấy danh sách option thành công!
  */
 
 /**
@@ -40,10 +40,21 @@ import { isAdmin } from "../middleware/auth-middleware.js";
  *             example:
  *               name: Màu sắc
  *     responses:
- *       200:
- *         description: Thêm option thành công
+ *       201:
+ *         description: Thêm thành công!
  *       400:
- *         description: Tên option đã tồn tại
+ *         description: Tên option đã tồn tại!
+ *       401:
+ *        description: >
+ *         - Phiên đăng nhập đã hết thời gian, vui lòng đăng nhập lại !
+ *
+ *         - Token xác thực không hợp lệ, vui lòng đăng nhập lại!
+ *
+ *         - Chưa đăng nhập: Vui lòng đăng nhập để tiếp tục.
+ *
+ *         - Bạn không đủ quyền truy cập!
+ *       500:
+ *         description: Đã xảy ra lỗi khi xác thực phiên đăng nhập, vui lòng thử lại sau!
  */
 
 /**
@@ -75,8 +86,21 @@ import { isAdmin } from "../middleware/auth-middleware.js";
  *     responses:
  *       200:
  *         description: Cập nhật option thành công
+ *       400:
+ *         description: Tên option đã tồn tại!
  *       404:
- *         description: Không tìm thấy option
+ *         description: Option không tồn tại!
+ *       401:
+ *        description: >
+ *         - Phiên đăng nhập đã hết thời gian, vui lòng đăng nhập lại !
+ *
+ *         - Token xác thực không hợp lệ, vui lòng đăng nhập lại!
+ *
+ *         - Chưa đăng nhập: Vui lòng đăng nhập để tiếp tục.
+ *
+ *         - Bạn không đủ quyền truy cập!
+ *       500:
+ *         description: Đã xảy ra lỗi khi xác thực phiên đăng nhập, vui lòng thử lại sau!
  */
 
 /**
@@ -98,7 +122,18 @@ import { isAdmin } from "../middleware/auth-middleware.js";
  *       200:
  *         description: Xóa option thành công
  *       404:
- *         description: Không tìm thấy option
+ *         description: Không tìm thấy option!
+ *       401:
+ *        description: >
+ *         - Phiên đăng nhập đã hết thời gian, vui lòng đăng nhập lại !
+ *
+ *         - Token xác thực không hợp lệ, vui lòng đăng nhập lại!
+ *
+ *         - Chưa đăng nhập: Vui lòng đăng nhập để tiếp tục.
+ *
+ *         - Bạn không đủ quyền truy cập!
+ *       500:
+ *         description: Đã xảy ra lỗi khi xác thực phiên đăng nhập, vui lòng thử lại sau!
  */
 
 const routes = new Router();
