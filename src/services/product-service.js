@@ -62,7 +62,9 @@ export const updateProduct = async (id, data, imgFile) => {
 	if (validData.category_id && validData.brand_id) {
 		await checkCategoryAndBrandExist(validData.category_id, validData.brand_id);
 	}
-	await throwIfProductNameValueExists(validData.name);
+	if (validData.name) {
+		await throwIfProductNameValueExists(validData.name);
+	}
 	if (validData.img) {
 		const image = await uploadImage(
 			imgFile.tempFilePath,
