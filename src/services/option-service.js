@@ -4,7 +4,12 @@ import { successResponse, throwError } from "../utils/response-utils.js";
 import { optionValidate } from "../validations/option-validation.js";
 
 export const getOptionOrThrowById = async (id) => {
-	const foundOption = await db.Option.findByPk(id);
+	const foundOption = await db.Option.findByPk(id, {
+		include: {
+			model: db.Option_value,
+			attributes: ["id", "value"],
+		},
+	});
 	if (!foundOption) {
 		throwError(404, "Option không tồn tại!");
 	}
@@ -27,7 +32,12 @@ export const createOption = async (data) => {
 };
 
 export const getAllOption = async () => {
-	const response = await db.Option.findAll();
+	const response = await db.Option.findAll({
+		include: {
+			model: db.Option_value,
+			attributes: ["id", "value"],
+		},
+	});
 	return successResponse("Lấy danh sách option thành công!", response);
 };
 
