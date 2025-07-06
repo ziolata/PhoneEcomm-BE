@@ -31,7 +31,7 @@ export const getInventoryByVariantIdController = async (req, res, next) => {
 
 export const createInventoryController = async (req, res, next) => {
 	try {
-		const response = await services.addInventory(req.body);
+		const response = await services.createInventory(req.body);
 		return res.status(201).json(response);
 	} catch (error) {
 		next(error);
