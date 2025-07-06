@@ -5,6 +5,7 @@ import {
 	reviewValidate,
 	updateReviewValidate,
 } from "../validations/review-validation.js";
+import { uploadImage } from "../utils/cloudinary-utils.js";
 
 const getOrThrowReviewById = async (id) => {
 	const foundReview = await db.Review.findByPk(id);
@@ -14,7 +15,11 @@ const getOrThrowReviewById = async (id) => {
 	return foundReview;
 };
 
-export const createReview = async (data, user_id) => {
+export const createReview = async (data, user_id, imgFile) => {
+	// Khi có files tạo data.img để validData nhận được
+	if (imgFile) {
+		data.img = { size: imgFile.size };
+	}
 	const validData = handleValidate(reviewValidate, data);
 	const existingProduct = await db.Order_item.findOne({
 		where: {
@@ -31,7 +36,7 @@ export const createReview = async (data, user_id) => {
 	});
 	const existingReview = await db.Review.findOne({
 		where: {
-			product_variant_id: data.product_variant_id,
+			product_variant_id: validData.product_variant_id,
 			user_id,
 		},
 	});
@@ -41,7 +46,15 @@ export const createReview = async (data, user_id) => {
 	if (existingReview) {
 		throwError(400, "Sản phẩm này bạn đã đánh giá!");
 	}
-
+	// Upload img đánh giá nếu không có lỗi
+	if (validData.img) {
+		const image = await uploadImage(
+			imgFile.tempFilePath,
+			`p${validData.product_variant_id}-u${user_id}`,
+			"Reviews",
+		);
+		validData.img = image;
+	}
 	const response = await db.Review.create(validData);
 	return successResponse("Đánh giá thành công!", response);
 };
@@ -71,15 +84,29 @@ export const deleteReview = async (id, user) => {
 	return successResponse("Xóa thành công!");
 };
 
-export const updateReview = async (id, data, user) => {
+export const updateReview = async (id, data, user, imgFile) => {
+	if (imgFile) {
+		data.img = { size: imgFile.size };
+	}
 	const validData = handleValidate(updateReviewValidate, data);
 	const foundReview = await getOrThrowReviewById(id);
 	if (validData.product_variant_id) {
 		throwError(400, "Product_variant_id không thể cập nhật!");
 	}
+
 	if (foundReview.user_id !== user.id && user.role !== "ADMIN") {
 		throwError(403, "Bạn không thể chỉnh sửa đánh giá của tài khoản khác!");
 	}
+
+	if (validData.img) {
+		const image = await uploadImage(
+			imgFile.tempFilePath,
+			`p${foundReview.product_variant_id}-u${user.id}`,
+			"Reviews",
+		);
+		validData.img = image;
+	}
+
 	await db.Review.update(validData, {
 		where: {
 			id,
