@@ -1,12 +1,9 @@
 import db, { sequelize } from "../models/index.js";
-import {
-	calculateDistance,
-	calculateShippingFee,
-} from "../utils/calculate-utils.js";
 import { sendEmailOrder } from "../utils/email-utils.js";
 import { successResponse, throwError } from "../utils/response-utils.js";
 import { deleteCart } from "./cart-service.js";
 import { applyDiscount } from "./discountcode-service.js";
+import { calculateDistance, calculateShippingFee } from "./geocode-service.js";
 import {
 	checkInventoryByVariant,
 	nereastInventory,
@@ -87,13 +84,13 @@ export const createOrder = async (data, user_id) => {
 	// Khởi tạo transaction
 	const transaction = await sequelize.transaction();
 	try {
-		const productVariantData = [];
-		let warehouseAddress = null;
+		const productVariantData = []; // Lưu SP để gửi email
+		const warehouseAddresses = []; // Lưu các kho của từng SP
+		const orderItems = []; // Lưu dữ liệu để bulk insert
+
 		// Lấy dữ liệu từ giỏ hàng
 		const foundCart = await db.Cart.findOne({
-			where: {
-				user_id,
-			},
+			where: { user_id },
 			include: {
 				model: db.Cart_item,
 				attributes: ["product_variant_id", "quantity"],
@@ -102,17 +99,20 @@ export const createOrder = async (data, user_id) => {
 		if (!foundCart) {
 			throwError(404, "Giỏ hàng đang trống không thể đặt hàng!");
 		}
+
+		// Lấy email user
 		const foundEmail = await db.User.findOne({
-			where: {
-				id: user_id,
-			},
+			where: { id: user_id },
 		});
+
+		// Tính tổng giá + kiểm tra mã giảm giá
 		const totalInfo = await calculateTotalPrice(
 			user_id,
 			data.discount_code,
 			foundCart.Cart_items,
 		);
-		// Tạo dữ liệu order
+
+		// Tạo đơn hàng
 		const createdOrder = await db.Order.create(
 			{
 				user_id,
@@ -122,48 +122,58 @@ export const createOrder = async (data, user_id) => {
 			{ transaction },
 		);
 
+		// Lấy địa chỉ giao hàng
 		const foundAddress = await db.Address.findOne({
 			where: {
 				id: data.shipping.address_id,
 				user_id,
 			},
 		});
-
 		if (!foundAddress) {
 			throwError(404, "Địa chỉ nhận hàng không tồn tại!");
 		}
-		// Tạo các order item dựa trên dữ liệu của giỏ hàng
 
+		// Tạo order_item thành một mảng, tìm kho gần nhất
 		for (const q of foundCart.Cart_items) {
+			// Lấy dữ liệu sản phẩm variant
 			const productData = await db.Product_variant.findByPk(
 				q.product_variant_id,
 			);
-			warehouseAddress = await nereastInventory(
-				productData.id,
-				foundAddress.address_line_1,
-			);
 			productVariantData.push(productData);
-			await checkInventoryByVariant(q.product_variant_id, q.quantity);
-			await db.Order_item.create(
-				{
-					order_id: createdOrder.id,
-					product_variant_id: q.product_variant_id,
-					quantity: q.quantity,
-					price: productData.price * q.quantity,
-				},
-				{ transaction },
+
+			// Tìm kho gần nhất và kiểm tra tồn kho
+			const warehouse = await nereastInventory(
+				q.product_variant_id,
+				foundAddress.address_line_1,
+				q.quantity,
 			);
+			warehouseAddresses.push(warehouse.location);
+
+			// Chuẩn bị dữ liệu để bulk insert
+			orderItems.push({
+				order_id: createdOrder.id,
+				product_variant_id: q.product_variant_id,
+				quantity: q.quantity,
+				price: productData.price * q.quantity,
+			});
 		}
 
-		// Tính phi ship
-		const shippingFee = await calculateShippingFee(
-			foundAddress.address_line_1,
-			warehouseAddress,
+		// Bulk insert order items
+		await db.Order_item.bulkCreate(orderItems, { transaction });
+
+		// ==== ✅ Tính phí ship dựa trên tất cả warehouse ====
+		const shippingFees = await Promise.all(
+			warehouseAddresses.map((wa) =>
+				calculateShippingFee(foundAddress.address_line_1, wa),
+			),
 		);
+		const shippingFee = Math.min(...shippingFees); // Hoặc cộng lại tuỳ nghiệp vụ
+
 		if (!data.shipping) {
 			throw { status: 400, message: "Vui lòng cập nhật địa chỉ nhận hàng!" };
 		}
-		// Lưu các thông tin liên quan đến ship.
+
+		// Lưu thông tin shipping
 		await db.Shipping.create(
 			{
 				order_id: createdOrder.id,
@@ -175,37 +185,33 @@ export const createOrder = async (data, user_id) => {
 			{ transaction },
 		);
 
-		// Xóa giỏ hàng khi đã checkout thành công
+		// Xoá giỏ hàng sau khi checkout thành công
 		await deleteCart(user_id, transaction);
-		// Đảm bảo mọi dòng code đều chạy đúng và lưu thay đổi
+
+		// Commit transaction
 		await transaction.commit();
+
+		// Gửi email thông tin đơn hàng
 		await sendEmailOrder(foundEmail.email, productVariantData);
+
 		return successResponse("Đặt hàng thành công!", createdOrder);
 	} catch (error) {
-		// Rollback lại những thứ đã lưu khi có lỗi
+		// Rollback nếu có lỗi
 		await transaction.rollback();
 		throw error;
 	}
 };
 
 export const deleteOrder = async (id) => {
-	try {
-		const foundOrder = await db.Order.findByPk(id);
-		if (!foundOrder) {
-			throw {
-				status: 404,
-				message: "Đơn đặt hàng không tồn tại, xóa không thành công!",
-			};
-		}
-		await db.Order.destroy({
-			where: { id },
-		});
-
-		return { message: "Xóa thành công!" };
-	} catch (error) {
-		console.error(error);
-		throw new Error("Database Error");
+	const foundOrder = await db.Order.findByPk(id);
+	if (!foundOrder) {
+		throwError(404, "Đơn đặt hàng không tồn tại, xóa không thành công!");
 	}
+	await db.Order.destroy({
+		where: { id },
+	});
+
+	return { message: "Xóa thành công!" };
 };
 
 export const updateOrder = async (data, id) => {
@@ -244,38 +250,12 @@ export const updateOrder = async (data, id) => {
 	);
 	// Cập nhật lại tồn kho khi status shipping
 	if (data.status === "shipping") {
-		let nereastStock = null;
 		for (const e of foundOrder.Order_items) {
-			let minDistance = Number.POSITIVE_INFINITY;
-			const findProduct = await db.Product_variant.findByPk(
+			const nereastStock = await nereastInventory(
 				e.product_variant_id,
-				{
-					include: {
-						model: db.Inventory,
-						attributes: ["id", "quantity", "location"],
-					},
-				},
+				foundOrder.Shipping.Address.address_line_1,
+				e.quantity,
 			);
-
-			for (const s of findProduct.Inventories) {
-				const inventory = await db.Inventory.findByPk(s.id);
-				// Tính khoảng cách từ địa chỉ giao hàng đến vị trí của kho
-				const distance = await calculateDistance(
-					foundOrder.Shipping.Address.address_line_1,
-					inventory.location,
-				);
-				// Kiểm tra xem kho này có gần hơn kho hiện tại và còn đủ hàng không
-				if (distance < minDistance && s.quantity > e.quantity) {
-					minDistance = distance;
-					nereastStock = s;
-				}
-			}
-			if (!nereastStock) {
-				throw {
-					status: 400,
-					message: "Kho hết hàng! không thể đổi trạng thái!",
-				};
-			}
 			await db.Inventory.update(
 				{ quantity: nereastStock.quantity - e.quantity },
 				{
