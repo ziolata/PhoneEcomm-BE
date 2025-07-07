@@ -19,32 +19,32 @@ const throwIfInventoryNameExists = async (name) => {
 };
 
 export const getAllInventory = async () => {
-	const response = await db.Inventory.findAll();
-	return successResponse("Lấy danh sách kho thành công!", response);
+	const foundInventories = await db.Inventory.findAll();
+	return successResponse("Lấy danh sách kho thành công!", foundInventories);
 };
 
 export const getInventoryByVariantId = async (product_variant_id) => {
-	const foundInventory = await db.Inventory.findAll({
+	const foundInventories = await db.Inventory.findAll({
 		where: { product_variant_id },
 	});
-	if (!foundInventory) {
+	if (!foundInventories) {
 		throwError(404, "Không tìm thấy kho!");
 	}
 	return successResponse(
 		"Lấy thông tin kho của biến thể sản phẩm!",
-		foundInventory,
+		foundInventories,
 	);
 };
 
 export const getOneInventory = async (id) => {
-	const response = await getInventoryOrThrowById(id);
-	return successResponse("Lấy thông tin kho thành công!", response);
+	const foundInventory = await getInventoryOrThrowById(id);
+	return successResponse("Lấy thông tin kho thành công!", foundInventory);
 };
 
 export const createInventory = async (data) => {
 	await throwIfInventoryNameExists(data.name);
-	const response = await db.Inventory.create(data);
-	return successResponse("Thêm kho thành công!", response);
+	const createdInventory = await db.Inventory.create(data);
+	return successResponse("Thêm kho thành công!", createdInventory);
 };
 
 export const updateInventory = async (data, id) => {

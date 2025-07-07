@@ -9,22 +9,22 @@ export const getAddressOrThrowById = async (id) => {
 	return foundAddress;
 };
 export const createAddress = async (data) => {
-	const response = await db.Address.create(data);
-	return successResponse("Thêm địa chỉ thành công!", response);
+	const createdAddress = await db.Address.create(data);
+	return successResponse("Thêm địa chỉ thành công!", createdAddress);
 };
 
 export const getAllAddressByUserId = async (user_id) => {
-	const foundAddress = await db.Address.findAll({
+	const foundAddresses = await db.Address.findAll({
 		where: {
 			user_id,
 		},
 	});
-	if (!foundAddress) {
+	if (!foundAddresses) {
 		throwError(404, "Không tìm thấy địa chỉ!");
 	}
 	return successResponse(
 		"Lấy danh sách địa chỉ theo id người dùng thành công!",
-		foundAddress,
+		foundAddresses,
 	);
 };
 

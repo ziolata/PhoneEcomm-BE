@@ -4,20 +4,20 @@ import { successResponse, throwError } from "../utils/response-utils.js";
 import { userSchema } from "../validations/user-validation.js";
 
 export const getUser = async (user_id) => {
-	const response = await db.User.findOne({
+	const foundUser = await db.User.findOne({
 		where: {
 			id: user_id,
 		},
 		attributes: { exclude: ["password"] },
 	});
-	return successResponse("Lấy thông tin thành công!", response);
+	return successResponse("Lấy thông tin thành công!", foundUser);
 };
 
 export const getAllUser = async () => {
-	const response = await db.User.findAll({
+	const foundUsers = await db.User.findAll({
 		attributes: { exclude: ["password"] },
 	});
-	return successResponse("Lấy danh sách người dùng thành công!", response);
+	return successResponse("Lấy danh sách người dùng thành công!", foundUsers);
 };
 
 export const updateUser = async (data, role, user_id) => {

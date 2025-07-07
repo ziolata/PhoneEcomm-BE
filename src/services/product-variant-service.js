@@ -54,8 +54,8 @@ export const createProductVariant = async (data, imgFile) => {
 		}
 		const validData = handleValidate(productVariantValidate, data);
 
-		const existingProduct = await db.Product.findByPk(validData.product_id);
-		if (!existingProduct) {
+		const checkProduct = await db.Product.findByPk(validData.product_id);
+		if (!checkProduct) {
 			throwError(404, "Sản phẩm không tồn tại!");
 		}
 		// Giá trị img trong valid tồn tại thì bắt đầu upload và lấy url upload gắn vào valid.img
@@ -66,7 +66,7 @@ export const createProductVariant = async (data, imgFile) => {
 		);
 		validData.img = image;
 
-		const response = await db.Product_variant.create(validData, {
+		const createdProductVariant = await db.Product_variant.create(validData, {
 			transaction,
 		});
 
@@ -78,7 +78,7 @@ export const createProductVariant = async (data, imgFile) => {
 		) {
 			// Tạo ra mảng gồm product_variant_id và option_value_id
 			const OptionValue = validData.Option_value.map((value) => ({
-				product_variant_id: response.id,
+				product_variant_id: createdProductVariant.id,
 				option_value_id: value,
 			}));
 			const valueIdExist = await db.Option_value.findAll({
@@ -91,14 +91,14 @@ export const createProductVariant = async (data, imgFile) => {
 			}
 			await db.Variant_option_value.bulkCreate(OptionValue, { transaction });
 		}
-		const sku = generateSku(response.id);
+		const sku = generateSku(createdProductVariant.id);
 		await db.Product_variant.update(
 			{ sku: sku },
-			{ where: { id: response.id }, transaction },
+			{ where: { id: createdProductVariant.id }, transaction },
 		);
 		const productInfo = await db.Product.findOne({
 			where: {
-				id: response.product_id,
+				id: createdProductVariant.product_id,
 			},
 			include: [
 				{
@@ -115,7 +115,7 @@ export const createProductVariant = async (data, imgFile) => {
 		// Đồng bộ dữ liệu Product Variant vào Elasticsearch
 		await client.index({
 			index: "product_variants", // Index name
-			id: String(response.id),
+			id: String(createdProductVariant.id),
 			body: {
 				name: productInfo.name,
 				sku: sku,
@@ -126,7 +126,7 @@ export const createProductVariant = async (data, imgFile) => {
 		});
 		await transaction.commit();
 
-		return successResponse("Thêm thành công!", response);
+		return successResponse("Thêm thành công!", createdProductVariant);
 	} catch (error) {
 		await transaction.rollback();
 		throw error;
@@ -134,7 +134,7 @@ export const createProductVariant = async (data, imgFile) => {
 };
 
 export const getAllProductVariant = async () => {
-	const response = await db.Product_variant.findAll({
+	const foundProductVariants = await db.Product_variant.findAll({
 		include: [
 			{
 				model: db.Product,
@@ -160,7 +160,7 @@ export const getAllProductVariant = async () => {
 	});
 	return successResponse(
 		"Lấy danh sách biến thể sản phẩm thành công!",
-		response,
+		foundProductVariants,
 	);
 };
 

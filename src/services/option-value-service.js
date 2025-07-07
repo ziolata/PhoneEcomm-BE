@@ -15,23 +15,26 @@ export const getOptionValueOrThrowById = async (id) => {
 };
 
 const throwIfValueExists = async (value) => {
-	const foundOption = await db.Option_value.findOne({ where: { value } });
+	const foundOptionValue = await db.Option_value.findOne({ where: { value } });
 	if (foundOption) {
 		throwError(400, "Giá trị đã tồn tại!");
 	}
-	return foundOption;
+	return foundOptionValue;
 };
 
 export const createOptionValue = async (data) => {
 	const validData = handleValidate(optionValueValidate, data);
 	await throwIfValueExists(validData.value);
-	const response = await db.Option_value.create(validData);
-	return successResponse("Thêm thành công!", response);
+	const createdOptionValue = await db.Option_value.create(validData);
+	return successResponse("Thêm thành công!", createdOptionValue);
 };
 
 export const getAllOptionValue = async () => {
-	const response = await db.Option_value.findAll();
-	return successResponse("Lấy danh sách giá trị thành công!", response);
+	const foundOptionValues = await db.Option_value.findAll();
+	return successResponse(
+		"Lấy danh sách giá trị thành công!",
+		foundOptionValues,
+	);
 };
 
 export const getOneOptionValue = async (id) => {

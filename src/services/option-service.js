@@ -27,18 +27,18 @@ const throwIfOptionNameExists = async (name) => {
 export const createOption = async (data) => {
 	const validData = handleValidate(optionValidate, data);
 	await throwIfOptionNameExists(validData.name);
-	const response = await db.Option.create(validData);
-	return successResponse("Thêm thành công!", response);
+	const createdOption = await db.Option.create(validData);
+	return successResponse("Thêm thành công!", createdOption);
 };
 
 export const getAllOption = async () => {
-	const response = await db.Option.findAll({
+	const foundOptions = await db.Option.findAll({
 		include: {
 			model: db.Option_value,
 			attributes: ["id", "value"],
 		},
 	});
-	return successResponse("Lấy danh sách option thành công!", response);
+	return successResponse("Lấy danh sách option thành công!", foundOptions);
 };
 
 export const getOneOption = async (id) => {

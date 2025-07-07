@@ -34,8 +34,8 @@ export const addCategory = async (data, imgFile) => {
 	);
 	validData.img = image;
 
-	const response = await db.Category.create(validData);
-	return successResponse("Thêm thành công!", response);
+	const createdCategory = await db.Category.create(validData);
+	return successResponse("Thêm thành công!", createdCategory);
 };
 
 export const updateCategory = async (id, data, imgFile) => {
@@ -77,11 +77,11 @@ export const deleteCategory = async (id) => {
 };
 
 export const getAllCategory = async () => {
-	const response = await db.Category.findAll();
-	return successResponse("Lấy danh sách danh mục thành công!", response);
+	const foundCategories = await db.Category.findAll();
+	return successResponse("Lấy danh sách danh mục thành công!", foundCategories);
 };
 
 export const getOneCategory = async (id) => {
-	const response = await db.Category.findByPk(id);
-	return successResponse("Lấy thông tin danh mục thành công!", response);
+	const foundCategory = await db.Category.findByPk(id);
+	return successResponse("Lấy thông tin danh mục thành công!", foundCategory);
 };

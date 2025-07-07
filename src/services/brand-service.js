@@ -36,8 +36,8 @@ export const createBrand = async (data, imgFile) => {
 	);
 	validData.img = image;
 
-	const response = await db.Brand.create(validData);
-	return successResponse("Thêm thành công!", response);
+	const createdBrand = await db.Brand.create(validData);
+	return successResponse("Thêm thành công!", createdBrand);
 };
 
 export const updateBrand = async (id, data, imgFile) => {
@@ -80,13 +80,13 @@ export const deleteBrand = async (id) => {
 };
 
 export const getAllBrand = async () => {
-	const foundBrand = await db.Brand.findAll({
+	const foundBrands = await db.Brand.findAll({
 		attributes: ["id", "name", "img", "description"],
 	});
-	return successResponse("Lấy danh sách thương hiệu thành công!", foundBrand);
+	return successResponse("Lấy danh sách thương hiệu thành công!", foundBrands);
 };
 
 export const getOneBrand = async (id) => {
-	const response = await getBrandOrThrowById(id);
-	return successResponse("Lấy thông tin thương hiệu thành công!", response);
+	const foundBrand = await getBrandOrThrowById(id);
+	return successResponse("Lấy thông tin thương hiệu thành công!", foundBrand);
 };

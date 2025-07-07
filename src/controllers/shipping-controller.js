@@ -32,7 +32,7 @@ export const updateShippingController = async (req, res, next) => {
 export const deleteShippingController = async (req, res) => {
 	try {
 		const { id } = req.params;
-		const response = await services.deleteShipping(id, user);
+		const response = await services.deleteShipping(id);
 		return res.status(200).json(response);
 	} catch (error) {
 		next(error);

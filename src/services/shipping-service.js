@@ -10,10 +10,10 @@ export const getShippingByOrderId = async (order_id) => {
 };
 
 export const getAllShipping = async () => {
-	const foundShipping = await db.Shipping.findAll();
+	const foundShippings = await db.Shipping.findAll();
 	return successResponse(
 		"Lấy danh sách địa chỉ nhận hàng thành công!",
-		foundShipping,
+		foundShippings,
 	);
 };
 
@@ -26,7 +26,7 @@ export const updateShipping = async (id, data) => {
 	return successResponse("Cập nhật thành công!");
 };
 
-export const deleteShipping = async (id, data) => {
+export const deleteShipping = async (id) => {
 	const foundShipping = await db.Shipping.findByPk(id);
 	if (!foundShipping) {
 		throwError(404, "Địa chỉ nhận hàng không tồn tại!");

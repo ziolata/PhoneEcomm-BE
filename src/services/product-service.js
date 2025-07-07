@@ -49,8 +49,8 @@ export const createProduct = async (data, imgFile) => {
 	);
 	validData.img = image;
 
-	const response = await db.Product.create(validData);
-	return successResponse("Thêm thành công!", response);
+	const createdProduct = await db.Product.create(validData);
+	return successResponse("Thêm thành công!", createdProduct);
 };
 
 export const updateProduct = async (id, data, imgFile) => {
@@ -94,7 +94,7 @@ export const getOneProduct = async (id) => {
 };
 
 export const getAllProduct = async () => {
-	const response = await db.Product.findAll({
+	const foundProducts = await db.Product.findAll({
 		include: [
 			{
 				model: db.Category,
@@ -114,5 +114,5 @@ export const getAllProduct = async () => {
 			},
 		],
 	});
-	return successResponse("Lấy danh sách sản phẩm thành công!", response);
+	return successResponse("Lấy danh sách sản phẩm thành công!", foundProducts);
 };

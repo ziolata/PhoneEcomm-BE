@@ -90,7 +90,7 @@ export const createOrder = async (data, user_id) => {
 		const productVariantData = [];
 		let warehouseAddress = null;
 		// Lấy dữ liệu từ giỏ hàng
-		const CartData = await db.Cart.findOne({
+		const foundCart = await db.Cart.findOne({
 			where: {
 				user_id,
 			},
@@ -99,7 +99,7 @@ export const createOrder = async (data, user_id) => {
 				attributes: ["product_variant_id", "quantity"],
 			},
 		});
-		if (!CartData) {
+		if (!foundCart) {
 			throwError(404, "Giỏ hàng đang trống không thể đặt hàng!");
 		}
 		const foundEmail = await db.User.findOne({
@@ -110,10 +110,10 @@ export const createOrder = async (data, user_id) => {
 		const totalInfo = await calculateTotalPrice(
 			user_id,
 			data.discount_code,
-			CartData.Cart_items,
+			foundCart.Cart_items,
 		);
 		// Tạo dữ liệu order
-		const response = await db.Order.create(
+		const createdOrder = await db.Order.create(
 			{
 				user_id,
 				total_amount: totalInfo.totalPrice,
@@ -134,7 +134,7 @@ export const createOrder = async (data, user_id) => {
 		}
 		// Tạo các order item dựa trên dữ liệu của giỏ hàng
 
-		for (const q of CartData.Cart_items) {
+		for (const q of foundCart.Cart_items) {
 			const productData = await db.Product_variant.findByPk(
 				q.product_variant_id,
 			);
@@ -146,7 +146,7 @@ export const createOrder = async (data, user_id) => {
 			await checkInventoryByVariant(q.product_variant_id, q.quantity);
 			await db.Order_item.create(
 				{
-					order_id: response.id,
+					order_id: createdOrder.id,
 					product_variant_id: q.product_variant_id,
 					quantity: q.quantity,
 					price: productData.price * q.quantity,
@@ -156,7 +156,7 @@ export const createOrder = async (data, user_id) => {
 		}
 
 		// Tính phi ship
-		const feeShipByKm = await calculateShippingFee(
+		const shippingFee = await calculateShippingFee(
 			foundAddress.address_line_1,
 			warehouseAddress,
 		);
@@ -166,22 +166,21 @@ export const createOrder = async (data, user_id) => {
 		// Lưu các thông tin liên quan đến ship.
 		await db.Shipping.create(
 			{
-				order_id: response.id,
+				order_id: createdOrder.id,
 				address_id: data.shipping.address_id,
 				type: data.shipping.type,
 				status: "pending",
-				Shipfee: totalInfo.totalPrice * 0.005 + feeShipByKm,
+				Shipfee: totalInfo.totalPrice * 0.005 + shippingFee,
 			},
 			{ transaction },
 		);
 
 		// Xóa giỏ hàng khi đã checkout thành công
-
 		await deleteCart(user_id, transaction);
 		// Đảm bảo mọi dòng code đều chạy đúng và lưu thay đổi
 		await transaction.commit();
 		await sendEmailOrder(foundEmail.email, productVariantData);
-		return successResponse("Đặt hàng thành công!", response);
+		return successResponse("Đặt hàng thành công!", createdOrder);
 	} catch (error) {
 		// Rollback lại những thứ đã lưu khi có lỗi
 		await transaction.rollback();
@@ -210,118 +209,105 @@ export const deleteOrder = async (id) => {
 };
 
 export const updateOrder = async (data, id) => {
-	try {
-		const orderData = await db.Order.findOne({
-			where: { id },
-			include: [
-				{
-					model: db.Order_item,
-					attributes: ["id", "product_variant_id", "quantity", "price"],
-				},
-				{
-					model: db.Shipping,
-					attributes: ["shipfee"],
-					include: {
-						model: db.Address,
-						attributes: ["address_line_1"],
-					},
-				},
-			],
-		});
-
-		// Kiểm tra tránh cùng một trạng thái cập nhật nhiều lần
-		if (orderData.status === data.status) {
-			throw {
-				status: 400,
-				message: `Trạng thái đang là:${orderData.status} `,
-			};
-		}
-		await db.Order.update(
+	const foundOrder = await db.Order.findOne({
+		where: { id },
+		include: [
 			{
-				status: data.status,
+				model: db.Order_item,
+				attributes: ["id", "product_variant_id", "quantity", "price"],
 			},
 			{
-				where: { id },
+				model: db.Shipping,
+				attributes: ["shipfee"],
+				include: {
+					model: db.Address,
+					attributes: ["address_line_1"],
+				},
 			},
-		);
-		// Cập nhật lại tồn kho khi status shipping
-		if (data.status === "shipping") {
-			let nereastStock = null;
-			for (const e of orderData.Order_items) {
-				let minDistance = Number.POSITIVE_INFINITY;
-				const findProduct = await db.Product_variant.findByPk(
-					e.product_variant_id,
-					{
-						include: {
-							model: db.Inventory,
-							attributes: ["id", "quantity", "location"],
-						},
-					},
-				);
+		],
+	});
 
-				for (const s of findProduct.Inventories) {
-					const inventory = await db.Inventory.findByPk(s.id);
-					// Tính khoảng cách từ địa chỉ giao hàng đến vị trí của kho
-					const distance = await calculateDistance(
-						orderData.Shipping.Address.address_line_1,
-						inventory.location,
-					);
-					// Kiểm tra xem kho này có gần hơn kho hiện tại và còn đủ hàng không
-					if (distance < minDistance && s.quantity > e.quantity) {
-						minDistance = distance;
-						nereastStock = s;
-					}
-				}
-				if (!nereastStock) {
-					throw {
-						status: 400,
-						message: "Kho hết hàng! không thể đổi trạng thái!",
-					};
-				}
-				await db.Inventory.update(
-					{ quantity: nereastStock.quantity - e.quantity },
-					{
-						where: {
-							id: nereastStock.id,
-						},
-					},
-				);
-			}
-		}
-
-		return { message: "Cập nhật trạng thái thành công", data: orderData };
-	} catch (error) {
-		console.error(error);
-		throw error;
+	// Kiểm tra tránh cùng một trạng thái cập nhật nhiều lần
+	if (foundOrder.status === data.status) {
+		throw {
+			status: 400,
+			message: `Trạng thái đang là:${foundOrder.status} `,
+		};
 	}
+	await db.Order.update(
+		{
+			status: data.status,
+		},
+		{
+			where: { id },
+		},
+	);
+	// Cập nhật lại tồn kho khi status shipping
+	if (data.status === "shipping") {
+		let nereastStock = null;
+		for (const e of foundOrder.Order_items) {
+			let minDistance = Number.POSITIVE_INFINITY;
+			const findProduct = await db.Product_variant.findByPk(
+				e.product_variant_id,
+				{
+					include: {
+						model: db.Inventory,
+						attributes: ["id", "quantity", "location"],
+					},
+				},
+			);
+
+			for (const s of findProduct.Inventories) {
+				const inventory = await db.Inventory.findByPk(s.id);
+				// Tính khoảng cách từ địa chỉ giao hàng đến vị trí của kho
+				const distance = await calculateDistance(
+					foundOrder.Shipping.Address.address_line_1,
+					inventory.location,
+				);
+				// Kiểm tra xem kho này có gần hơn kho hiện tại và còn đủ hàng không
+				if (distance < minDistance && s.quantity > e.quantity) {
+					minDistance = distance;
+					nereastStock = s;
+				}
+			}
+			if (!nereastStock) {
+				throw {
+					status: 400,
+					message: "Kho hết hàng! không thể đổi trạng thái!",
+				};
+			}
+			await db.Inventory.update(
+				{ quantity: nereastStock.quantity - e.quantity },
+				{
+					where: {
+						id: nereastStock.id,
+					},
+				},
+			);
+		}
+	}
+
+	return successResponse("Cập nhật thành công!");
 };
 
 export const getAllOrder = async (user) => {
-	try {
-		const response = await db.Order.findAll({
-			include: [
-				{
-					model: db.Order_item,
-					attributes: ["id", "product_variant_id", "quantity", "price"],
-				},
-				{
-					model: db.Shipping,
-					attributes: ["id"],
-				},
-			],
-			where: {
-				user_id: user,
+	const foundOrders = await db.Order.findAll({
+		include: [
+			{
+				model: db.Order_item,
+				attributes: ["id", "product_variant_id", "quantity", "price"],
 			},
-		});
-		if (response) {
-			return {
-				data: response,
-			};
-		}
-	} catch (error) {
-		console.error(error);
-		throw error;
-	}
+			{
+				model: db.Shipping,
+				attributes: ["id"],
+			},
+		],
+		where: {
+			user_id: user,
+		},
+	});
+
+	return successResponse("Lấy danh sách đơn hàng thành công!", foundOrders);
 };
 
 export const getOneOrder = async (id, user) => {
