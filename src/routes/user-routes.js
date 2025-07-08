@@ -17,6 +17,12 @@ import { isAdmin, isAuthenticated } from "../middleware/auth-middleware.js";
  *     tags: [User]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - name: page
+ *         in: path
+ *         description: số trang (không nhập mặc định sẽ = 1)
+ *         schema:
+ *           type: integer
  *     responses:
  *       200:
  *         description: Lấy danh sách người dùng thành công!

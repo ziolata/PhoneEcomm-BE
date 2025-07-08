@@ -15,6 +15,12 @@ import { isAdmin } from "../middleware/auth-middleware.js";
  *   get:
  *     summary: Lấy danh sách tất cả biến thể sản phẩm
  *     tags: [Product Variant]
+ *     parameters:
+ *       - name: page
+ *         in: path
+ *         description: số trang (không nhập mặc định sẽ = 1)
+ *         schema:
+ *           type: integer
  *     responses:
  *       200:
  *         description: Lấy danh sách biến thể sản phẩm thành công

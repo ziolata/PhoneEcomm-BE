@@ -146,10 +146,16 @@ import { isAdmin } from "../middleware/auth-middleware.js";
  * @swagger
  * /api/v1/discount/:
  *   post:
- *     summary: Lấy danh sách mã giảm giá!
+ *     summary: Lấy danh sách mã giảm giá (dành cho Admin)
  *     tags: [Discount]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - name: page
+ *         in: path
+ *         description: số trang (không nhập mặc định sẽ = 1)
+ *         schema:
+ *           type: integer
  *     responses:
  *       200:
  *         description: Lấy danh sách mã giảm giá thành công!

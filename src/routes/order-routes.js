@@ -13,10 +13,37 @@ import { isAdmin, isAuthenticated } from "../middleware/auth-middleware.js";
  * @swagger
  * /api/v1/order:
  *   get:
+ *     summary: Lấy danh sách đơn hàng (dành cho Admin)
+ *     tags: [Order]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: page
+ *         in: path
+ *         description: số trang (không nhập mặc định sẽ = 1)
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Lấy danh sách đơn hàng thành công
+ *       401:
+ *         description: Chưa đăng nhập
+ */
+
+/**
+ * @swagger
+ * /api/v1/order/me:
+ *   get:
  *     summary: Lấy danh sách đơn hàng của người dùng
  *     tags: [Order]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - name: page
+ *         in: path
+ *         description: số trang (không nhập mặc định sẽ = 1)
+ *         schema:
+ *           type: integer
  *     responses:
  *       200:
  *         description: Lấy danh sách đơn hàng thành công
