@@ -1,6 +1,7 @@
 import * as controller from "../controllers/product-controller.js";
 import { Router } from "express";
 import { isAdmin } from "../middleware/auth-middleware.js";
+import { auditLogger } from "../middleware/activity-log-middleware.js";
 
 /**
  * @swagger
@@ -195,8 +196,18 @@ const routes = new Router();
 
 routes.get("/", controller.getAllProductController);
 routes.get("/:id", controller.getOneProductController);
-routes.post("/add", isAdmin, controller.createProductController);
-routes.put("/update/:id", isAdmin, controller.updateProductController);
-routes.delete("/delete/:id", isAdmin, controller.deleteProductController);
+routes.post("/add", isAdmin, auditLogger, controller.createProductController);
+routes.put(
+	"/update/:id",
+	isAdmin,
+	auditLogger,
+	controller.updateProductController,
+);
+routes.delete(
+	"/delete/:id",
+	isAdmin,
+	auditLogger,
+	controller.deleteProductController,
+);
 
 export default routes;

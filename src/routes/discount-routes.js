@@ -1,6 +1,7 @@
 import * as controller from "../controllers/discount-controller.js";
 import { Router } from "express";
 import { isAdmin } from "../middleware/auth-middleware.js";
+import { auditLogger } from "../middleware/activity-log-middleware.js";
 
 /**
  * @swagger
@@ -206,8 +207,18 @@ import { isAdmin } from "../middleware/auth-middleware.js";
  */
 const routes = new Router();
 
-routes.post("/add", isAdmin, controller.createDiscountController);
-routes.post("/add/multi", isAdmin, controller.createMultiDiscountController);
+routes.post("/add", isAdmin, auditLogger, controller.createDiscountController);
+routes.post(
+	"/add/multi",
+	isAdmin,
+	auditLogger,
+	controller.createMultiDiscountController,
+);
 routes.get("/", isAdmin, controller.getAllDiscountController);
-routes.delete("/delete/:id", isAdmin, controller.deleteDiscountController);
+routes.delete(
+	"/delete/:id",
+	isAdmin,
+	auditLogger,
+	controller.deleteDiscountController,
+);
 export default routes;

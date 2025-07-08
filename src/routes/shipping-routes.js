@@ -1,6 +1,7 @@
 import * as controller from "../controllers/shipping-controller.js";
 import { Router } from "express";
 import { isAdmin, isAuthenticated } from "../middleware/auth-middleware.js";
+import { auditLogger } from "../middleware/activity-log-middleware.js";
 
 /**
  * @swagger
@@ -71,6 +72,16 @@ routes.get(
 	isAuthenticated,
 	controller.getShippingByOrderIdController,
 );
-routes.put("/update/:id", isAdmin, controller.updateShippingController);
-routes.delete("/delete/:id", isAdmin, controller.deleteShippingController);
+routes.put(
+	"/update/:id",
+	isAdmin,
+	auditLogger,
+	controller.updateShippingController,
+);
+routes.delete(
+	"/delete/:id",
+	isAdmin,
+	auditLogger,
+	controller.deleteShippingController,
+);
 export default routes;

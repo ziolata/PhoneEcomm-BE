@@ -51,7 +51,6 @@ export const updateUser = async (data, role, user_id, imgFile) => {
 		);
 		validData.avatar = uploadResult;
 	}
-	console.log(validData);
 	await db.User.update(validData, {
 		where: { id: user_id },
 	});

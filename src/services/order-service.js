@@ -19,10 +19,11 @@ const calculateTotalPrice = async (user, discount, itemData) => {
 		const foundProduct = await db.Product_variant.findByPk(
 			q.product_variant_id,
 		);
-		// Có áp mã giảm giá
 		if (!foundProduct) {
-			throwError(404, `Sản phẩm có id:${q.product_variant_id} không tồn tại!`);
+			throwError(404, "Sản phẩm không tồn tại!");
 		}
+		// Có áp mã giảm giá
+
 		if (foundCode) {
 			// Điều kiện của code trừ theo %
 
@@ -94,6 +95,7 @@ export const createOrder = async (data, user_id) => {
 				attributes: ["product_variant_id", "quantity"],
 			},
 		});
+
 		if (!foundCart) {
 			throwError(404, "Giỏ hàng đang trống không thể đặt hàng!");
 		}
@@ -212,7 +214,7 @@ export const deleteOrder = async (id) => {
 	return { message: "Xóa thành công!" };
 };
 
-export const updateOrder = async (data, id) => {
+export const updateOrder = async (data, id, user) => {
 	const foundOrder = await db.Order.findOne({
 		where: { id },
 		include: [
@@ -220,6 +222,7 @@ export const updateOrder = async (data, id) => {
 				model: db.Order_item,
 				attributes: ["id", "product_variant_id", "quantity", "price"],
 			},
+
 			{
 				model: db.Shipping,
 				attributes: ["shipfee"],
@@ -230,13 +233,19 @@ export const updateOrder = async (data, id) => {
 			},
 		],
 	});
-
-	// Kiểm tra tránh cùng một trạng thái cập nhật nhiều lần
+	if (user.role === "USER" && foundOrder.user_id !== user.id) {
+		throwError(403, "Bạn không thể cập nhật đơn hàng của người khác");
+	}
+	if (
+		user.role === "USER" &&
+		foundOrder.status === "pending" &&
+		data.status !== "canceled"
+	) {
+		throwError(403, "Bạn chỉ được hủy đơn hàng khi trạng thái đang chờ xử lý!");
+	}
 	if (foundOrder.status === data.status) {
-		throw {
-			status: 400,
-			message: `Trạng thái đang là:${foundOrder.status} `,
-		};
+		// Kiểm tra tránh cùng một trạng thái cập nhật nhiều lần
+		throwError(400, `Trạng thái đang là:${foundOrder.status} `);
 	}
 	await db.Order.update(
 		{

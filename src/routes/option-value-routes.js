@@ -1,6 +1,7 @@
 import * as controller from "../controllers/option-value-Controller.js";
 import { Router } from "express";
-import { isAuthenticated } from "../middleware/auth-middleware.js";
+import { isAdmin, isAuthenticated } from "../middleware/auth-middleware.js";
+import { auditLogger } from "../middleware/activity-log-middleware.js";
 
 /**
  * @swagger
@@ -162,9 +163,24 @@ import { isAuthenticated } from "../middleware/auth-middleware.js";
  */
 const routes = new Router();
 
-routes.post("/add", isAuthenticated, controller.createOptionValueController);
+routes.post(
+	"/add",
+	isAdmin,
+	auditLogger,
+	controller.createOptionValueController,
+);
 routes.get("/", controller.getAllOptionValueController);
 routes.get("/:id", controller.getOneOptionValueController);
-routes.put("/update/:id", controller.updateOptionValueController);
-routes.delete("/delete/:id", controller.deleteOptionValueController);
+routes.put(
+	"/update/:id",
+	isAdmin,
+	auditLogger,
+	controller.updateOptionValueController,
+);
+routes.delete(
+	"/delete/:id",
+	isAdmin,
+	auditLogger,
+	controller.deleteOptionValueController,
+);
 export default routes;

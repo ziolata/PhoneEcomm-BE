@@ -45,7 +45,8 @@ export const getOneOrderController = async (req, res, next) => {
 export const updateOrderController = async (req, res, next) => {
 	try {
 		const { id } = req.params;
-		const response = await services.updateOrder(req.body, id);
+		const user = req.user;
+		const response = await services.updateOrder(req.body, id, user);
 		return res.status(200).json(response);
 	} catch (error) {
 		next(error);

@@ -1,35 +1,26 @@
-import { DataTypes } from "sequelize";
+import { Model } from "sequelize";
 
-export default (sequelize) => {
-	const Address_cache = sequelize.define(
-		"Address_cache",
+export default (sequelize, DataTypes) => {
+	class Address_cache extends Model {
+		/**
+		 * Helper method for defining associations.
+		 * This method is not a part of Sequelize lifecycle.
+		 * The `models/index` file will call this method automatically.
+		 */
+		static associate(models) {
+			// define association here nếu sau này cần
+		}
+	}
+
+	Address_cache.init(
 		{
-			id: {
-				type: DataTypes.INTEGER,
-				autoIncrement: true,
-				primaryKey: true,
-			},
-			address: {
-				type: DataTypes.STRING(255),
-				allowNull: false,
-				unique: true,
-			},
-			latitude: {
-				type: DataTypes.DOUBLE,
-				allowNull: false,
-			},
-			longitude: {
-				type: DataTypes.DOUBLE,
-				allowNull: false,
-			},
-			updated_at: {
-				type: DataTypes.DATE,
-				defaultValue: DataTypes.NOW,
-			},
+			address: DataTypes.STRING,
+			latitude: DataTypes.DOUBLE,
+			longitude: DataTypes.DOUBLE,
 		},
 		{
-			tableName: "address_cache",
-			timestamps: false, // hoặc true nếu muốn có createdAt, updatedAt tự động
+			sequelize,
+			modelName: "Address_cache",
 		},
 	);
 

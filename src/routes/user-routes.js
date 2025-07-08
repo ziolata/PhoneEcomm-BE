@@ -1,6 +1,7 @@
 import * as controller from "../controllers/user-controller.js";
 import { Router } from "express";
 import { isAdmin, isAuthenticated } from "../middleware/auth-middleware.js";
+import { auditLogger } from "../middleware/activity-log-middleware.js";
 
 /**
  * @swagger
@@ -228,7 +229,17 @@ routes.get("/", isAdmin, controller.getAllUserController);
 routes.get("/me", isAuthenticated, controller.getUserController);
 routes.get("/:id", controller.getUserController);
 routes.put("/update/me", isAuthenticated, controller.updateUserController);
-routes.put("/update/:id", isAdmin, controller.updateUserController);
-routes.delete("/delete/:id", isAdmin, controller.deleteUserController);
+routes.put(
+	"/update/:id",
+	isAdmin,
+	auditLogger,
+	controller.updateUserController,
+);
+routes.delete(
+	"/delete/:id",
+	isAdmin,
+	auditLogger,
+	controller.deleteUserController,
+);
 
 export default routes;
