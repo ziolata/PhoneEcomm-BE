@@ -1,4 +1,6 @@
 import { Model } from "sequelize";
+import sequelizePaginate from "sequelize-paginate";
+
 export default (sequelize, DataTypes) => {
 	class Inventory extends Model {
 		/**
@@ -25,5 +27,7 @@ export default (sequelize, DataTypes) => {
 			modelName: "Inventory",
 		},
 	);
+	sequelizePaginate.paginate(Inventory);
+
 	return Inventory;
 };

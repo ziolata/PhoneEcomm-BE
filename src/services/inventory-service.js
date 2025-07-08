@@ -1,4 +1,6 @@
+import { Op } from "sequelize";
 import db from "../models/index.js";
+import { mapPaginateResult } from "../utils/pagenation-utils.js";
 import { successResponse, throwError } from "../utils/response-utils.js";
 import { calculateDistance } from "./geocode-service.js";
 
@@ -18,9 +20,31 @@ const throwIfInventoryNameExists = async (name) => {
 	return foundInventory;
 };
 
-export const getAllInventory = async () => {
-	const foundInventories = await db.Inventory.findAll();
-	return successResponse("Lấy danh sách kho thành công!", foundInventories);
+export const getAllInventory = async (page = 1, name = null) => {
+	const limit = 10;
+	const where = {};
+	if (name) {
+		where.name = { [Op.like]: `%${name}%` };
+	}
+	const paginateResult = await db.Inventory.paginate({
+		page,
+		paginate: limit,
+		order: [["createdAt", "DESC"]],
+		include: [
+			{
+				model: db.Product_variant,
+				attributes: ["id"],
+				include: {
+					model: db.Product,
+					attributes: ["id", "name"],
+					where,
+				},
+			},
+		],
+	});
+
+	const result = mapPaginateResult(page, paginateResult);
+	return successResponse("Lấy danh sách kho thành công!", result);
 };
 
 export const getInventoryByVariantId = async (product_variant_id) => {
