@@ -5,6 +5,7 @@ import {
 	reviewValidate,
 	updateReviewValidate,
 } from "../validations/review-validation.js";
+import { mapPaginateResult } from "../utils/pagenation-utils.js";
 import { uploadImage } from "../utils/cloudinary-utils.js";
 
 const getOrThrowReviewById = async (id) => {
@@ -59,22 +60,41 @@ export const createReview = async (data, user_id, imgFile) => {
 	return successResponse("Đánh giá thành công!", createdReview);
 };
 
-export const getAllReview = async (product_variant_id) => {
-	const foundReviews = await db.Review.findAll({
+export const getAllReview = async (
+	product_variant_id = null,
+	page = 1,
+	email = null,
+) => {
+	const limit = 10;
+	const where = {};
+	if (email) {
+		where.email = email;
+	}
+	const paginateResult = await db.Review.paginate({
+		page,
+		paginate: limit,
 		where: { product_variant_id },
+		order: [["createdAt", "DESC"]],
+		include: [
+			{
+				model: db.User,
+				attributes: ["email"],
+				where,
+			},
+		],
 	});
+
+	const result = mapPaginateResult(page, paginateResult);
+
 	return successResponse(
-		`Lấy danh sách đánh giá của sản phẩm ${product_variant_id} thành công!`,
-		foundReviews,
+		"Lấy danh sách đánh giá của sản phẩm thành công!",
+		result,
 	);
 };
 
 export const getOneReview = async (id) => {
 	const foundReview = await getOrThrowReviewById(id);
-	return successResponse(
-		`Lấy danh sách đánh giá của sản phẩm ${id} thành công!`,
-		foundReview,
-	);
+	return successResponse("Lấy thông tin đánh giá thành công!", foundReview);
 };
 
 export const deleteReview = async (id, user) => {

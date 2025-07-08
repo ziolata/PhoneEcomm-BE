@@ -11,7 +11,9 @@ export const createOptionValueController = async (req, res, next) => {
 
 export const getAllOptionValueController = async (req, res, next) => {
 	try {
-		const response = await services.getAllOptionValue();
+		const page = Number.parseInt(req.query.page) || 1;
+		const value = req.query.value;
+		const response = await services.getAllOptionValue(page, value);
 		return res.status(200).json(response);
 	} catch (error) {
 		next(error);

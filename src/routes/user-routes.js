@@ -222,7 +222,7 @@ routes.get("/", isAdmin, controller.getAllUserController);
 routes.get("/me", isAuthenticated, controller.getUserController);
 routes.get("/:id", controller.getUserController);
 routes.put("/update/me", isAuthenticated, controller.updateUserController);
-routes.put("update/:id", isAdmin, controller.updateUserController);
+routes.put("/update/:id", isAdmin, controller.updateUserController);
 routes.delete("/delete/:id", isAdmin, controller.deleteUserController);
 
 export default routes;

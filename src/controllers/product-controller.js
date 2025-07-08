@@ -31,7 +31,9 @@ export const deleteProductController = async (req, res, next) => {
 
 export const getAllProductController = async (req, res, next) => {
 	try {
-		const response = await Services.getAllProduct();
+		const page = Number.parseInt(req.query.page) || 1;
+		const prdName = req.query.name;
+		const response = await Services.getAllProduct(page, prdName);
 		return res.status(200).json(response);
 	} catch (error) {
 		next(error);

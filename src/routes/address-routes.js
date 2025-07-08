@@ -1,6 +1,6 @@
 import * as controller from "../controllers/address-controller.js";
 import { Router } from "express";
-import { isAuthenticated } from "../middleware/auth-middleware.js";
+import { isAdmin, isAuthenticated } from "../middleware/auth-middleware.js";
 
 /**
  * @swagger
@@ -162,7 +162,8 @@ import { isAuthenticated } from "../middleware/auth-middleware.js";
 const routes = new Router();
 
 routes.post("/add", isAuthenticated, controller.createAddressController);
-routes.get("/", isAuthenticated, controller.getAllAddressByUserIdController);
+routes.get("/", isAdmin, controller.getAllAddressController);
+routes.get("/me", isAuthenticated, controller.getAddressByUserIdController);
 routes.put("/update/:id", isAuthenticated, controller.updateAddressController);
 routes.delete(
 	"/delete/:id",

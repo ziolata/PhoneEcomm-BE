@@ -1,5 +1,4 @@
 import * as services from "../services/user-service.js";
-import { uploadImage } from "../utils/cloudinary-utils.js";
 
 export const getUserController = async (req, res, next) => {
 	try {
@@ -14,7 +13,9 @@ export const getUserController = async (req, res, next) => {
 
 export const getAllUserController = async (req, res, next) => {
 	try {
-		const response = await services.getAllUser();
+		const page = Number.parseInt(req.query.page) || 1;
+		const email = req.query.email;
+		const response = await services.getAllUser(page, email);
 		return res.status(200).json(response);
 	} catch (error) {
 		next(error);
@@ -26,21 +27,17 @@ export const updateUserController = async (req, res, next) => {
 		const { id } = req.params;
 		const role = req.user.role;
 		const user_id = req.user.id;
-		const targetUserId = role === "admin" && id ? id : user_id;
+		const targetUserId = role === "ADMIN" && id ? id : user_id;
+
 		if (req.files?.avatar) {
-			const imgFile = req.files.avatar;
-			const uploadResult = await uploadImage(
-				imgFile.tempFilePath,
-				`avatar_${id ? id : user_id}`,
-				"avatar",
-			);
-			console.log(uploadResult);
-
-			req.body.avatar = uploadResult;
+			req.body.avatar = req.files.avatar;
 		}
-		console.log(req.body.avatar);
-
-		const response = await services.updateUser(req.body, role, targetUserId);
+		const response = await services.updateUser(
+			req.body,
+			role,
+			targetUserId,
+			req.files?.avatar,
+		);
 		return res.status(200).json(response);
 	} catch (error) {
 		next(error);

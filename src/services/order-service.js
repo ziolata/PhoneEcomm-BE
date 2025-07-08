@@ -1,13 +1,11 @@
 import db, { sequelize } from "../models/index.js";
 import { sendEmailOrder } from "../utils/email-utils.js";
+import { mapPaginateResult } from "../utils/pagenation-utils.js";
 import { successResponse, throwError } from "../utils/response-utils.js";
 import { deleteCart } from "./cart-service.js";
 import { applyDiscount } from "./discountcode-service.js";
-import { calculateDistance, calculateShippingFee } from "./geocode-service.js";
-import {
-	checkInventoryByVariant,
-	nereastInventory,
-} from "./inventory-service.js";
+import { calculateShippingFee } from "./geocode-service.js";
+import { nereastInventory } from "./inventory-service.js";
 
 //Tính tổng giá trị đơn hàng
 const calculateTotalPrice = async (user, discount, itemData) => {
@@ -161,13 +159,13 @@ export const createOrder = async (data, user_id) => {
 		// Bulk insert order items
 		await db.Order_item.bulkCreate(orderItems, { transaction });
 
-		// ==== ✅ Tính phí ship dựa trên tất cả warehouse ====
+		//Tính phí ship dựa trên tất cả warehouse ====
 		const shippingFees = await Promise.all(
 			warehouseAddresses.map((wa) =>
 				calculateShippingFee(foundAddress.address_line_1, wa),
 			),
 		);
-		const shippingFee = Math.min(...shippingFees); // Hoặc cộng lại tuỳ nghiệp vụ
+		const shippingFee = Math.min(...shippingFees);
 
 		if (!data.shipping) {
 			throw { status: 400, message: "Vui lòng cập nhật địa chỉ nhận hàng!" };
@@ -270,8 +268,37 @@ export const updateOrder = async (data, id) => {
 	return successResponse("Cập nhật thành công!");
 };
 
-export const getAllOrder = async (user) => {
-	const foundOrders = await db.Order.findAll({
+export const getOrderByUser = async (page = 1, user_id = null) => {
+	const limit = 10;
+	const paginateResult = await db.Order.paginate({
+		page,
+		paginate: limit,
+		where: { user_id },
+		order: [["createdAt", "DESC"]],
+		include: [
+			{
+				model: db.Order_item,
+				attributes: ["id", "product_variant_id", "quantity", "price"],
+			},
+			{
+				model: db.Shipping,
+			},
+		],
+	});
+	const result = mapPaginateResult(page, paginateResult);
+	return successResponse("Lấy danh sách đơn hàng thành công!", result);
+};
+
+export const getAllOrder = async (page = 1, email = null) => {
+	const limit = 10;
+	const where = {};
+	if (email) {
+		where.email = email;
+	}
+	const paginateResult = await db.Order.paginate({
+		page,
+		paginate: limit,
+		order: [["createdAt", "DESC"]],
 		include: [
 			{
 				model: db.Order_item,
@@ -281,13 +308,15 @@ export const getAllOrder = async (user) => {
 				model: db.Shipping,
 				attributes: ["id"],
 			},
+			{
+				model: db.User,
+				attributes: ["email"],
+				where,
+			},
 		],
-		where: {
-			user_id: user,
-		},
 	});
-
-	return successResponse("Lấy danh sách đơn hàng thành công!", foundOrders);
+	const result = mapPaginateResult(page, paginateResult);
+	return successResponse("Lấy danh sách đơn hàng thành công!", result);
 };
 
 export const getOneOrder = async (id, user) => {

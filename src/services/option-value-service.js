@@ -5,6 +5,7 @@ import {
 	optionValueValidate,
 	updateOptionValueValidate,
 } from "../validations/option-validation.js";
+import { mapPaginateResult } from "../utils/pagenation-utils.js";
 
 export const getOptionValueOrThrowById = async (id) => {
 	const foundOptionValue = await db.Option_value.findByPk(id);
@@ -29,12 +30,28 @@ export const createOptionValue = async (data) => {
 	return successResponse("Thêm thành công!", createdOptionValue);
 };
 
-export const getAllOptionValue = async () => {
-	const foundOptionValues = await db.Option_value.findAll();
-	return successResponse(
-		"Lấy danh sách giá trị thành công!",
-		foundOptionValues,
-	);
+export const getAllOptionValue = async (page = 1, value = null) => {
+	const limit = 10;
+	const where = {};
+	if (value) {
+		where.value = { [Op.like]: `%${value}%` };
+	}
+	const paginateResult = await db.Option_value.paginate({
+		page,
+		paginate: limit,
+		where,
+		order: [["createdAt", "DESC"]],
+		include: [
+			{
+				model: db.Option,
+				attributes: ["id", "name"],
+			},
+		],
+	});
+
+	const result = mapPaginateResult(page, paginateResult);
+
+	return successResponse("Lấy danh sách giá trị thành công!", result);
 };
 
 export const getOneOptionValue = async (id) => {

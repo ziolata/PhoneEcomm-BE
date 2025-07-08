@@ -30,7 +30,9 @@ export const createMultiDiscountController = async (req, res, next) => {
 
 export const getAllDiscountController = async (req, res, next) => {
 	try {
-		const response = await services.getAllDiscount();
+		const page = Number.parseInt(req.query.page) || 1;
+		const discount_type = req.query.type;
+		const response = await services.getAllDiscount(page, discount_type);
 		return res.status(200).json(response);
 	} catch (error) {
 		next(error);

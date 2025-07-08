@@ -1,4 +1,6 @@
 import { Model } from "sequelize";
+import sequelizePaginate from "sequelize-paginate";
+
 export default (sequelize, DataTypes) => {
 	class Discount_code extends Model {
 		/**
@@ -40,5 +42,7 @@ export default (sequelize, DataTypes) => {
 			modelName: "Discount_code",
 		},
 	);
+	sequelizePaginate.paginate(Discount_code);
+
 	return Discount_code;
 };

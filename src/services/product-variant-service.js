@@ -7,6 +7,8 @@ import {
 } from "../validations/product-validation.js";
 import { uploadImage } from "../utils/cloudinary-utils.js";
 import { client } from "../config/elastic.js";
+import { mapPaginateResult } from "../utils/pagenation-utils.js";
+import { Op } from "sequelize";
 
 // Tạo mã Sku dựa trên id sản phẩm
 const generateSku = (id) => {
@@ -133,12 +135,21 @@ export const createProductVariant = async (data, imgFile) => {
 	}
 };
 
-export const getAllProductVariant = async () => {
-	const foundProductVariants = await db.Product_variant.findAll({
+export const getAllProductVariant = async (page = 1, name = null) => {
+	const limit = 10;
+	const where = {};
+	if (name) {
+		where.name = { [Op.like]: `%${name}%` };
+	}
+	const paginateResult = await db.Product_variant.paginate({
+		page,
+		paginate: limit,
+		order: [["createdAt", "DESC"]],
 		include: [
 			{
 				model: db.Product,
 				attributes: ["name"],
+				where,
 			},
 			{
 				model: db.Variant_option_value,
@@ -158,10 +169,9 @@ export const getAllProductVariant = async () => {
 			},
 		],
 	});
-	return successResponse(
-		"Lấy danh sách biến thể sản phẩm thành công!",
-		foundProductVariants,
-	);
+
+	const result = mapPaginateResult(page, paginateResult);
+	return successResponse("Lấy danh sách biến thể sản phẩm thành công!", result);
 };
 
 export const getOneProductVariant = async (id) => {

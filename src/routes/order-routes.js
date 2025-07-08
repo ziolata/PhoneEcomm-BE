@@ -1,6 +1,6 @@
 import * as controller from "../controllers/order-controller.js";
 import { Router } from "express";
-import { isAuthenticated } from "../middleware/auth-middleware.js";
+import { isAdmin, isAuthenticated } from "../middleware/auth-middleware.js";
 
 /**
  * @swagger
@@ -139,7 +139,8 @@ import { isAuthenticated } from "../middleware/auth-middleware.js";
 
 const routes = new Router();
 
-routes.get("/", isAuthenticated, controller.getAllOrderController);
+routes.get("/", isAdmin, controller.getAllOrderController);
+routes.get("/me", isAuthenticated, controller.getOrderByUserController);
 routes.get("/:id", isAuthenticated, controller.getOneOrderController);
 routes.post("/add", isAuthenticated, controller.createOrderController);
 routes.put("/update/:id", controller.updateOrderController);

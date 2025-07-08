@@ -1,4 +1,6 @@
 import { Model } from "sequelize";
+import sequelizePaginate from "sequelize-paginate";
+
 export default (sequelize, DataTypes) => {
 	class Product_variant extends Model {
 		/**
@@ -34,5 +36,7 @@ export default (sequelize, DataTypes) => {
 			modelName: "Product_variant",
 		},
 	);
+	sequelizePaginate.paginate(Product_variant);
+
 	return Product_variant;
 };

@@ -1,4 +1,6 @@
 import { Model } from "sequelize";
+import sequelizePaginate from "sequelize-paginate";
+
 export default (sequelize, DataTypes) => {
 	class Option_value extends Model {
 		/**
@@ -26,5 +28,7 @@ export default (sequelize, DataTypes) => {
 			modelName: "Option_value",
 		},
 	);
+	sequelizePaginate.paginate(Option_value);
+
 	return Option_value;
 };
