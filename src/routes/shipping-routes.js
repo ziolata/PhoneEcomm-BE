@@ -17,6 +17,12 @@ import { isAdmin, isAuthenticated } from "../middleware/auth-middleware.js";
  *     tags: [Shipping]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - name: page
+ *         in: path
+ *         description: số trang (không nhập mặc định sẽ = 1)
+ *         schema:
+ *           type: integer
  *     responses:
  *       200:
  *         description: Lấy danh sách địa chỉ nhận hàng thành công!
@@ -35,6 +41,11 @@ import { isAdmin, isAuthenticated } from "../middleware/auth-middleware.js";
  *       - in: path
  *         name: order_id
  *         required: true
+ *         schema:
+ *           type: integer
+ *       - name: page
+ *         in: path
+ *         description: số trang (không nhập mặc định sẽ = 1)
  *         schema:
  *           type: integer
  *     responses:

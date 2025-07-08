@@ -1,6 +1,6 @@
 import * as controller from "../controllers/payment-controller.js";
 import { Router } from "express";
-import { isAuthenticated } from "../middleware/auth-middleware.js";
+import { isAdmin, isAuthenticated } from "../middleware/auth-middleware.js";
 
 /**
  * @swagger
@@ -11,7 +11,7 @@ import { isAuthenticated } from "../middleware/auth-middleware.js";
 
 /**
  * @swagger
- * /api/v1/pay/create_payment:
+ * /api/v1/payment/create_payment:
  *   post:
  *     summary: Thanh toán đơn hàng
  *     tags: [Payment]
@@ -47,6 +47,40 @@ import { isAuthenticated } from "../middleware/auth-middleware.js";
  *         description: Chưa đăng nhập hoặc không có quyền
  */
 
+/**
+ * @swagger
+ * /api/v1/payment/:
+ *   post:
+ *     summary: Lấy danh sách thanh toán đơn hàng (dành cho Admin)
+ *     tags: [Payment]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: page
+ *         in: path
+ *         description: số trang (không nhập mặc định sẽ = 1)
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               order_id:
+ *                 type: string
+ *
+ *             example:
+ *               order_id: "1"
+ *     responses:
+ *       200:
+ *         description: Thêm rạp chiếu thành công
+ *       400:
+ *         description: Rạp chiếu đã tồn tại
+ *       401:
+ *         description: Chưa đăng nhập hoặc không có quyền
+ */
 const routes = new Router();
 
 routes.post(
@@ -55,5 +89,6 @@ routes.post(
 	controller.createPaymentController,
 );
 routes.get("/vnpay_return", controller.getPaymentController);
+routes.get("/", isAdmin, controller.getAllPaymentController);
 
 export default routes;

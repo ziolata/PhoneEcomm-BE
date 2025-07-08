@@ -1,6 +1,8 @@
 import crypto from "crypto";
 import { format } from "date-fns";
+import { mapPaginateResult } from "../utils/pagenation-utils.js";
 import db from "../models/index.js";
+import { successResponse } from "../utils/response-utils.js";
 
 export const vnpConfig = {
 	vnp_TmnCode: process.env.vnp_TmnCode,
@@ -85,4 +87,32 @@ export const getPayment = async (data) => {
 		return { message: "Thanh toán thất bại" };
 	}
 	return { message: "URL đã bị thay đổi, thanh toán không hợp lệ" };
+};
+
+export const getAllPayment = async (page = 1, email = null) => {
+	const limit = 10;
+	const where = {};
+	if (email) {
+		where.email = email;
+	}
+	const paginateResult = await db.Payment.paginate({
+		page,
+		paginate: limit,
+		order: [["createdAt", "DESC"]],
+		include: [
+			{
+				model: db.Order,
+				attributes: ["id", "user_id", "status", "total_amount"],
+				include: {
+					model: db.User,
+					attributes: ["id", "email"],
+					where,
+				},
+			},
+		],
+	});
+
+	const result = mapPaginateResult(page, paginateResult);
+
+	return successResponse("Lấy danh sách thanh toán thành công!", result);
 };

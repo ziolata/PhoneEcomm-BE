@@ -6,6 +6,7 @@ import {
 	updateOptionValueValidate,
 } from "../validations/option-validation.js";
 import { mapPaginateResult } from "../utils/pagenation-utils.js";
+import { Op } from "sequelize";
 
 export const getOptionValueOrThrowById = async (id) => {
 	const foundOptionValue = await db.Option_value.findByPk(id);
