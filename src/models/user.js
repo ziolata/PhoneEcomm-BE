@@ -1,4 +1,6 @@
 import { Model } from "sequelize";
+import sequelizePaginate from "sequelize-paginate";
+
 export default (sequelize, DataTypes) => {
 	class User extends Model {
 		/**
@@ -29,5 +31,7 @@ export default (sequelize, DataTypes) => {
 			modelName: "User",
 		},
 	);
+	sequelizePaginate.paginate(User);
+
 	return User;
 };

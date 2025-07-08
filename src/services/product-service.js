@@ -6,6 +6,8 @@ import {
 	updateProductValidate,
 } from "../validations/product-validation.js";
 import { uploadImage } from "../utils/cloudinary-utils.js";
+import { mapPaginateResult } from "../utils/pagenation-utils.js";
+import { Op } from "sequelize";
 
 const checkCategoryAndBrandExist = async (category_id, brand_id) => {
 	const foundCategory = await db.Category.findByPk(category_id);
@@ -35,9 +37,6 @@ const throwIfProductNameValueExists = async (name) => {
 };
 
 export const createProduct = async (data, imgFile) => {
-	if (imgFile) {
-		data.img = { size: imgFile.size };
-	}
 	const validData = handleValidate(productValidate, data);
 	await checkCategoryAndBrandExist(validData.category_id, validData.brand_id);
 	await throwIfProductNameValueExists(validData.name);
@@ -49,14 +48,11 @@ export const createProduct = async (data, imgFile) => {
 	);
 	validData.img = image;
 
-	const response = await db.Product.create(validData);
-	return successResponse("Thêm thành công!", response);
+	const createdProduct = await db.Product.create(validData);
+	return successResponse("Thêm thành công!", createdProduct);
 };
 
 export const updateProduct = async (id, data, imgFile) => {
-	if (imgFile) {
-		data.img = { size: imgFile.size };
-	}
 	const validData = handleValidate(updateProductValidate, data);
 	await getProductOrThrowById(id);
 	if (validData.category_id && validData.brand_id) {
@@ -93,8 +89,17 @@ export const getOneProduct = async (id) => {
 	return successResponse("Lấy thông tin sản phẩm thành công!", foundProduct);
 };
 
-export const getAllProduct = async () => {
-	const response = await db.Product.findAll({
+export const getAllProduct = async (page = 1, name = null) => {
+	const limit = 10;
+	const where = {};
+	if (name) {
+		where.name = { [Op.like]: `%${name}%` };
+	}
+	const paginateResult = await db.Product.paginate({
+		page,
+		paginate: limit,
+		where,
+		order: [["createdAt", "DESC"]],
 		include: [
 			{
 				model: db.Category,
@@ -114,5 +119,8 @@ export const getAllProduct = async () => {
 			},
 		],
 	});
-	return successResponse("Lấy danh sách sản phẩm thành công!", response);
+
+	const result = mapPaginateResult(page, paginateResult);
+
+	return successResponse("Lấy danh sách sản phẩm thành công!", result);
 };

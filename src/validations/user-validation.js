@@ -8,11 +8,16 @@ export const userSchema = Joi.object({
 		Joi.string().uri().messages({
 			"string.uri": "Avatar phải là đường dẫn hợp lệ",
 		}),
-		Joi.object().keys({
+		Joi.object({
 			size: Joi.number()
 				.max(2 * 1024 * 1024)
 				.messages({
 					"number.max": "Kích thước ảnh phải dưới 2MB",
+				}),
+			mimetype: Joi.string()
+				.valid("image/jpeg", "image/png", "image/webp")
+				.messages({
+					"any.only": "Chỉ cho phép ảnh jpg, png, webp",
 				}),
 		}),
 	),

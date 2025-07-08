@@ -1,6 +1,7 @@
 import * as controller from "../controllers/product-variant-controller.js";
 import { Router } from "express";
 import { isAdmin } from "../middleware/auth-middleware.js";
+import { auditLogger } from "../middleware/activity-log-middleware.js";
 
 /**
  * @swagger
@@ -15,6 +16,12 @@ import { isAdmin } from "../middleware/auth-middleware.js";
  *   get:
  *     summary: Lấy danh sách tất cả biến thể sản phẩm
  *     tags: [Product Variant]
+ *     parameters:
+ *       - name: page
+ *         in: path
+ *         description: số trang (không nhập mặc định sẽ = 1)
+ *         schema:
+ *           type: integer
  *     responses:
  *       200:
  *         description: Lấy danh sách biến thể sản phẩm thành công
@@ -190,13 +197,24 @@ import { isAdmin } from "../middleware/auth-middleware.js";
 
 const routes = new Router();
 
-routes.post("/add", isAdmin, controller.createProductVariantController);
+routes.post(
+	"/add",
+	isAdmin,
+	auditLogger,
+	controller.createProductVariantController,
+);
 routes.get("/", controller.getAllProductVariantController);
 routes.get("/:id", controller.getOneProductVariantController);
-routes.put("/update/:id", isAdmin, controller.updateProductVariantController);
+routes.put(
+	"/update/:id",
+	auditLogger,
+	isAdmin,
+	controller.updateProductVariantController,
+);
 routes.delete(
 	"/delete/:id",
 	isAdmin,
+	auditLogger,
 	controller.deleteProductVariantController,
 );
 export default routes;

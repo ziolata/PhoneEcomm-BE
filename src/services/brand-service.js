@@ -21,10 +21,6 @@ const getBrandOrThrowById = async (id) => {
 	}
 };
 export const createBrand = async (data, imgFile) => {
-	// Gắn giá trị cho img nếu có file gửi lên
-	if (imgFile) {
-		data.img = { size: imgFile.size };
-	}
 	const validData = handleValidate(brandValidate, data);
 
 	await throwIfBrandNameExists(validData.name);
@@ -36,23 +32,17 @@ export const createBrand = async (data, imgFile) => {
 	);
 	validData.img = image;
 
-	const response = await db.Brand.create(validData);
-	return successResponse("Thêm thành công!", response);
+	const createdBrand = await db.Brand.create(validData);
+	return successResponse("Thêm thành công!", createdBrand);
 };
 
 export const updateBrand = async (id, data, imgFile) => {
 	await getBrandOrThrowById(id);
-	if (imgFile) {
-		data.img = { size: imgFile.size };
-	}
 	const validData = handleValidate(updateBrandValidate, data);
-
 	// Kiểm tra tồn tại nếu có trường name cập nhật
 	if (validData.name) {
 		await throwIfBrandNameExists(validData.name);
 	}
-
-	// Giá trị img tồn tại thì bắt đầu upload và lấy url upload gắn vào valid.img
 	if (validData.img) {
 		const image = await uploadImage(
 			imgFile.tempFilePath,
@@ -80,13 +70,13 @@ export const deleteBrand = async (id) => {
 };
 
 export const getAllBrand = async () => {
-	const foundBrand = await db.Brand.findAll({
+	const foundBrands = await db.Brand.findAll({
 		attributes: ["id", "name", "img", "description"],
 	});
-	return successResponse("Lấy danh sách thương hiệu thành công!", foundBrand);
+	return successResponse("Lấy danh sách thương hiệu thành công!", foundBrands);
 };
 
 export const getOneBrand = async (id) => {
-	const response = await getBrandOrThrowById(id);
-	return successResponse("Lấy thông tin thương hiệu thành công!", response);
+	const foundBrand = await getBrandOrThrowById(id);
+	return successResponse("Lấy thông tin thương hiệu thành công!", foundBrand);
 };

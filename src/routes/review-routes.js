@@ -20,34 +20,33 @@ import { isAuthenticated } from "../middleware/auth-middleware.js";
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             properties:
  *               product_variant_id:
  *                 type: integer
+ *                 example: 1
  *               rating:
  *                 type: number
  *                 format: decimal
+ *                 example: 4.5
  *               review:
  *                 type: string
- *             example:
- *               product_variant_id: 1
- *               rating: 4.5
- *               review: "Sản phẩm rất tốt!"
+ *                 example: "Sản phẩm rất tốt!"
+ *
  *     responses:
  *       201:
  *         description: Đánh giá sản phẩm thành công!
  *       400:
  *         description: Bạn chưa mua sản phẩm này không thể đánh giá! hoặc Sản phẩm này bạn đã đánh giá!
  *       401:
- *        description: >
- *         - Phiên đăng nhập đã hết thời gian, vui lòng đăng nhập lại !
+ *         description: >
+ *           - Phiên đăng nhập đã hết thời gian, vui lòng đăng nhập lại !
  *
- *         - Token xác thực không hợp lệ, vui lòng đăng nhập lại!
+ *           - Token xác thực không hợp lệ, vui lòng đăng nhập lại!
  *
- *         - Chưa đăng nhập: Vui lòng đăng nhập để tiếp tục.
- *
+ *           - Chưa đăng nhập: Vui lòng đăng nhập để tiếp tục.
  *       500:
  *         description: Đã xảy ra lỗi khi xác thực phiên đăng nhập, vui lòng thử lại sau!
  */
@@ -59,10 +58,16 @@ import { isAuthenticated } from "../middleware/auth-middleware.js";
  *     summary: Lấy danh sách đánh giá của sản phẩm theo id của biến thể sản phẩm
  *     tags: [Review]
  *     parameters:
- *       - name: product_variant_id
+ *       - name: variant
  *         in: query
  *         description: ID biến thể sản phẩm cần lấy đánh giá
  *         required: true
+ *         schema:
+ *           type: integer
+ *           example: 41
+ *       - name: page
+ *         in: query
+ *         description: số trang (không truyền mặc định = 1)
  *         schema:
  *           type: integer
  *     responses:

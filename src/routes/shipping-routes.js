@@ -1,6 +1,7 @@
 import * as controller from "../controllers/shipping-controller.js";
 import { Router } from "express";
 import { isAdmin, isAuthenticated } from "../middleware/auth-middleware.js";
+import { auditLogger } from "../middleware/activity-log-middleware.js";
 
 /**
  * @swagger
@@ -17,6 +18,12 @@ import { isAdmin, isAuthenticated } from "../middleware/auth-middleware.js";
  *     tags: [Shipping]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - name: page
+ *         in: path
+ *         description: số trang (không nhập mặc định sẽ = 1)
+ *         schema:
+ *           type: integer
  *     responses:
  *       200:
  *         description: Lấy danh sách địa chỉ nhận hàng thành công!
@@ -35,6 +42,11 @@ import { isAdmin, isAuthenticated } from "../middleware/auth-middleware.js";
  *       - in: path
  *         name: order_id
  *         required: true
+ *         schema:
+ *           type: integer
+ *       - name: page
+ *         in: path
+ *         description: số trang (không nhập mặc định sẽ = 1)
  *         schema:
  *           type: integer
  *     responses:
@@ -60,6 +72,16 @@ routes.get(
 	isAuthenticated,
 	controller.getShippingByOrderIdController,
 );
-routes.put("/update/:id", isAdmin, controller.updateShippingController);
-routes.delete("/delete/:id", isAdmin, controller.deleteShippingController);
+routes.put(
+	"/update/:id",
+	isAdmin,
+	auditLogger,
+	controller.updateShippingController,
+);
+routes.delete(
+	"/delete/:id",
+	isAdmin,
+	auditLogger,
+	controller.deleteShippingController,
+);
 export default routes;

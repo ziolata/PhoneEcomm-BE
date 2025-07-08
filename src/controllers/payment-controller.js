@@ -17,3 +17,14 @@ export const getPaymentController = async (req, res, next) => {
 		next(error);
 	}
 };
+
+export const getAllPaymentController = async (req, res, next) => {
+	try {
+		const page = Number.parseInt(req.query.page) || 1;
+		const email = req.query.email;
+		const response = await services.getAllPayment(page, email);
+		return res.status(200).json(response);
+	} catch (error) {
+		next(error);
+	}
+};

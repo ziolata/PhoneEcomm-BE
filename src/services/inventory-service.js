@@ -1,6 +1,8 @@
+import { Op } from "sequelize";
 import db from "../models/index.js";
-import { calculateDistance } from "../utils/calculate-utils.js";
+import { mapPaginateResult } from "../utils/pagenation-utils.js";
 import { successResponse, throwError } from "../utils/response-utils.js";
+import { calculateDistance } from "./geocode-service.js";
 
 export const getInventoryOrThrowById = async (id) => {
 	const foundInventory = await db.Inventory.findByPk(id);
@@ -18,33 +20,55 @@ const throwIfInventoryNameExists = async (name) => {
 	return foundInventory;
 };
 
-export const getAllInventory = async () => {
-	const response = await db.Inventory.findAll();
-	return successResponse("Lấy danh sách kho thành công!", response);
+export const getAllInventory = async (page = 1, name = null) => {
+	const limit = 10;
+	const where = {};
+	if (name) {
+		where.name = { [Op.like]: `%${name}%` };
+	}
+	const paginateResult = await db.Inventory.paginate({
+		page,
+		paginate: limit,
+		order: [["createdAt", "DESC"]],
+		include: [
+			{
+				model: db.Product_variant,
+				attributes: ["id"],
+				include: {
+					model: db.Product,
+					attributes: ["id", "name"],
+					where,
+				},
+			},
+		],
+	});
+
+	const result = mapPaginateResult(page, paginateResult);
+	return successResponse("Lấy danh sách kho thành công!", result);
 };
 
 export const getInventoryByVariantId = async (product_variant_id) => {
-	const foundInventory = await db.Inventory.findAll({
+	const foundInventories = await db.Inventory.findAll({
 		where: { product_variant_id },
 	});
-	if (!foundInventory) {
+	if (!foundInventories) {
 		throwError(404, "Không tìm thấy kho!");
 	}
 	return successResponse(
 		"Lấy thông tin kho của biến thể sản phẩm!",
-		foundInventory,
+		foundInventories,
 	);
 };
 
 export const getOneInventory = async (id) => {
-	const response = await getInventoryOrThrowById(id);
-	return successResponse("Lấy thông tin kho thành công!", response);
+	const foundInventory = await getInventoryOrThrowById(id);
+	return successResponse("Lấy thông tin kho thành công!", foundInventory);
 };
 
 export const createInventory = async (data) => {
 	await throwIfInventoryNameExists(data.name);
-	const response = await db.Inventory.create(data);
-	return successResponse("Thêm kho thành công!", response);
+	const createdInventory = await db.Inventory.create(data);
+	return successResponse("Thêm kho thành công!", createdInventory);
 };
 
 export const updateInventory = async (data, id) => {
@@ -86,14 +110,19 @@ export const checkInventoryByVariant = async (variant_id, quantity) => {
 	return totalAvailable;
 };
 
-export const nereastInventory = async (product_variant_id, userAdress) => {
+export const nereastInventory = async (
+	product_variant_id,
+	userAdress,
+	quantity,
+) => {
 	let nereastStock = null;
 	let minDistance = Number.POSITIVE_INFINITY;
+	await checkInventoryByVariant(product_variant_id, quantity);
 	const foundInventories = await db.Inventory.findAll({
 		where: { product_variant_id },
 	});
 	if (foundInventories.length === 1) {
-		return foundInventories[0].location;
+		if (foundInventories.quantity) return foundInventories[0];
 	}
 	for (const inventory of foundInventories) {
 		const distance = await calculateDistance(userAdress, inventory.location);
@@ -103,7 +132,7 @@ export const nereastInventory = async (product_variant_id, userAdress) => {
 		}
 	}
 	if (nereastStock) {
-		return nereastStock.location;
+		return nereastStock;
 	}
 	throwError(400, "Không tìm thấy địa chỉ kho gần nhất!");
 };

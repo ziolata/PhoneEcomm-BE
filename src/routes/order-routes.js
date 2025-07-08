@@ -1,6 +1,7 @@
 import * as controller from "../controllers/order-controller.js";
 import { Router } from "express";
-import { isAuthenticated } from "../middleware/auth-middleware.js";
+import { isAdmin, isAuthenticated } from "../middleware/auth-middleware.js";
+import { auditLogger } from "../middleware/activity-log-middleware.js";
 
 /**
  * @swagger
@@ -13,10 +14,37 @@ import { isAuthenticated } from "../middleware/auth-middleware.js";
  * @swagger
  * /api/v1/order:
  *   get:
+ *     summary: Lấy danh sách đơn hàng (dành cho Admin)
+ *     tags: [Order]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: page
+ *         in: path
+ *         description: số trang (không nhập mặc định sẽ = 1)
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Lấy danh sách đơn hàng thành công
+ *       401:
+ *         description: Chưa đăng nhập
+ */
+
+/**
+ * @swagger
+ * /api/v1/order/me:
+ *   get:
  *     summary: Lấy danh sách đơn hàng của người dùng
  *     tags: [Order]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - name: page
+ *         in: path
+ *         description: số trang (không nhập mặc định sẽ = 1)
+ *         schema:
+ *           type: integer
  *     responses:
  *       200:
  *         description: Lấy danh sách đơn hàng thành công
@@ -139,9 +167,20 @@ import { isAuthenticated } from "../middleware/auth-middleware.js";
 
 const routes = new Router();
 
-routes.get("/", isAuthenticated, controller.getAllOrderController);
+routes.get("/", isAdmin, controller.getAllOrderController);
+routes.get("/me", isAuthenticated, controller.getOrderByUserController);
 routes.get("/:id", isAuthenticated, controller.getOneOrderController);
 routes.post("/add", isAuthenticated, controller.createOrderController);
-routes.put("/update/:id", controller.updateOrderController);
-routes.delete("/delete/:id", controller.deleteOrderController);
+routes.put(
+	"/update/:id",
+	isAuthenticated,
+	auditLogger,
+	controller.updateOrderController,
+);
+routes.delete(
+	"/delete/:id",
+	isAdmin,
+	auditLogger,
+	controller.deleteOrderController,
+);
 export default routes;

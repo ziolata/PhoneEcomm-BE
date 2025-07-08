@@ -1,6 +1,6 @@
 import * as controller from "../controllers/address-controller.js";
 import { Router } from "express";
-import { isAuthenticated } from "../middleware/auth-middleware.js";
+import { isAdmin, isAuthenticated } from "../middleware/auth-middleware.js";
 
 /**
  * @swagger
@@ -55,6 +55,34 @@ import { isAuthenticated } from "../middleware/auth-middleware.js";
 /**
  * @swagger
  * /api/v1/address:
+ *   get:
+ *     summary: Lấy danh sách địa chỉ của người dùng (dành cho Admin)
+ *     tags: [Address]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: page
+ *         in: path
+ *         description: số trang (không nhập mặc định sẽ = 1)
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Lấy danh sách địa chỉ thành công
+ *       401:
+ *        description: >
+ *         - Phiên đăng nhập đã hết thời gian, vui lòng đăng nhập lại !
+ *
+ *         - Token xác thực không hợp lệ, vui lòng đăng nhập lại!
+ *
+ *         - Chưa đăng nhập: Vui lòng đăng nhập để tiếp tục.
+ *       500:
+ *         description: Đã xảy ra lỗi khi xác thực phiên đăng nhập, vui lòng thử lại sau!
+ */
+
+/**
+ * @swagger
+ * /api/v1/address/me:
  *   get:
  *     summary: Lấy danh sách địa chỉ của người dùng
  *     tags: [Address]
@@ -162,7 +190,8 @@ import { isAuthenticated } from "../middleware/auth-middleware.js";
 const routes = new Router();
 
 routes.post("/add", isAuthenticated, controller.createAddressController);
-routes.get("/", isAuthenticated, controller.getAllAddressByUserIdController);
+routes.get("/", isAdmin, controller.getAllAddressController);
+routes.get("/me", isAuthenticated, controller.getAddressByUserIdController);
 routes.put("/update/:id", isAuthenticated, controller.updateAddressController);
 routes.delete(
 	"/delete/:id",

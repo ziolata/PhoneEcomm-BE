@@ -1,6 +1,7 @@
 import * as controller from "../controllers/product-controller.js";
 import { Router } from "express";
 import { isAdmin } from "../middleware/auth-middleware.js";
+import { auditLogger } from "../middleware/activity-log-middleware.js";
 
 /**
  * @swagger
@@ -15,6 +16,12 @@ import { isAdmin } from "../middleware/auth-middleware.js";
  *   get:
  *     summary: Lấy danh sách tất cả sản phẩm
  *     tags: [Product]
+ *     parameters:
+ *       - name: page
+ *         in: path
+ *         description: số trang (không nhập mặc định sẽ = 1)
+ *         schema:
+ *           type: integer
  *     responses:
  *       200:
  *         description: Lấy danh sách sản phẩm thành công
@@ -189,8 +196,18 @@ const routes = new Router();
 
 routes.get("/", controller.getAllProductController);
 routes.get("/:id", controller.getOneProductController);
-routes.post("/add", isAdmin, controller.createProductController);
-routes.put("/update/:id", isAdmin, controller.updateProductController);
-routes.delete("/delete/:id", isAdmin, controller.deleteProductController);
+routes.post("/add", isAdmin, auditLogger, controller.createProductController);
+routes.put(
+	"/update/:id",
+	isAdmin,
+	auditLogger,
+	controller.updateProductController,
+);
+routes.delete(
+	"/delete/:id",
+	isAdmin,
+	auditLogger,
+	controller.deleteProductController,
+);
 
 export default routes;

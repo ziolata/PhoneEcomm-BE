@@ -2,6 +2,9 @@ import * as services from "../services/product-variant-service.js";
 
 export const createProductVariantController = async (req, res, next) => {
 	try {
+		if (req.files?.img) {
+			req.body.img = req.files.img;
+		}
 		const response = await services.createProductVariant(
 			req.body,
 			req.files?.img,
@@ -14,7 +17,9 @@ export const createProductVariantController = async (req, res, next) => {
 
 export const getAllProductVariantController = async (req, res, next) => {
 	try {
-		const response = await services.getAllProductVariant(req.body);
+		const page = Number.parseInt(req.query.page) || 1;
+		const prdName = req.query.name;
+		const response = await services.getAllProductVariant(page, prdName);
 		return res.status(200).json(response);
 	} catch (error) {
 		next(error);
@@ -34,6 +39,9 @@ export const getOneProductVariantController = async (req, res, next) => {
 export const updateProductVariantController = async (req, res, next) => {
 	try {
 		const { id } = req.params;
+		if (req.files?.img) {
+			req.body.img = req.files.img;
+		}
 		const response = await services.updateProductVariant(
 			id,
 			req.body,

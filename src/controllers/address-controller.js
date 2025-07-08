@@ -11,10 +11,21 @@ export const createAddressController = async (req, res, next) => {
 	}
 };
 
-export const getAllAddressByUserIdController = async (req, res, next) => {
+export const getAddressByUserIdController = async (req, res, next) => {
 	try {
 		const user_id = req.user.id;
-		const response = await services.getAllAddressByUserId(user_id);
+		const response = await services.getAddressByUserId(user_id);
+		return res.status(200).json(response);
+	} catch (error) {
+		next(error);
+	}
+};
+
+export const getAllAddressController = async (req, res, next) => {
+	try {
+		const page = Number.parseInt(req.query.page) || 1;
+		const email = req.query.email;
+		const response = await services.getAllAddress(page, email);
 		return res.status(200).json(response);
 	} catch (error) {
 		next(error);

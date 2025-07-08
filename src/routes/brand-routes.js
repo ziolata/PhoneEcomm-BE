@@ -1,6 +1,7 @@
 import * as controller from "../controllers/brand-controller.js";
 import { Router } from "express";
 import { isAdmin } from "../middleware/auth-middleware.js";
+import { auditLogger } from "../middleware/activity-log-middleware.js";
 
 /**
  * @swagger
@@ -176,8 +177,18 @@ const routes = new Router();
 
 routes.get("/", controller.getAllBrandController);
 routes.get("/:id", controller.getOneBrandController);
-routes.post("/add", isAdmin, controller.createBrandController);
-routes.put("/update/:id", isAdmin, controller.updateBrandController);
-routes.delete("/delete/:id", isAdmin, controller.deleteBrandController);
+routes.post("/add", isAdmin, auditLogger, controller.createBrandController);
+routes.put(
+	"/update/:id",
+	isAdmin,
+	auditLogger,
+	controller.updateBrandController,
+);
+routes.delete(
+	"/delete/:id",
+	isAdmin,
+	auditLogger,
+	controller.deleteBrandController,
+);
 
 export default routes;

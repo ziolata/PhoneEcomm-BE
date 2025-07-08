@@ -70,7 +70,6 @@ export const deleteCartItem = async (id, user) => {
 			where: { user_id: user.id },
 		},
 	});
-	console.log(itemExist);
 
 	if (!itemExist) {
 		throwError(404, "Sản phẩm không tồn tại!");
@@ -108,7 +107,7 @@ export const deleteCart = async (user_id, transaction = null) => {
 };
 
 export const getAllCart = async (user_id) => {
-	const response = await db.Cart.findAll({
+	const foundCarts = await db.Cart.findAll({
 		include: {
 			model: db.Cart_item,
 			attributes: ["id", "quantity", "price"],
@@ -121,7 +120,7 @@ export const getAllCart = async (user_id) => {
 			user_id,
 		},
 	});
-	return successResponse("Lấy danh sách giỏ hàng thành công!", response);
+	return successResponse("Lấy danh sách giỏ hàng thành công!", foundCarts);
 };
 
 export const updateCart = async (id, data, user) => {

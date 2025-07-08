@@ -11,8 +11,20 @@ export const createOrderController = async (req, res, next) => {
 };
 export const getAllOrderController = async (req, res, next) => {
 	try {
-		const user = req.user.id;
-		const response = await services.getAllOrder(user);
+		const page = Number.parseInt(req.query.page) || 1;
+		const email = req.query.email;
+		const response = await services.getAllOrder(page, email);
+		return res.status(200).json(response);
+	} catch (error) {
+		next(error);
+	}
+};
+
+export const getOrderByUserController = async (req, res, next) => {
+	try {
+		const page = Number.parseInt(req.query.page) || 1;
+		const user_id = req.user.id;
+		const response = await services.getOrderByUser(page, user_id);
 		return res.status(200).json(response);
 	} catch (error) {
 		next(error);
@@ -33,8 +45,9 @@ export const getOneOrderController = async (req, res, next) => {
 export const updateOrderController = async (req, res, next) => {
 	try {
 		const { id } = req.params;
-		const response = await services.updateOrder(req.body, id);
-		return res.status(203).json(response);
+		const user = req.user;
+		const response = await services.updateOrder(req.body, id, user);
+		return res.status(200).json(response);
 	} catch (error) {
 		next(error);
 	}

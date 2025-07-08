@@ -11,6 +11,18 @@ export const reviewValidate = Joi.object({
 		"number.positive": "ID  phẩm đánh giá phải lớn hơn 0.",
 		"any.required": "ID phẩm đánh giá là bắt buộc.",
 	}),
+	img: Joi.alternatives().try(
+		Joi.string().uri().messages({
+			"string.uri": "Img phải là đường dẫn hợp lệ",
+		}),
+		Joi.object().keys({
+			size: Joi.number()
+				.max(2 * 1024 * 1024)
+				.messages({
+					"number.max": "Kích thước ảnh phải dưới 2MB",
+				}),
+		}),
+	),
 	user_id: Joi.number().integer().positive().required().messages({
 		"number.base": "user_id phải là số.",
 		"number.integer": "user_id là số nguyên.",
@@ -29,6 +41,18 @@ export const updateReviewValidate = Joi.object({
 	review: Joi.string().messages({
 		"string.base": "Đánh giá phải là chuỗi!",
 	}),
+	img: Joi.alternatives().try(
+		Joi.string().uri().messages({
+			"string.uri": "Img phải là đường dẫn hợp lệ",
+		}),
+		Joi.object().keys({
+			size: Joi.number()
+				.max(2 * 1024 * 1024)
+				.messages({
+					"number.max": "Kích thước ảnh phải dưới 2MB",
+				}),
+		}),
+	),
 	rating: Joi.number().precision(2).min(1).max(5).messages({
 		"number.base": "Sao đánh giá phải là số!",
 		"number.min": "Số sao đánh giá phải lớn hoặc bằng 1!",

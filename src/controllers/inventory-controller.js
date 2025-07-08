@@ -2,7 +2,9 @@ import * as services from "../services/inventory-service.js";
 
 export const getAllInventoryController = async (req, res, next) => {
 	try {
-		const response = await services.getAllInventory();
+		const page = Number.parseInt(req.query.page) || 1;
+		const name = req.query.name;
+		const response = await services.getAllInventory(page, name);
 		return res.status(200).json(response);
 	} catch (error) {
 		next(error);
@@ -31,7 +33,7 @@ export const getInventoryByVariantIdController = async (req, res, next) => {
 
 export const createInventoryController = async (req, res, next) => {
 	try {
-		const response = await services.addInventory(req.body);
+		const response = await services.createInventory(req.body);
 		return res.status(201).json(response);
 	} catch (error) {
 		next(error);

@@ -1,4 +1,5 @@
 import db from "../models/index.js";
+import { mapPaginateResult } from "../utils/pagenation-utils.js";
 import { successResponse, throwError } from "../utils/response-utils.js";
 export const createDiscount = async (data) => {
 	const existingDiscount = await db.Discount_code.findOne({
@@ -14,12 +15,21 @@ export const createDiscount = async (data) => {
 	return successResponse("Thêm mã khuyến mãi thành công!", response);
 };
 
-export const getAllDiscount = async () => {
-	const foundDiscount = await db.Discount_code.findAll();
-	return successResponse(
-		"Lấy danh sách mã giảm giá thành công!",
-		foundDiscount,
-	);
+export const getAllDiscount = async (page = 1, discount_type = null) => {
+	const limit = 10;
+	const where = {};
+	if (discount_type) {
+		where.discount_type = discount_type;
+	}
+	const paginateResult = await db.Discount_code.paginate({
+		page,
+		paginate: limit,
+		order: [["createdAt", "DESC"]],
+	});
+
+	const result = mapPaginateResult(page, paginateResult);
+
+	return successResponse("Lấy danh sách mã giảm giá thành công!", result);
 };
 
 export const deleteDiscount = async (id) => {
