@@ -50,17 +50,13 @@ const getProductVariantOrThrowById = async (id) => {
 export const createProductVariant = async (data, imgFile) => {
 	const transaction = await sequelize.transaction();
 	try {
-		// Gắn giá trị cho img nếu có file gửi lên
-		if (imgFile) {
-			data.img = { size: imgFile.size };
-		}
 		const validData = handleValidate(productVariantValidate, data);
 
 		const checkProduct = await db.Product.findByPk(validData.product_id);
 		if (!checkProduct) {
 			throwError(404, "Sản phẩm không tồn tại!");
 		}
-		// Giá trị img trong valid tồn tại thì bắt đầu upload và lấy url upload gắn vào valid.img
+
 		const image = await uploadImage(
 			imgFile.tempFilePath,
 			validData.name,
@@ -121,7 +117,7 @@ export const createProductVariant = async (data, imgFile) => {
 			body: {
 				name: productInfo.name,
 				sku: sku,
-				price: response.price,
+				price: createdProductVariant.price,
 				category: productInfo.Category.name,
 				brand: productInfo.Brand.name,
 			},
@@ -184,13 +180,7 @@ export const getOneProductVariant = async (id) => {
 
 export const updateProductVariant = async (id, data, imgFile) => {
 	await getProductVariantOrThrowById(id);
-
-	if (imgFile) {
-		data.img = { size: imgFile.size };
-	}
-
 	const validData = handleValidate(updateProductVariantValidate, data);
-
 	if (validData.img) {
 		const image = await uploadImage(
 			imgFile.tempFilePath,

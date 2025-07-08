@@ -2,6 +2,9 @@ import * as Services from "../services/product-service.js";
 
 export const createProductController = async (req, res, next) => {
 	try {
+		if (req.files?.img) {
+			req.body.img = req.files.img;
+		}
 		const response = await Services.createProduct(req.body, req.files?.img);
 		return res.status(201).json(response);
 	} catch (error) {
@@ -12,6 +15,9 @@ export const createProductController = async (req, res, next) => {
 export const updateProductController = async (req, res, next) => {
 	try {
 		const { id } = req.params;
+		if (req.files?.img) {
+			req.body.img = req.files.img;
+		}
 		const response = await Services.updateProduct(id, req.body, req.files?.img);
 		return res.status(200).json(response);
 	} catch (error) {

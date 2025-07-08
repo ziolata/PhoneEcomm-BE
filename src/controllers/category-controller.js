@@ -2,7 +2,10 @@ import * as Services from "../services/category-service.js";
 
 export const createCategoryController = async (req, res, next) => {
 	try {
-		const response = await Services.addCategory(req.body, req.files?.img);
+		if (req.files?.img) {
+			req.body.img = req.files.img;
+		}
+		const response = await Services.createCategory(req.body, req.files?.img);
 		return res.status(201).json(response);
 	} catch (error) {
 		next(error);
@@ -12,6 +15,9 @@ export const createCategoryController = async (req, res, next) => {
 export const updateCategoryController = async (req, res, next) => {
 	try {
 		const { id } = req.params;
+		if (req.files?.img) {
+			req.body.img = req.files.img;
+		}
 		const response = await Services.updateCategory(
 			id,
 			req.body,

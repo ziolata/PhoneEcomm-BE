@@ -37,9 +37,6 @@ const throwIfProductNameValueExists = async (name) => {
 };
 
 export const createProduct = async (data, imgFile) => {
-	if (imgFile) {
-		data.img = { size: imgFile.size };
-	}
 	const validData = handleValidate(productValidate, data);
 	await checkCategoryAndBrandExist(validData.category_id, validData.brand_id);
 	await throwIfProductNameValueExists(validData.name);
@@ -56,9 +53,6 @@ export const createProduct = async (data, imgFile) => {
 };
 
 export const updateProduct = async (id, data, imgFile) => {
-	if (imgFile) {
-		data.img = { size: imgFile.size };
-	}
 	const validData = handleValidate(updateProductValidate, data);
 	await getProductOrThrowById(id);
 	if (validData.category_id && validData.brand_id) {

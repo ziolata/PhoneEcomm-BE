@@ -20,10 +20,7 @@ const getCategoryOrThrowById = async (id) => {
 		throwError(404, "Danh mục không tồn tại!");
 	}
 };
-export const addCategory = async (data, imgFile) => {
-	if (imgFile) {
-		data.img = { size: imgFile.size };
-	}
+export const createCategory = async (data, imgFile) => {
 	const validData = handleValidate(categoryValidate, data);
 	await throwIfCategoryNameExists(validData.name);
 
@@ -40,16 +37,12 @@ export const addCategory = async (data, imgFile) => {
 
 export const updateCategory = async (id, data, imgFile) => {
 	await getCategoryOrThrowById(id);
-	// Gắn giá trị cho img nếu có file gửi lên
-	if (imgFile) {
-		data.img = { size: imgFile.size };
-	}
+
 	const validData = handleValidate(updateCategoryValidate, data);
 	// Kiêm tra tồn tại nếu có trường name cập nhật
 	if (validData.name) {
 		await throwIfCategoryNameExists(validData.name);
 	}
-	// Giá trị img tồn tại thì bắt đầu upload và lấy url upload gắn vào valid.img
 	if (validData.img) {
 		const image = await uploadImage(
 			imgFile.tempFilePath,

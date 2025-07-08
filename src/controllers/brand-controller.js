@@ -3,6 +3,9 @@ import { uploadImage } from "../utils/cloudinary-utils.js";
 
 export const createBrandController = async (req, res, next) => {
 	try {
+		if (req.files?.img) {
+			req.body.img = req.files.img;
+		}
 		const response = await Services.createBrand(req.body, req.files?.img);
 		return res.status(201).json(response);
 	} catch (error) {
@@ -13,6 +16,9 @@ export const createBrandController = async (req, res, next) => {
 export const updateBrandController = async (req, res, next) => {
 	try {
 		const { id } = req.params;
+		if (req.files?.img) {
+			req.body.img = req.files.img;
+		}
 		const response = await Services.updateBrand(id, req.body, req.files?.img);
 		return res.status(200).json(response);
 	} catch (error) {

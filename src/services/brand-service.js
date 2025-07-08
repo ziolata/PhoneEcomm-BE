@@ -21,10 +21,6 @@ const getBrandOrThrowById = async (id) => {
 	}
 };
 export const createBrand = async (data, imgFile) => {
-	// Gắn giá trị cho img nếu có file gửi lên
-	if (imgFile) {
-		data.img = { size: imgFile.size };
-	}
 	const validData = handleValidate(brandValidate, data);
 
 	await throwIfBrandNameExists(validData.name);
@@ -42,17 +38,11 @@ export const createBrand = async (data, imgFile) => {
 
 export const updateBrand = async (id, data, imgFile) => {
 	await getBrandOrThrowById(id);
-	if (imgFile) {
-		data.img = { size: imgFile.size };
-	}
 	const validData = handleValidate(updateBrandValidate, data);
-
 	// Kiểm tra tồn tại nếu có trường name cập nhật
 	if (validData.name) {
 		await throwIfBrandNameExists(validData.name);
 	}
-
-	// Giá trị img tồn tại thì bắt đầu upload và lấy url upload gắn vào valid.img
 	if (validData.img) {
 		const image = await uploadImage(
 			imgFile.tempFilePath,
